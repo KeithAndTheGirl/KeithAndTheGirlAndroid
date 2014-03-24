@@ -16,6 +16,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -150,16 +151,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         SyncResult result = new SyncResult();
         try {
 
-            if( null != extras && !extras.isEmpty() ) {
-                runOnDemandWorkItems( provider );
-            } else {
-                runScheduledWorkItems( provider );
-            }
+            Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_STATUS + "=?", new String[] { WorkItem.Status.NEVER.name() }, null );
+            do {
+                List<Job> jobs = queueScheduledWorkItems( provider );
+                Log.i( TAG, "onPerformSync : " + jobs.size() + " scheduled to run" );
 
-            getShows( provider );
-            getEvents( provider );
-            getLives( provider );
-            getRecentEpisodes( provider );
+                executeJobs( provider, jobs );
+
+                cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_STATUS + "=?", new String[] { WorkItem.Status.NEVER.name() }, null );
+            } while( cursor.getCount() > 0 );
+
+            cursor.close();
 
         } catch( RemoteException e ) {
             Log.e( TAG, "onPerformSync : error, RemoteException", e );
@@ -174,126 +176,102 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "onPerformSync : exit" );
     }
 
-    private void runScheduledWorkItems( ContentProviderClient provider ) throws RemoteException, IOException {
-        Log.v( TAG, "runScheduledWorkItems : enter" );
+    private List<Job> queueScheduledWorkItems( ContentProviderClient provider ) throws RemoteException, IOException {
+        Log.v( TAG, "queueScheduledWorkItems : enter" );
 
-        List<Endpoint.Type> types = new ArrayList<Endpoint.Type>();
+        List<Job> jobs = new ArrayList<Job>();
 
-        Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, "NOT " + WorkItem.FIELD_FREQUENCY + "=?", new String[] { WorkItem.Type.ON_DEMAND.name() }, null );
-        if( cursor.getCount() == 0 ) {
+        Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_STATUS + "=?", new String[] { WorkItem.Status.NEVER.name() }, null );
+        while( cursor.moveToNext() ) {
 
-            Log.v( TAG, "runScheduledWorkItems : getting shows" );
-            getShows( provider );
+            Job job = new Job();
 
-        } else {
-            while( cursor.moveToNext() ) {
+            Long id = cursor.getLong( cursor.getColumnIndex( WorkItem._ID ) );
+            job.setId( id );
 
-                Endpoint.Type type = Endpoint.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ENDPOINT ) ) );
-                types.add( type );
+            Endpoint.Type type = Endpoint.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ENDPOINT ) ) );
+            job.setType(type);
 
-            }
+            String address = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ADDRESS ) );
+            String parameters = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_PARAMETERS ) );
+            job.setUrl(address + parameters);
+
+            WorkItem.Status status = WorkItem.Status.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
+            job.setStatus(status);
+
+            jobs.add( job );
         }
         cursor.close();
 
-        if( !types.isEmpty() ) {
-            for( Endpoint.Type type : types ) {
+        Log.v( TAG, "runScheduledWorkItems : exit" );
+        return jobs;
+    }
 
-                switch( type ) {
+    private void executeJobs( ContentProviderClient provider, List<Job> jobs ) throws RemoteException, IOException {
+        Log.v( TAG, "executeJobs : enter" );
+
+        if( !jobs.isEmpty() ) {
+
+            for( Job job : jobs ) {
+
+                switch( job.getType() ) {
 
                     case OVERVIEW:
                         Log.v( TAG, "runScheduledWorkItems : refreshing shows" );
 
-                        getShows( provider );
+                        getShows( provider, job );
 
                         break;
 
                     case EVENTS:
                         Log.v( TAG, "runScheduledWorkItems : refreshing events" );
 
-                        getEvents( provider );
+                        getEvents( provider, job );
 
                         break;
 
                     case LIVE:
                         Log.v( TAG, "runScheduledWorkItems : refreshing live status" );
 
-                        getLives( provider );
+                        getLives( provider, job );
+
+                        break;
+
+                    case LIST:
+                        Log.v( TAG, "runScheduledWorkItems : refreshing episode list" );
+
+                        getEpisodes( provider, job );
 
                         break;
 
                     case RECENT:
                         Log.v( TAG, "runScheduledWorkItems : refreshing recent episodes" );
 
-                        getRecentEpisodes( provider );
+                        getRecentEpisodes( provider, job );
 
                         break;
 
                     default:
-                        Log.w( TAG, "runScheduledWorkItems : Scheduled '" + type.name() + "' not supported" );
+                        Log.w( TAG, "runScheduledWorkItems : Scheduled '" + job.getType().name() + "' not supported" );
 
                 }
             }
         }
 
-        Log.v( TAG, "runScheduledWorkItems : exit" );
+        Log.v( TAG, "executeJobs : exit" );
     }
 
-    private void runOnDemandWorkItems( ContentProviderClient provider ) throws RemoteException, IOException {
-        Log.v( TAG, "runOnDemandWorkItems : enter" );
-
-        List<Endpoint.Type> types = new ArrayList<Endpoint.Type>();
-
-        Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_FREQUENCY + "=?", new String[] { WorkItem.Type.ON_DEMAND.name() }, null );
-        while( cursor.moveToNext() ) {
-
-            Endpoint.Type type = Endpoint.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ENDPOINT ) ) );
-            types.add( type );
-
-        }
-        cursor.close();
-
-        if( !types.isEmpty() ) {
-            for( Endpoint.Type type : types ) {
-
-                switch( type ) {
-
-                    case RECENT:
-                        Log.v( TAG, "runOnDemandWorkItems : refreshing recent episodes" );
-
-                        getRecentEpisodes( provider );
-
-                        break;
-
-                    default:
-                        Log.w( TAG, "runOnDemandWorkItems : OnDemand '" + type.name() + "' not supported" );
-
-                }
-            }
-        }
-
-        Log.v(TAG, "runOnDemandWorkItems : exit");
-    }
-
-    private void getShows( ContentProviderClient provider ) throws RemoteException, IOException {
-        Log.v( TAG, "getShows : enter" );
-
-        String address = "";
-        Cursor cursor = provider.query( Endpoint.CONTENT_URI, null, Endpoint.FIELD_TYPE + "=?", new String[] { Endpoint.Type.OVERVIEW.name() }, null );
-        while( cursor.moveToNext() ) {
-
-            address = cursor.getString( cursor.getColumnIndex( Endpoint.FIELD_URL ) );
-
-        }
-        cursor.close();
+    private void getShows( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+        Log.v(TAG, "getShows : enter");
 
         try {
 
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getShows : network is available" );
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork( address );
+                JSONArray jsonArray = loadJsonArrayFromNetwork( job.getUrl() );
                 Log.i( TAG, "getShows : jsonArray=" + jsonArray.toString() );
-                processShows( jsonArray, provider );
+                processShows( jsonArray, provider, job );
             }
 
         } catch( Exception e ) {
@@ -303,26 +281,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "getShows : exit" );
     }
 
-    private void getEvents( ContentProviderClient provider ) throws RemoteException, IOException {
+    private void getEvents( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
         Log.v( TAG, "getEvents : enter" );
-
-        String address = "";
-        Cursor cursor = provider.query( Endpoint.CONTENT_URI, null, Endpoint.FIELD_TYPE + "=?", new String[] { Endpoint.Type.EVENTS.name() }, null );
-        while( cursor.moveToNext() ) {
-
-            address = cursor.getString( cursor.getColumnIndex( Endpoint.FIELD_URL ) );
-
-        }
-        cursor.close();
 
         try {
 
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEvents : network is available" );
 
-                JSONObject json = loadJsonFromNetwork(address);
+                JSONObject json = loadJsonFromNetwork(job.getUrl());
                 Log.i( TAG, "getEvents : json=" + json.toString() );
-                processEvents(json, provider);
+                processEvents(json, provider, job);
             }
 
         } catch( Exception e ) {
@@ -332,26 +301,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "getEvents : exit" );
     }
 
-    private void getLives( ContentProviderClient provider ) throws RemoteException, IOException {
-        Log.v( TAG, "getLives : enter" );
-
-        String address = "";
-        Cursor cursor = provider.query( Endpoint.CONTENT_URI, null, Endpoint.FIELD_TYPE + "=?", new String[] { Endpoint.Type.LIVE.name() }, null );
-        while( cursor.moveToNext() ) {
-
-            address = cursor.getString( cursor.getColumnIndex( Endpoint.FIELD_URL ) );
-
-        }
-        cursor.close();
+    private void getLives( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+        Log.v(TAG, "getLives : enter");
 
         try {
 
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEvents : network is available" );
 
-                JSONObject json = loadJsonFromNetwork(address);
+                JSONObject json = loadJsonFromNetwork( job.getUrl() );
                 Log.i( TAG, "getLives : json=" + json.toString() );
-                processLives(json, provider);
+                processLives(json, provider, job);
             }
 
         } catch( Exception e ) {
@@ -361,30 +321,65 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "getLives : exit" );
     }
 
-    private void getRecentEpisodes( ContentProviderClient provider ) throws RemoteException, IOException {
-        Log.v( TAG, "RecentEpisodes : enter" );
+    private void getEpisodes( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+        Log.v( TAG, "getEpisodes : enter" );
 
-        String address = "";
-        Cursor cursor = provider.query( Endpoint.CONTENT_URI, null, Endpoint.FIELD_TYPE + "=?", new String[] { Endpoint.Type.RECENT.name() }, null );
-        while( cursor.moveToNext() ) {
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
 
-            address = cursor.getString( cursor.getColumnIndex( Endpoint.FIELD_URL ) );
+        try {
 
+            if( wifiConnected || mobileConnected ) {
+                Log.v( TAG, "getEpisodes : network is available" );
+
+                JSONArray jsonArray = loadJsonArrayFromNetwork(job.getUrl());
+                Log.i( TAG, "getEpisodes : jsonArray=" + jsonArray.toString() );
+                processEpisodes(jsonArray, provider, job.getType());
+            }
+
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+
+        } catch( Exception e ) {
+            Log.e(TAG, "getEpisodes : error", e);
+
+            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
         }
-        cursor.close();
+
+        Log.v( TAG, "getEpisodes : exit" );
+    }
+
+    private void getRecentEpisodes( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+        Log.v( TAG, "getRecentEpisodes : enter" );
+
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
 
         try {
 
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getRecentEpisodes : network is available" );
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork(address);
+                JSONArray jsonArray = loadJsonArrayFromNetwork( job.getUrl() );
                 Log.i( TAG, "getRecentEpisodes : jsonArray=" + jsonArray.toString() );
-                processEpisodes( jsonArray, provider, Endpoint.Type.RECENT );
+                processEpisodes( jsonArray, provider, job.getType() );
             }
+
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getRecentEpisodes : error", e);
+
+            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "getRecentEpisodes : exit" );
@@ -529,8 +524,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void processShows( JSONArray jsonArray, ContentProviderClient provider ) {
+    private void processShows( JSONArray jsonArray, ContentProviderClient provider, Job job ) throws RemoteException {
         Log.v( TAG, "processShows : enter" );
+
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
             int count = 0, loaded = 0;
@@ -598,6 +598,33 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
                 count++;
 
+                if( WorkItem.Status.NEVER.equals( job.getStatus() ) ) {
+
+                    if( showNameId >  1 ) {
+                        Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
+
+                        values = new ContentValues();
+                        values.put( WorkItem.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
+                        values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Type.DAILY.name() );
+                        values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.LIST.name() );
+                        values.put( WorkItem.FIELD_ADDRESS, Endpoint.LIST );
+                        values.put( WorkItem.FIELD_PARAMETERS, "?shownameid=" + showNameId );
+                        values.put( WorkItem.FIELD_LAST_RUN, -1 );
+                        values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+                        values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+                        ops.add(
+                                ContentProviderOperation.newInsert(WorkItem.CONTENT_URI)
+                                        .withValues(values)
+                                        .withYieldAllowed(true)
+                                        .build()
+                        );
+                        count++;
+
+                    }
+
+                }
+
                 if( count > 100 ) {
                     Log.v( TAG, "processShows : applying batch for '" + count + "' transactions" );
 
@@ -628,15 +655,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Log.i( TAG, "processShows : shows loaded '" + loaded + "'" );
 
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+
         } catch( Exception e ) {
             Log.e( TAG, "processShows : error", e );
+
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "processShows : exit" );
     }
 
-    private void processEvents( JSONObject jsonObject, ContentProviderClient provider ) throws RemoteException {
+    private void processEvents( JSONObject jsonObject, ContentProviderClient provider, Job job ) throws RemoteException {
         Log.v( TAG, "processEvents : enter" );
+
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
 
         try {
             int count = 0, loaded = 0;
@@ -650,7 +689,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 JSONObject json = jsonObject.getJSONArray( "events" ).getJSONObject(i);
                 Log.v( TAG, "processEvents : json=" + json.toString() );
 
-                String eventId = json.getString("eventid");
+                String eventId = json.getString( "eventid" );
 
                 DateTime startDate = new DateTime();
                 try {
@@ -735,28 +774,48 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Log.i( TAG, "processEvents : events loaded '" + loaded + "'" );
 
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+
         } catch( Exception e ) {
             Log.e( TAG, "processEvents : error", e );
+
+            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v(TAG, "processEvents : exit");
     }
 
-    private void processLives( JSONObject jsonObject, ContentProviderClient provider ) throws RemoteException {
+    private void processLives( JSONObject jsonObject, ContentProviderClient provider, Job job ) throws RemoteException {
         Log.v( TAG, "processLives : enter" );
 
-            int broadcasting = 0;
-            try {
-                broadcasting = jsonObject.getBoolean( "broadcasting" ) ? 1 : 0;
-            } catch( Exception e ) {
-                Log.w( TAG, "processLives : broadcasting format is not valid" );
-            }
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
+
+        int broadcasting = 0;
+        try {
+            broadcasting = jsonObject.getBoolean( "broadcasting" ) ? 1 : 0;
 
             ContentValues values = new ContentValues();
             values.put( Live.FIELD_BROADCASTING, broadcasting );
             values.put( Live.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
             provider.update( ContentUris.withAppendedId( Live.CONTENT_URI, 1 ), values, null, null );
+
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+
+        } catch( Exception e ) {
+            Log.w( TAG, "processLives : broadcasting format is not valid" );
+
+            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+        }
 
         Log.v( TAG, "processLives : exit" );
     }
@@ -808,6 +867,34 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.w( TAG, "processEpisodes : FileUrl format is not valid or does not exist" );
                 }
 
+                int length = -1;
+                try {
+                    length = json.getInt("Length");
+                } catch( Exception e ) {
+                    Log.w( TAG, "processEpisodes : Length format is not valid or not present" );
+                }
+
+                int fileSize = -1;
+                try {
+                    fileSize = json.getInt( "FileSize" );
+                } catch( Exception e ) {
+                    Log.w( TAG, "processEpisodes : FileSize format is not valid or not present" );
+                }
+
+                int vip = 0;
+                try {
+                    vip = json.getInt( "public" );
+                } catch( Exception e ) {
+                    Log.w( TAG, "processEpisodes : Public format is not valid or not present" );
+                }
+
+                int showNameId = -1;
+                try {
+                    showNameId = json.getInt( "ShowNameId" );
+                } catch( Exception e ) {
+                    Log.w( TAG, "processEpisodes : ShowNameId format is not valid or not present" );
+                }
+
                 values = new ContentValues();
                 values.put( Episode._ID, showId );
                 values.put( Episode.FIELD_NUMBER, json.getInt( "Number" ) );
@@ -815,12 +902,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( Episode.FIELD_PREVIEWURL, previewUrl );
                 values.put( Episode.FIELD_FILEURL, fileUrl );
                 values.put( Episode.FIELD_FILENAME, fileName );
-                values.put( Episode.FIELD_LENGTH, json.getInt( "Length" ) );
-                values.put( Episode.FIELD_FILESIZE, json.getInt( "FileSize" ) );
+                values.put( Episode.FIELD_LENGTH, length );
+                values.put( Episode.FIELD_FILESIZE, fileSize );
                 values.put( Episode.FIELD_TYPE, json.getInt( "Type" ) );
-                values.put( Episode.FIELD_PUBLIC, json.getInt( "Public" ) );
+                values.put( Episode.FIELD_PUBLIC, vip );
                 values.put( Episode.FIELD_TIMESTAMP, posted.getMillis() );
-                values.put( Episode.FIELD_SHOWNAMEID, json.getInt( "ShowNameId" ) );
+                values.put( Episode.FIELD_SHOWNAMEID, showNameId );
                 values.put( Episode.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
                 Cursor cursor = provider.query( ContentUris.withAppendedId( Episode.CONTENT_URI, showId ), projection, null, null, null );
@@ -1103,4 +1190,44 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "processEpisodeDetails : exit" );
     }
 
+    private class Job {
+
+        private Long id;
+        private Endpoint.Type type;
+        private String url;
+        private WorkItem.Status status;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId( Long id ) {
+            this.id = id;
+        }
+
+        public Endpoint.Type getType() {
+            return type;
+        }
+
+        public void setType( Endpoint.Type type ) {
+            this.type = type;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl( String url ) {
+            this.url = url;
+        }
+
+        public WorkItem.Status getStatus() {
+            return status;
+        }
+
+        public void setStatus( WorkItem.Status status ) {
+            this.status = status;
+        }
+
+    }
 }

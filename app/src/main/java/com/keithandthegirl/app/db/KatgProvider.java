@@ -660,67 +660,157 @@ public class KatgProvider extends ContentProvider {
         switch( URI_MATCHER.match( uri ) ) {
 
             case Show.ALL:
-                return db.update( Show.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( Show.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Show.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( Show.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( Show.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Event.ALL:
-                return db.update( Event.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( Event.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Event.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( Event.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( Event.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Live.ALL:
-                return db.update( Live.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( Live.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Live.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( Live.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( Live.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Guest.ALL:
-                return db.update( Guest.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( Guest.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Guest.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( Guest.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( Guest.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Episode.ALL:
-                return db.update( Episode.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( Episode.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Episode.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( Episode.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( Episode.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Detail.ALL:
-                return db.update( Detail.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( Detail.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Detail.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( Detail.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( Detail.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Image.ALL:
-                return db.update( Image.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( Image.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case Image.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( Image.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( Image.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case EpisodeGuests.ALL:
-                return db.update( EpisodeGuests.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( EpisodeGuests.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case EpisodeGuests.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( EpisodeGuests.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( EpisodeGuests.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case WorkItem.ALL:
-                return db.update( WorkItem.TABLE_NAME, values, selection, selectionArgs );
+
+                affected = db.update( WorkItem.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             case WorkItem.SINGLE:
+
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                return db.update( WorkItem.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( WorkItem.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
 
             default:
                 throw new IllegalArgumentException( "Unknown URI " + uri );

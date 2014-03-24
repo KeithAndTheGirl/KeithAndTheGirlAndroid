@@ -41,11 +41,11 @@ public class MainActivity extends Activity implements ShowsFragment.OnShowSelect
 
         if( savedInstanceState == null ) {
             getFragmentManager().beginTransaction()
-                    .add( R.id.container, new ShowsFragment() )
+                    .add( R.id.container, new ShowsFragment() )  // WorkFragment()
                     .commit();
         }
 
-        mAccount = MainApplication.CreateSyncAccount(this);
+        mAccount = MainApplication.CreateSyncAccount( this );
 
         ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
 

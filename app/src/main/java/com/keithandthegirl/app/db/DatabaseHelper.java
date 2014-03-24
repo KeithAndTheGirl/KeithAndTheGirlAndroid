@@ -53,6 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         dropTables(db);
 
+        createTableWorkItems( db );
         createTableEndpoints( db );
         createTableShows( db );
         createTableLive( db );
@@ -173,6 +174,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.v( TAG, "createTableWorkItems : sql=" + sql );
         }
         db.execSQL(sql);
+
+        DateTime now = new DateTime( DateTimeZone.UTC );
+        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Shows", WorkItem.Type.WEEKLY, Endpoint.Type.OVERVIEW.name(), Endpoint.OVERVIEW, "", -1, WorkItem.Status.NEVER, now.getMillis() } );
+        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Events", WorkItem.Type.DAILY, Endpoint.Type.EVENTS.name(), Endpoint.EVENTS, "", -1, WorkItem.Status.NEVER, now.getMillis() } );
+        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Broadcasting", WorkItem.Type.HOURLY, Endpoint.Type.LIVE.name(), Endpoint.LIVE, "", -1, WorkItem.Status.NEVER, now.getMillis() } );
+        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Recent Episodes", WorkItem.Type.HOURLY, Endpoint.Type.RECENT.name(), Endpoint.RECENT, "", -1, WorkItem.Status.NEVER, now.getMillis() } );
 
         Log.v( TAG, "createTableWorkItems : exit" );
     }
