@@ -37,6 +37,7 @@ proguard/
 .idea/tasks.xml
 .idea/datasources.xml
 .idea/dataSources.ids
+.idea/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -53,3 +54,5 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+.gitignore.orig
