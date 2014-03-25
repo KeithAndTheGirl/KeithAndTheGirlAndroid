@@ -29,7 +29,11 @@ public class KatgAlarmReceiver extends WakefulBroadcastReceiver {
     public void onReceive( Context context, Intent intent ) {
         Log.i( TAG, "onReceive : enter" );
 
+        WorkItem.Type type = WorkItem.Type.valueOf( intent.getStringExtra( WorkItem.FIELD_FREQUENCY ) );
+        Log.i( TAG, "onReceive : executing sync service for '" + type.name() + "' jobs" );
+
         Intent service = new Intent( context, KatgSchedulingService.class );
+        service.putExtra( WorkItem.FIELD_FREQUENCY, type.name() );
 
         startWakefulService( context, service );
 
