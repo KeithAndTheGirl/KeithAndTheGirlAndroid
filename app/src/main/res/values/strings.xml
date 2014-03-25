@@ -4,5 +4,6 @@
     <string name="app_name">KeithAndTheGirl</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="action_work_items">Work Items</string>
 
 </resources>

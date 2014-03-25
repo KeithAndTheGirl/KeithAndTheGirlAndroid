@@ -151,6 +151,28 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         SyncResult result = new SyncResult();
         try {
 
+            if( null != extras && !extras.isEmpty() ) {
+
+                if( extras.containsKey( WorkItem.FIELD_FREQUENCY ) ) {
+
+                    WorkItem.Type type = WorkItem.Type.valueOf( extras.getString( WorkItem.FIELD_FREQUENCY ) );
+                    Log.v( TAG, "onPerformSync : running '" + type.name() + "' scheduled jobs" );
+
+                    Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_FREQUENCY + "=?", new String[] { type.name() }, null );
+                    while( cursor.moveToNext() ) {
+
+                        List<Job> jobs = queueScheduledWorkItems( provider );
+                        Log.i( TAG, "onPerformSync : " + jobs.size() + " scheduled to run" );
+
+                        executeJobs( provider, jobs );
+
+                    }
+                    cursor.close();
+
+                }
+
+            }
+
             Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_STATUS + "=?", new String[] { WorkItem.Status.NEVER.name() }, null );
             do {
                 List<Job> jobs = queueScheduledWorkItems( provider );

@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
@@ -60,6 +61,18 @@
                 android:resource="@xml/syncadapter" />
 
         </service>
+
+        <service android:name=".db.schedule.KatgSchedulingService" />
+
+        <!-- KATG Receivers -->
+        <receiver android:name=".db.schedule.KatgAlarmReceiver" android:enabled="true" />
+
+        <receiver android:name=".db.schedule.KatgBootReceiver"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
 
         <!-- KATG Providers -->
         <provider

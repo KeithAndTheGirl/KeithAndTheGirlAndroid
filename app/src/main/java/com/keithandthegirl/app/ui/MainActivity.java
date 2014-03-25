@@ -24,12 +24,15 @@ import com.keithandthegirl.app.db.model.Endpoint;
 import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 
 
 public class MainActivity extends Activity implements ShowsFragment.OnShowSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    KatgAlarmReceiver alarm = new KatgAlarmReceiver();
     Account mAccount;
 
     @Override
@@ -47,14 +50,25 @@ public class MainActivity extends Activity implements ShowsFragment.OnShowSelect
 
         mAccount = MainApplication.CreateSyncAccount( this );
 
-        ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
+        boolean neverRun = false;
+        Cursor cursor = getContentResolver().query( Show.CONTENT_URI, null, null, null, null );
+        if( cursor.getCount() == 0 ) {
+            neverRun = true;
+        }
+        cursor.close();
 
-        Bundle settingsBundle = new Bundle();
-        settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
-        settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
+        if( neverRun ) {
+            ContentResolver.setSyncAutomatically(mAccount, KatgProvider.AUTHORITY, true);
 
-        Log.v( TAG, "onCreate : requesting sync" );
-        ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
+            Bundle settingsBundle = new Bundle();
+            settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
+            settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
+
+            Log.v( TAG, "onCreate : requesting sync" );
+            ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
+        }
+
+        alarm.setAlarm( this );
 
     }
 
@@ -76,6 +90,24 @@ public class MainActivity extends Activity implements ShowsFragment.OnShowSelect
         int id = item.getItemId();
         if( id == R.id.action_settings ) {
             return true;
+        }
+
+        switch( id ) {
+            case R.id.action_settings :
+                return true;
+
+            case R.id.action_work_items :
+
+                WorkFragment newFragment = new WorkFragment();
+
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace( R.id.container, newFragment );
+                transaction.addToBackStack( null );
+
+                // Commit the transaction
+                transaction.commit();
+
+                return true;
         }
 
         return super.onOptionsItemSelected( item );
