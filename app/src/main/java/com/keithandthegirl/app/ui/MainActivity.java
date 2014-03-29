@@ -28,7 +28,7 @@ import com.keithandthegirl.app.db.model.WorkItem;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 
 
-public class MainActivity extends Activity implements ShowsFragment.OnShowSelectedListener {
+public class MainActivity extends Activity implements ShowsGridFragment.OnShowSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -44,7 +44,7 @@ public class MainActivity extends Activity implements ShowsFragment.OnShowSelect
 
         if( savedInstanceState == null ) {
             getFragmentManager().beginTransaction()
-                    .add( R.id.container, new ShowsFragment() )  // WorkFragment()
+                    .add( R.id.container, new ShowsGridFragment() )  // WorkFragment()
                     .commit();
         }
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/show_grid_item_coverimage"
+        android:layout_width="150dp"
+        android:layout_height="150dp" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:background="@color/main_name">
+
+        <TextView
+            android:id="@+id/show_grid_item_vip"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="VIP"
+            android:gravity="center"
+            android:background="@color/main_vip"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+        />
+
+        <TextView
+            android:id="@+id/show_grid_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="Show Name that wraps below"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:layout_toEndOf="@id/show_grid_item_vip"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+        />
+
+    </RelativeLayout>
+
+</LinearLayout>

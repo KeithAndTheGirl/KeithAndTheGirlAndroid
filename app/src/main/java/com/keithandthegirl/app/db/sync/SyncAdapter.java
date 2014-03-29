@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -43,6 +45,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -438,8 +441,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private JSONObject loadJsonFromNetwork( String url ) throws IOException, JSONException {
         Log.v( TAG, "loadJsonFromNetwork : enter" );
-        InputStream stream = null;
 
+        InputStream stream = null;
         JSONObject json = null;
         String result = null;
 
@@ -473,6 +476,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private JSONArray loadJsonArrayFromNetwork( String url ) throws IOException, JSONException {
         Log.v( TAG, "loadJsonArrayFromNetwork : enter" );
+
         InputStream stream = null;
 
         JSONArray jsonArray = null;
@@ -504,6 +508,57 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         Log.v( TAG, "loadJsonArrayFromNetwork : exit" );
         return jsonArray;
+    }
+
+    private void saveImage( String showPrefix, String url, boolean generateThumbnail ) throws IOException {
+        Log.v( TAG, "saveImage : enter" );
+
+        String filename = showPrefix + "_600x600.jpg";
+
+        Bitmap bitmap = loadBitmapFromNetwork( url );
+
+        FileOutputStream fos = mContext.openFileOutput( filename, Context.MODE_PRIVATE );
+        bitmap.compress( Bitmap.CompressFormat.JPEG, 100, fos );
+        fos.close();
+
+        if( generateThumbnail ) {
+            Log.v( TAG, "saveImage : generate thumbnail for image" );
+
+            String thumbnailFilename = filename.replace( "600", "150" );
+
+            Bitmap thumbnail = Bitmap.createScaledBitmap( bitmap, 150, 150, false );
+            fos = mContext.openFileOutput( thumbnailFilename, Context.MODE_PRIVATE );
+            thumbnail.compress( Bitmap.CompressFormat.JPEG, 100, fos );
+            fos.close();
+        }
+
+        Log.v( TAG, "saveImage : exit" );
+    }
+
+    private Bitmap loadBitmapFromNetwork( String url ) throws IOException {
+        Log.v( TAG, "loadBitmapFromNetwork : enter" );
+
+        InputStream stream = null;
+        Bitmap bitmap = null;
+
+        try {
+
+            stream = downloadUrl( url );
+
+            bitmap = BitmapFactory.decodeStream( stream );
+
+        } finally {
+
+            // Makes sure that the InputStream is closed after the app is
+            // finished using it.
+            if( null != stream  ) {
+                stream.close();
+            }
+
+        }
+
+        Log.v( TAG, "loadBitmapFromNetwork : exit" );
+        return bitmap;
     }
 
     // Given a string representation of a URL, sets up a connection and gets
@@ -582,14 +637,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.w( TAG, "processShows : SortOrder format is not valid" );
                 }
 
+                String prefix = json.getString( "Prefix" );
+                String coverImageUrl = json.getString( "CoverImageUrl" );
+
                 values = new ContentValues();
                 values.put( Show._ID, showNameId );
                 values.put( Show.FIELD_NAME, json.getString( "Name" ) );
-                values.put( Show.FIELD_PREFIX, json.getString( "Prefix" ) );
+                values.put( Show.FIELD_PREFIX, prefix );
                 values.put( Show.FIELD_VIP, vip );
                 values.put( Show.FIELD_SORTORDER, sortOrder );
                 values.put( Show.FIELD_DESCRIPTION, json.getString( "Description" ) );
-                values.put( Show.FIELD_COVERIMAGEURL, json.getString( "CoverImageUrl" ) );
+                values.put( Show.FIELD_COVERIMAGEURL, coverImageUrl );
                 values.put( Show.FIELD_FORUMURL, json.getString( "ForumUrl" ) );
                 values.put( Show.FIELD_PREVIEWURL, json.getString( "PreviewUrl" ) );
                 values.put( Show.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
@@ -619,6 +677,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
                 cursor.close();
                 count++;
+
+                saveImage( prefix, coverImageUrl, true );
 
                 if( WorkItem.Status.NEVER.equals( job.getStatus() ) ) {
 

@@ -21,6 +21,8 @@ import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.WorkItem;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  * Created by dmfrey on 3/21/14.
@@ -79,6 +81,8 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
     private class WorkItemCursorAdapter extends CursorAdapter {
 
+        private final DateTimeFormatter fmt = DateTimeFormat.forPattern( "yyyy-MM-dd HH:mm:ss" );
+
         private Context mContext;
         private LayoutInflater mInflater;
 
@@ -97,6 +101,7 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
             ViewHolder refHolder = new ViewHolder();
             refHolder.name = (TextView) view.findViewById( R.id.work_item_name );
             refHolder.status = (TextView) view.findViewById( R.id.work_item_status );
+            refHolder.frequency = (TextView) view.findViewById( R.id.work_item_frequency );
             refHolder.lastRun = (TextView) view.findViewById( R.id.work_item_last_run );
 
             view.setTag( refHolder );
@@ -110,14 +115,15 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             mHolder.name.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_NAME ) ) );
-            mHolder.status.setText( cursor.getString(cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
+            mHolder.status.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
+            mHolder.frequency.setText(cursor.getString(cursor.getColumnIndex(WorkItem.FIELD_FREQUENCY)));
 
             long instant = cursor.getLong( cursor.getColumnIndex( WorkItem.FIELD_LAST_RUN ) );
             if( instant < 0 ) {
                 mHolder.lastRun.setText( "" );
             } else {
                 DateTime lastRun = new DateTime( instant );
-                mHolder.lastRun.setText( lastRun.toString() );
+                mHolder.lastRun.setText( fmt.print( lastRun ) );
             }
         }
 
@@ -127,6 +133,7 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
         TextView name;
         TextView status;
+        TextView frequency;
         TextView lastRun;
 
         ViewHolder() { }
