@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp">
+
+        <TextView
+            android:id="@+id/episode_number"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".50"
+            android:textColor="@color/show_title"
+            android:text="number" />
+
+        <TextView
+            android:id="@+id/episode_date"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".50"
+            android:textColor="@android:color/black"
+            android:gravity="right"
+            android:textAlignment="gravity"
+            android:text="date" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/episode_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".10"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="title" />
+
+        <ImageView
+            android:id="@+id/episode_details"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".90"
+            android:gravity="right"
+            android:textAlignment="gravity"
+            android:src="@drawable/next_arrow" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp">
+
+        <TextView
+            android:id="@+id/episode_guests_label"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".85"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/episode_guests_label"
+        />
+
+        <TextView
+            android:id="@+id/episode_guest_names"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/black"
+            android:layout_weight=".15"
+            android:text="@string/episode_no_guests"
+        />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/episode_guest_images"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+    />
+
+    <LinearLayout
+        android:id="@+id/episode_status"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@color/show_status">
+
+        <TextView
+            android:id="@+id/episode_played"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/episode_not_played"
+        />
+
+        <TextView
+            android:id="@+id/episode_downloaded"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/episode_not_downloaded"
+        />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/SplitLine_ver1"
+        android:layout_width="match_parent"
+        android:layout_height= "2dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/show_status" />
+
+</LinearLayout>

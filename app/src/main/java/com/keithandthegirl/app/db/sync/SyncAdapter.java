@@ -569,8 +569,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         long currentTime = System.currentTimeMillis();
         InputStream stream = null;
 
-        TrafficStats.setThreadStatsTag( 0xF00D );
-        try {
+//        TrafficStats.setThreadStatsTag( 0xF00D );
+//        try {
             URL url = new URL( address );
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout( 10000 /* milliseconds */ );
@@ -581,9 +581,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             // Starts the query
             conn.connect();
             stream = conn.getInputStream();
-        } finally {
-            TrafficStats.clearThreadStatsTag();
-        }
+//        } finally {
+//            TrafficStats.clearThreadStatsTag();
+//        }
 
         Log.v( TAG, "downloadUrl : exit" );
         return stream;

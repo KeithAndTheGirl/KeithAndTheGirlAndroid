@@ -2,8 +2,13 @@
 <resources>
 
     <string name="app_name">KeithAndTheGirl</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="action_work_items">Work Items</string>
+
+    <string name="episode_label">EPISODE</string>
+    <string name="episode_guests_label">Guests</string>
+    <string name="episode_no_guests">No Guests</string>
+    <string name="episode_not_played">Not Played</string>
+    <string name="episode_not_downloaded">Not Downloaded</string>
 
 </resources>

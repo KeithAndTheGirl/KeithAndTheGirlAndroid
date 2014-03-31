@@ -1,13 +1,15 @@
 package com.keithandthegirl.app.ui;
 
+
 import android.accounts.Account;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,11 +26,10 @@ import com.keithandthegirl.app.db.model.Endpoint;
 import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.Show;
-import com.keithandthegirl.app.db.model.WorkItem;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 
 
-public class MainActivity extends Activity implements ShowsGridFragment.OnShowSelectedListener {
+public class MainActivity extends ActionBarActivity implements ShowsGridFragment.OnShowSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -37,13 +38,13 @@ public class MainActivity extends Activity implements ShowsGridFragment.OnShowSe
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
-        Log.d( TAG, "onCreate : enter" );
+        Log.d(TAG, "onCreate : enter");
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_main );
 
         if( savedInstanceState == null ) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add( R.id.container, new ShowsGridFragment() )  // WorkFragment()
                     .commit();
         }
@@ -100,7 +101,7 @@ public class MainActivity extends Activity implements ShowsGridFragment.OnShowSe
 
                 WorkFragment newFragment = new WorkFragment();
 
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace( R.id.container, newFragment );
                 transaction.addToBackStack( null );
 
@@ -117,21 +118,21 @@ public class MainActivity extends Activity implements ShowsGridFragment.OnShowSe
     public void onShowSelected( long showNameId ) {
         Log.d( TAG, "onShowSelected : enter" );
 
-        EpisodesFragment episodesFrag = (EpisodesFragment) getFragmentManager().findFragmentById( R.id.frag );
+        ShowFragment showFragment = (ShowFragment) getSupportFragmentManager().findFragmentById( R.id.frag );
 
-        if( null != episodesFrag ) {
+        if( null != showFragment ) {
 
-            episodesFrag.updateEpisodesView( showNameId );
+            showFragment.updateShow(showNameId);
 
         } else {
 
             // Create fragment and give it an argument for the selected article
-            EpisodesFragment newFragment = new EpisodesFragment();
+            ShowFragment newFragment = new ShowFragment();
             Bundle args = new Bundle();
-            args.putLong(EpisodesFragment.SHOW_NAME_ID_KEY, showNameId);
+            args.putLong( ShowFragment.SHOW_NAME_ID_KEY, showNameId );
             newFragment.setArguments( args );
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
@@ -201,7 +202,7 @@ public class MainActivity extends Activity implements ShowsGridFragment.OnShowSe
                 }
                 cursor.close();
 
-                cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( Live.CONTENT_URI, 1 ), null, null, null, null );
+                cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId(Live.CONTENT_URI, 1), null, null, null, null );
                 while( cursor.moveToNext() ) {
 
                     boolean broadcasting = cursor.getInt( cursor.getColumnIndex( Live.FIELD_BROADCASTING ) ) == 1 ? true : false;

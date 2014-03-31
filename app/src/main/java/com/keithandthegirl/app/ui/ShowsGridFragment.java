@@ -1,26 +1,23 @@
 package com.keithandthegirl.app.ui;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.ListFragment;
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
@@ -163,11 +160,10 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             String prefix = cursor.getString(cursor.getColumnIndex(Show.FIELD_PREFIX));
             boolean vip = cursor.getLong( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 0 ? false : true;
 
-
             String filename = prefix + "_150x150.jpg";
             Log.i( TAG, "bindView : filename=" + filename );
 
-            Bitmap bitmap = BitmapFactory.decodeFile( mContext.getFileStreamPath( filename ).getAbsolutePath() );
+            Bitmap bitmap = BitmapFactory.decodeFile(mContext.getFileStreamPath(filename).getAbsolutePath());
 
             mHolder.coverImage.setImageBitmap( bitmap );
             mHolder.name.setText( name );
