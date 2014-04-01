@@ -13,10 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.utils.ImageUtils;
+
+import java.io.File;
 
 /**
  * Created by dmfrey on 3/30/14.
@@ -72,11 +76,23 @@ public class ShowHeaderFragment extends Fragment {
         Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( Show.CONTENT_URI, showNameId ), projection, null, null, null );
         if( cursor.moveToNext() ) {
 
-            String filename = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) ) + "_150x150.jpg";
+            String filename = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) ) + "_600x600.jpg";
+            String path = mContext.getFileStreamPath( filename ).getAbsolutePath();
 
-            Bitmap bitmap = BitmapFactory.decodeFile( mContext.getFileStreamPath( filename ).getAbsolutePath() );
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile( path, options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+            String imageType = options.outMimeType;
 
-            mCoverImageView.setImageBitmap( bitmap );
+            float aspectRatio = imageWidth / imageHeight;
+            float newWidth = imageWidth * 150 / imageHeight;
+
+            Log.v( TAG, "updateHeader : original image info (hxw) - " + imageHeight + "x" + imageWidth + ", aspectRatio = " + aspectRatio + ", new size (hxw) - 150x" + newWidth + ", " + imageType );
+
+            mCoverImageView.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, 150, 150 ) );
+
             mTitleTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) ) );
             mDescriptionTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_DESCRIPTION ) ) );
 

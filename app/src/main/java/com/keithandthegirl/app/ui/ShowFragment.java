@@ -25,6 +25,7 @@ import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.EpisodeGuests;
 import com.keithandthegirl.app.db.model.Guest;
 import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.utils.ImageUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -194,8 +195,8 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
             long instant = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_TIMESTAMP ) );
 
             mHolder.number.setText( mEpisodesLabel + " " + cursor.getInt( cursor.getColumnIndex( Episode.FIELD_NUMBER ) ) );
-            mHolder.showDate.setText( mFormatter.print( instant ) );
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
+            mHolder.showDate.setText( mFormatter.print(instant) );
+            mHolder.title.setText(cursor.getString(cursor.getColumnIndex(Episode.FIELD_TITLE)));
 
             List<Long> episodeGuests = new ArrayList<Long>();
             Cursor episodeGuestCursor = mContext.getContentResolver().query( EpisodeGuests.CONTENT_URI, null, EpisodeGuests.FIELD_SHOWID + "=?", new String[] { String.valueOf( id ) }, EpisodeGuests.FIELD_SHOWGUESTID );
@@ -218,14 +219,26 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
                     }
                     guestCursor.close();
 
-                    String filename = "guest_" + guestId + "_75x75.jpg";
+                    String filename = "guest_" + guestId + "_150x150.jpg";
 
                     if( mContext.getFileStreamPath( filename ).exists() ) {
 
-                        Bitmap bitmap = BitmapFactory.decodeFile( mContext.getFileStreamPath( filename ).getAbsolutePath() );
+                        String path = mContext.getFileStreamPath( filename ).getAbsolutePath();
+
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile( path, options);
+                        int imageHeight = options.outHeight;
+                        int imageWidth = options.outWidth;
+                        String imageType = options.outMimeType;
+
+                        float aspectRatio = imageWidth / imageHeight;
+                        float newWidth = imageWidth * 75 / imageHeight;
+
+                        Log.v( TAG, "updateHeader : original image info (hxw) - " + imageHeight + "x" + imageWidth + ", aspectRatio = " + aspectRatio + ", new size (hxw) - 150x" + newWidth + ", " + imageType );
 
                         ImageView guestImage = new ImageView( mContext );
-                        guestImage.setImageBitmap( bitmap );
+                        guestImage.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, (int) newWidth, 75 ) );
                         guestImage.setPadding( 0, 0, 10, 0 );
                         mHolder.guestImages.addView( guestImage );
 
