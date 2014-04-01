@@ -535,6 +535,31 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "saveImage : exit" );
     }
 
+    private void saveGuestImage( int showGuestId, String url, boolean generateThumbnail ) throws IOException {
+        Log.v( TAG, "saveGuestImage : enter" );
+
+        String filename = "guest_" + showGuestId + "_150x150.jpg";
+
+        Bitmap bitmap = loadBitmapFromNetwork( url );
+
+        FileOutputStream fos = mContext.openFileOutput( filename, Context.MODE_PRIVATE );
+        bitmap.compress( Bitmap.CompressFormat.JPEG, 100, fos );
+        fos.close();
+
+        if( generateThumbnail ) {
+            Log.v( TAG, "saveGuestImage : generate thumbnail for image" );
+
+            String thumbnailFilename = filename.replace( "150x150", "75x75" );
+
+            Bitmap thumbnail = Bitmap.createScaledBitmap( bitmap, 75, 75, false );
+            fos = mContext.openFileOutput( thumbnailFilename, Context.MODE_PRIVATE );
+            thumbnail.compress( Bitmap.CompressFormat.JPEG, 100, fos );
+            fos.close();
+        }
+
+        Log.v( TAG, "saveGuestImage : exit" );
+    }
+
     private Bitmap loadBitmapFromNetwork( String url ) throws IOException {
         Log.v( TAG, "loadBitmapFromNetwork : enter" );
 
@@ -1033,11 +1058,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.v( TAG, "processEpisodes : processing guests" );
                 JSONArray guests = json.getJSONArray( "Guests" );
                 if( guests.length() > 0 ) {
+
                     for( int j = 0; j < guests.length(); j++ ) {
+
                         JSONObject guest = guests.getJSONObject( j );
                         Log.v( TAG, "processEpisodes : guest=" + guest.toString() );
 
                         int showGuestId = guest.getInt( "ShowGuestId" );
+
+                        String pictureUrl = guest.getString( "PictureUrl" );
 
                         values = new ContentValues();
                         values.put( Guest._ID, showGuestId );
@@ -1046,7 +1075,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         values.put( Guest.FIELD_PICTUREFILENAME, guest.getString( "PictureFilename" ) );
                         values.put( Guest.FIELD_URL1, guest.getString( "Url1" ) );
                         values.put( Guest.FIELD_URL2, guest.getString( "Url2" ) );
-                        values.put( Guest.FIELD_PICTUREURL, guest.getString( "PictureUrl" ) );
+                        values.put( Guest.FIELD_PICTUREURL, pictureUrl );
                         values.put( Guest.FIELD_PICTUREURLLARGE, guest.getString( "PictureUrlLarge" ) );
                         values.put( Guest.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
@@ -1106,6 +1135,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         }
                         cursor.close();
                         count++;
+
+                        if( !"".equals( pictureUrl ) ) {
+                            saveGuestImage( showGuestId, pictureUrl, true );
+                        }
 
                     }
                 }

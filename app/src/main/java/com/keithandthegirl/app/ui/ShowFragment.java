@@ -3,6 +3,8 @@ package com.keithandthegirl.app.ui;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -22,6 +24,7 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.EpisodeGuests;
 import com.keithandthegirl.app.db.model.Guest;
+import com.keithandthegirl.app.db.model.Show;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -210,9 +213,23 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
 
                     Cursor guestCursor = mContext.getContentResolver().query( ContentUris.withAppendedId( Guest.CONTENT_URI, guestId ), null, null, null, null );
                     while( guestCursor.moveToNext() ) {
+
                         guestLabel = guestLabel + guestCursor.getString( guestCursor.getColumnIndex( Guest.FIELD_REALNAME ) );
                     }
                     guestCursor.close();
+
+                    String filename = "guest_" + guestId + "_75x75.jpg";
+
+                    if( mContext.getFileStreamPath( filename ).exists() ) {
+
+                        Bitmap bitmap = BitmapFactory.decodeFile( mContext.getFileStreamPath( filename ).getAbsolutePath() );
+
+                        ImageView guestImage = new ImageView( mContext );
+                        guestImage.setImageBitmap( bitmap );
+                        guestImage.setPadding( 0, 0, 10, 0 );
+                        mHolder.guestImages.addView( guestImage );
+
+                    }
 
                     if( index < episodeGuests.size() - 1 ) {
                         guestLabel = guestLabel + ", ";
