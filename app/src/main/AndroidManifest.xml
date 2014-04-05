@@ -33,6 +33,16 @@
 
         </activity>
 
+        <!-- KATG Receivers -->
+        <receiver android:name=".db.schedule.KatgAlarmReceiver" />
+
+        <receiver android:name=".db.schedule.KatgBootReceiver"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
+
         <!-- KATG Services -->
         <service
             android:name=".db.sync.AuthenticatorService">
@@ -63,16 +73,6 @@
         </service>
 
         <service android:name=".db.schedule.KatgSchedulingService" />
-
-        <!-- KATG Receivers -->
-        <receiver android:name=".db.schedule.KatgAlarmReceiver" android:enabled="true" />
-
-        <receiver android:name=".db.schedule.KatgBootReceiver"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
-            </intent-filter>
-        </receiver>
 
         <!-- KATG Providers -->
         <provider

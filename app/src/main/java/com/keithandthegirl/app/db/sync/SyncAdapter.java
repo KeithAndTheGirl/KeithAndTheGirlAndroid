@@ -37,6 +37,8 @@ import com.keithandthegirl.app.db.model.WorkItem;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Days;
+import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
@@ -146,7 +148,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      */
     @Override
     public void onPerformSync( Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult ) {
-        Log.v( TAG, "onPerformSync : enter" );
+        Log.i( TAG, "onPerformSync : enter" );
 
         /*
          * Put the data transfer code here.
@@ -154,39 +156,114 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         SyncResult result = new SyncResult();
         try {
 
-            if( null != extras && !extras.isEmpty() ) {
+            DateTime now = new DateTime( DateTimeZone.UTC );
 
-                if( extras.containsKey( WorkItem.FIELD_FREQUENCY ) ) {
+            List<Job> jobs = new ArrayList<Job>();
+            Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, null, null, null );
+            while( cursor.moveToNext() ) {
 
-                    WorkItem.Type type = WorkItem.Type.valueOf( extras.getString( WorkItem.FIELD_FREQUENCY ) );
-                    Log.v( TAG, "onPerformSync : running '" + type.name() + "' scheduled jobs" );
+                Job job = new Job();
 
-                    Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_FREQUENCY + "=?", new String[] { type.name() }, null );
-                    while( cursor.moveToNext() ) {
+                Long id = cursor.getLong( cursor.getColumnIndex( WorkItem._ID ) );
+                job.setId( id );
 
-                        List<Job> jobs = queueScheduledWorkItems( provider );
-                        Log.i( TAG, "onPerformSync : " + jobs.size() + " scheduled to run" );
+                Endpoint.Type type = Endpoint.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ENDPOINT ) ) );
+                job.setType(type);
 
-                        executeJobs( provider, jobs );
+                String address = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ADDRESS ) );
+                String parameters = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_PARAMETERS ) );
+                job.setUrl( address + parameters );
 
-                    }
-                    cursor.close();
+                WorkItem.Status status = WorkItem.Status.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
+                job.setStatus( status );
 
+                DateTime lastRun = new DateTime( DateTimeZone.UTC );
+                long lastRunMs = cursor.getLong( cursor.getColumnIndex( WorkItem.FIELD_LAST_RUN ) );
+                if( lastRunMs > 0 ) {
+                    lastRun = new DateTime( lastRunMs );
                 }
 
-            }
+                WorkItem.Type wtype = WorkItem.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_FREQUENCY ) ) );
+                switch( wtype ) {
 
-            Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_STATUS + "=?", new String[] { WorkItem.Status.NEVER.name() }, null );
-            do {
-                List<Job> jobs = queueScheduledWorkItems( provider );
-                Log.i( TAG, "onPerformSync : " + jobs.size() + " scheduled to run" );
+                    case ON_DEMAND:
+                        Log.v( TAG, "onPerformSync : adding On Demand job" );
 
-                executeJobs( provider, jobs );
+                        jobs.add( job );
+                        break;
 
-                cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_STATUS + "=?", new String[] { WorkItem.Status.NEVER.name() }, null );
-            } while( cursor.getCount() > 0 );
+                    case ONCE:
+                        if( !status.equals( WorkItem.Status.OK ) ) {
+                            Log.v( TAG, "onPerformSync : adding One Time job" );
 
+                            jobs.add( job );
+                        }
+
+                        break;
+
+                    case HOURLY:
+                        if( status.equals( WorkItem.Status.NEVER ) ) {
+                            Log.v( TAG, "onPerformSync : adding Hourly job, never run" );
+
+                            jobs.add( job );
+
+                        } else {
+                            Log.v( TAG, "onPerformSync : adding Hourly job" );
+
+                            if( Minutes.minutesBetween( lastRun, now ).getMinutes() >= 60 ) {
+
+                                jobs.add( job );
+
+                            }
+
+                        }
+
+                        break;
+
+                    case DAILY:
+                        if( status.equals( WorkItem.Status.NEVER ) ) {
+                            Log.v( TAG, "onPerformSync : adding Daily job, never run" );
+
+                            jobs.add( job );
+                        } else {
+                            Log.v( TAG, "onPerformSync : adding Daily job" );
+
+                            if( Days.daysBetween( lastRun, now ).getDays() >= 1 ) {
+
+                                jobs.add( job );
+
+                            }
+
+                        }
+
+                        break;
+
+                    case WEEKLY:
+                        if( status.equals( WorkItem.Status.NEVER ) ) {
+                            Log.v( TAG, "onPerformSync : adding Weekly job, never run" );
+
+                            jobs.add( job );
+                        } else {
+                            Log.v( TAG, "onPerformSync : adding Weekly job" );
+
+                            if( Days.daysBetween( lastRun, now ).getDays() >= 7 ) {
+
+                                jobs.add( job );
+
+                            }
+
+                        }
+
+                        break;
+                }
+
+
+
+            };
             cursor.close();
+
+            Log.i( TAG, "onPerformSync : " + jobs.size() + " scheduled to run" );
+            executeJobs( provider, jobs );
 
         } catch( RemoteException e ) {
             Log.e( TAG, "onPerformSync : error, RemoteException", e );
@@ -198,38 +275,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             result.hasHardError();
         }
 
-        Log.v( TAG, "onPerformSync : exit" );
-    }
-
-    private List<Job> queueScheduledWorkItems( ContentProviderClient provider ) throws RemoteException, IOException {
-        Log.v( TAG, "queueScheduledWorkItems : enter" );
-
-        List<Job> jobs = new ArrayList<Job>();
-
-        Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_STATUS + "=?", new String[] { WorkItem.Status.NEVER.name() }, null );
-        while( cursor.moveToNext() ) {
-
-            Job job = new Job();
-
-            Long id = cursor.getLong( cursor.getColumnIndex( WorkItem._ID ) );
-            job.setId( id );
-
-            Endpoint.Type type = Endpoint.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ENDPOINT ) ) );
-            job.setType(type);
-
-            String address = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ADDRESS ) );
-            String parameters = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_PARAMETERS ) );
-            job.setUrl(address + parameters);
-
-            WorkItem.Status status = WorkItem.Status.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
-            job.setStatus(status);
-
-            jobs.add( job );
-        }
-        cursor.close();
-
-        Log.v( TAG, "runScheduledWorkItems : exit" );
-        return jobs;
+        Log.i( TAG, "onPerformSync : exit" );
     }
 
     private void executeJobs( ContentProviderClient provider, List<Job> jobs ) throws RemoteException, IOException {
@@ -652,14 +698,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     vip = json.getBoolean( "VIP" ) ? 1 : 0;
                 } catch( Exception e ) {
-                    Log.w( TAG, "processShows : VIP format is not valid" );
+                    Log.v( TAG, "processShows : VIP format is not valid" );
                 }
 
                 int sortOrder = 0;
                 try {
                     sortOrder = json.getInt( "SortOrder" );
                 } catch( Exception e ) {
-                    Log.w( TAG, "processShows : SortOrder format is not valid" );
+                    Log.v( TAG, "processShows : SortOrder format is not valid" );
                 }
 
                 String prefix = json.getString( "Prefix" );
@@ -675,6 +721,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( Show.FIELD_COVERIMAGEURL, coverImageUrl );
                 values.put( Show.FIELD_FORUMURL, json.getString( "ForumUrl" ) );
                 values.put( Show.FIELD_PREVIEWURL, json.getString( "PreviewUrl" ) );
+                values.put( Show.FIELD_EPISODE_COUNT, json.getInt( "EpisodeCount" ) );
+                values.put( Show.FIELD_EPISODE_COUNT_MAX, json.getInt( "EpisodeNumberMax" ) );
                 values.put( Show.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
                 Cursor cursor = provider.query( ContentUris.withAppendedId( Show.CONTENT_URI, showNameId ), projection, null, null, null );
@@ -802,7 +850,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     startDate = format.parseDateTime( json.getString( "startdate" ) );
                 } catch( JSONException e ) {
-                    Log.w( TAG, "processEvents : startdate is not valid" );
+                    Log.v( TAG, "processEvents : startdate is not valid" );
                 }
                 startDate = startDate.withZone( DateTimeZone.UTC );
 
@@ -810,7 +858,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     endDate = format.parseDateTime( json.getString( "enddate" ) );
                 } catch( JSONException e ) {
-                    Log.w( TAG, "processEvents : enddate is not valid" );
+                    Log.v( TAG, "processEvents : enddate is not valid" );
                 }
                 endDate = endDate.withZone( DateTimeZone.UTC );
 
@@ -917,7 +965,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
 
         } catch( Exception e ) {
-            Log.w( TAG, "processLives : broadcasting format is not valid" );
+            Log.v( TAG, "processLives : broadcasting format is not valid" );
 
             update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
         } finally {
@@ -950,7 +998,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     posted = formata.parseDateTime( json.getString( "PostedDate" ) );
                 } catch( Exception e ) {
-                    Log.w( TAG, "processEpisodes : PostedDate format is not valid" );
+                    Log.v( TAG, "processEpisodes : PostedDate format is not valid" );
                 }
                 posted = posted.withZone( DateTimeZone.UTC );
 
@@ -958,7 +1006,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     previewUrl = json.getString( "PreviewUrl" );
                 } catch( JSONException e ) {
-                    Log.w( TAG, "processEpisodes : PreviewUrl format is not valid or does not exist" );
+                    Log.v( TAG, "processEpisodes : PreviewUrl format is not valid or does not exist" );
                 }
 
                 String fileUrl = "", fileName = "";
@@ -971,35 +1019,35 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         Log.v( TAG, "processEpisodes : fileName=" + fileName );
                     }
                 } catch( JSONException e ) {
-                    Log.w( TAG, "processEpisodes : FileUrl format is not valid or does not exist" );
+                    Log.v( TAG, "processEpisodes : FileUrl format is not valid or does not exist" );
                 }
 
                 int length = -1;
                 try {
                     length = json.getInt("Length");
                 } catch( Exception e ) {
-                    Log.w( TAG, "processEpisodes : Length format is not valid or not present" );
+                    Log.v( TAG, "processEpisodes : Length format is not valid or not present" );
                 }
 
                 int fileSize = -1;
                 try {
                     fileSize = json.getInt( "FileSize" );
                 } catch( Exception e ) {
-                    Log.w( TAG, "processEpisodes : FileSize format is not valid or not present" );
+                    Log.v( TAG, "processEpisodes : FileSize format is not valid or not present" );
                 }
 
                 int vip = 0;
                 try {
                     vip = json.getInt( "public" );
                 } catch( Exception e ) {
-                    Log.w( TAG, "processEpisodes : Public format is not valid or not present" );
+                    Log.v( TAG, "processEpisodes : Public format is not valid or not present" );
                 }
 
                 int showNameId = -1;
                 try {
                     showNameId = json.getInt( "ShowNameId" );
                 } catch( Exception e ) {
-                    Log.w( TAG, "processEpisodes : ShowNameId format is not valid or not present" );
+                    Log.v( TAG, "processEpisodes : ShowNameId format is not valid or not present" );
                 }
 
                 values = new ContentValues();

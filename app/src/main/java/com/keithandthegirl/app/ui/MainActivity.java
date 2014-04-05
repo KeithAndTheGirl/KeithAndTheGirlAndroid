@@ -38,7 +38,7 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
-        Log.d(TAG, "onCreate : enter");
+        Log.d( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_main );
@@ -58,8 +58,9 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
         }
         cursor.close();
 
+        ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
+
         if( neverRun ) {
-            ContentResolver.setSyncAutomatically(mAccount, KatgProvider.AUTHORITY, true);
 
             Bundle settingsBundle = new Bundle();
             settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
@@ -71,6 +72,7 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
 
         alarm.setAlarm( this );
 
+        Log.d( TAG, "onCreate : exit" );
     }
 
     @Override

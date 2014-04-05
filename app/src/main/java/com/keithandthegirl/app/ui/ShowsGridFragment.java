@@ -161,7 +161,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             boolean vip = cursor.getLong( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 0 ? false : true;
 
             String filename = prefix + "_150x150.jpg";
-            Log.i( TAG, "bindView : filename=" + filename );
+            Log.v( TAG, "bindView : filename=" + filename );
 
             Bitmap bitmap = BitmapFactory.decodeFile(mContext.getFileStreamPath(filename).getAbsolutePath());
 

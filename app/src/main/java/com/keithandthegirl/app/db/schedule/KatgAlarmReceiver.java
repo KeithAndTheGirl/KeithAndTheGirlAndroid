@@ -23,17 +23,13 @@ public class KatgAlarmReceiver extends WakefulBroadcastReceiver {
     private static final String TAG = KatgAlarmReceiver.class.getSimpleName();
 
     private AlarmManager mAlarmManager;
-    private PendingIntent mHourlyAlarmIntent, mDailyAlarmIntent, mWeeklyAlarmIntent;
+    private PendingIntent mAlarmIntent;
 
     @Override
     public void onReceive( Context context, Intent intent ) {
         Log.i( TAG, "onReceive : enter" );
 
-        WorkItem.Type type = WorkItem.Type.valueOf( intent.getStringExtra( WorkItem.FIELD_FREQUENCY ) );
-        Log.i( TAG, "onReceive : executing sync service for '" + type.name() + "' jobs" );
-
         Intent service = new Intent( context, KatgSchedulingService.class );
-        service.putExtra( WorkItem.FIELD_FREQUENCY, type.name() );
 
         startWakefulService( context, service );
 
@@ -45,41 +41,11 @@ public class KatgAlarmReceiver extends WakefulBroadcastReceiver {
 
         mAlarmManager = (AlarmManager) context.getSystemService( Context.ALARM_SERVICE );
 
-        Intent hourlyIntent = new Intent( context, KatgAlarmReceiver.class );
-        hourlyIntent.putExtra( WorkItem.FIELD_FREQUENCY, WorkItem.Type.HOURLY.name() );
-        mHourlyAlarmIntent = PendingIntent.getBroadcast( context, 0, hourlyIntent, 0 );
+        Intent intent = new Intent( context, KatgAlarmReceiver.class );
+        mAlarmIntent = PendingIntent.getBroadcast( context, 0, intent, 0 );
 
-        Calendar hourly = Calendar.getInstance();
-        hourly.setTimeInMillis( System.currentTimeMillis() );
-//        hourly.set( Calendar.MINUTE, hourly.get( Calendar.MINUTE ) + 2 );
-
-        mAlarmManager.setInexactRepeating( AlarmManager.ELAPSED_REALTIME, hourly.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, mHourlyAlarmIntent );
-        Log.v( TAG, "setAlarm : hourly alarm set!" );
-
-        Intent dailyIntent = new Intent( context, KatgAlarmReceiver.class );
-        hourlyIntent.putExtra( WorkItem.FIELD_FREQUENCY, WorkItem.Type.DAILY.name() );
-        mDailyAlarmIntent = PendingIntent.getBroadcast( context, 0, dailyIntent, 0 );
-
-        Calendar daily = Calendar.getInstance();
-        daily.setTimeInMillis( System.currentTimeMillis() );
-        daily.set( Calendar.HOUR_OF_DAY, 0 );
-        daily.set( Calendar.MINUTE, 0 );
-
-        mAlarmManager.setInexactRepeating( AlarmManager.ELAPSED_REALTIME, daily.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mDailyAlarmIntent );
-        Log.v( TAG, "setAlarm : daily alarm set!" );
-
-        Intent weeklyIntent = new Intent( context, KatgAlarmReceiver.class );
-        hourlyIntent.putExtra( WorkItem.FIELD_FREQUENCY, WorkItem.Type.WEEKLY.name() );
-        mWeeklyAlarmIntent = PendingIntent.getBroadcast( context, 0, weeklyIntent, 0 );
-
-        Calendar weekly = Calendar.getInstance();
-        weekly.setTimeInMillis( System.currentTimeMillis() );
-        weekly.set( Calendar.HOUR_OF_DAY, 0 );
-        weekly.set( Calendar.MINUTE, 0 );
-        weekly.set( Calendar.DAY_OF_WEEK, 0 );
-
-        mAlarmManager.setInexactRepeating( AlarmManager.ELAPSED_REALTIME, weekly.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, mWeeklyAlarmIntent );
-        Log.v( TAG, "setAlarm : weekly alarm set!" );
+        mAlarmManager.setInexactRepeating( AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, mAlarmIntent );
+        Log.v( TAG, "setAlarm : alarm set!" );
 
         ComponentName receiver = new ComponentName( context, KatgBootReceiver.class );
         PackageManager pm = context.getPackageManager();
@@ -93,9 +59,7 @@ public class KatgAlarmReceiver extends WakefulBroadcastReceiver {
         Log.d( TAG, "cancelAlarm : enter" );
 
         if( null != mAlarmManager ) {
-            mAlarmManager.cancel( mHourlyAlarmIntent );
-            mAlarmManager.cancel( mDailyAlarmIntent );
-            mAlarmManager.cancel( mWeeklyAlarmIntent );
+            mAlarmManager.cancel( mAlarmIntent );
         }
 
         ComponentName receiver = new ComponentName( context, KatgBootReceiver.class );

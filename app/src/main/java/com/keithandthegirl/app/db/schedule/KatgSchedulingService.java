@@ -30,13 +30,9 @@ public class KatgSchedulingService extends IntentService {
 
         ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
 
-        WorkItem.Type type = WorkItem.Type.valueOf( intent.getStringExtra( WorkItem.FIELD_FREQUENCY ) );
-        Log.i( TAG, "onHandleIntent : executing sync service for '" + type.name() + "' jobs" );
-
         Bundle settingsBundle = new Bundle();
         settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
         settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
-        settingsBundle.putString( WorkItem.FIELD_FREQUENCY, type.name() );
 
         ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
 

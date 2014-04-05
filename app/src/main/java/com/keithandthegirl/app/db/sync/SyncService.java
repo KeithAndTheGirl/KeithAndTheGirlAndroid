@@ -27,7 +27,7 @@ public class SyncService extends Service {
      */
     @Override
     public void onCreate() {
-        Log.v( TAG, "onCreate : enter" );
+        Log.i( TAG, "onCreate : enter" );
 
         /*
          * Create the sync adapter as a singleton.
@@ -40,7 +40,7 @@ public class SyncService extends Service {
             }
         }
 
-        Log.v( TAG, "onCreate : exit" );
+        Log.i( TAG, "onCreate : exit" );
     }
 
     /**
@@ -50,7 +50,7 @@ public class SyncService extends Service {
      */
     @Override
     public IBinder onBind( Intent intent ) {
-        Log.v( TAG, "onBind : enter" );
+        Log.i( TAG, "onBind : enter" );
 
         /*
          * Get the object that allows external processes
@@ -59,7 +59,7 @@ public class SyncService extends Service {
          * constructors call super()
          */
 
-        Log.v( TAG, "onBind : exit" );
+        Log.i( TAG, "onBind : exit" );
         return sSyncAdapter.getSyncAdapterBinder();
     }
 

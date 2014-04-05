@@ -44,8 +44,14 @@ public class Show extends AbstractBaseDatabase {
     public static final String FIELD_PREVIEWURL = "previewurl";
     public static final String FIELD_PREVIEWURL_DATA_TYPE = "TEXT";
 
+    public static final String FIELD_EPISODE_COUNT = "episode_count";
+    public static final String FIELD_EPISODE_COUNT_DATA_TYPE = "INTEGER";
+
+    public static final String FIELD_EPISODE_COUNT_MAX = "episode_count_max";
+    public static final String FIELD_EPISODE_COUNT_MAX_DATA_TYPE = "INTEGER";
+
     public static final String[] COLUMN_MAP = { _ID,
-            FIELD_NAME, FIELD_PREFIX, FIELD_VIP, FIELD_SORTORDER, FIELD_DESCRIPTION, FIELD_COVERIMAGEURL, FIELD_FORUMURL, FIELD_PREVIEWURL,
+            FIELD_NAME, FIELD_PREFIX, FIELD_VIP, FIELD_SORTORDER, FIELD_DESCRIPTION, FIELD_COVERIMAGEURL, FIELD_FORUMURL, FIELD_PREVIEWURL, FIELD_EPISODE_COUNT, FIELD_EPISODE_COUNT_MAX,
             FIELD_LAST_MODIFIED_DATE
     };
 
@@ -63,6 +69,8 @@ public class Show extends AbstractBaseDatabase {
         createTable.append( FIELD_COVERIMAGEURL ).append( " " ).append( FIELD_COVERIMAGEURL_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_FORUMURL ).append( " " ).append( FIELD_FORUMURL_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_PREVIEWURL ).append( " " ).append( FIELD_PREVIEWURL_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_EPISODE_COUNT ).append( " " ).append( FIELD_EPISODE_COUNT_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_EPISODE_COUNT_MAX ).append( " " ).append( FIELD_EPISODE_COUNT_MAX_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_LAST_MODIFIED_DATE ).append( " " ).append( FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
         createTable.append( ");" );
 
@@ -86,9 +94,11 @@ public class Show extends AbstractBaseDatabase {
         insert.append( FIELD_COVERIMAGEURL ).append( "," );
         insert.append( FIELD_FORUMURL ).append( "," );
         insert.append( FIELD_PREFIX ).append( "," );
+        insert.append( FIELD_EPISODE_COUNT ).append( "," );
+        insert.append( FIELD_EPISODE_COUNT_MAX ).append( "," );
         insert.append( FIELD_LAST_MODIFIED_DATE );
         insert.append( " ) " );
-        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,? )" );
+        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,? )" );
 
         INSERT_ROW = insert.toString();
 
@@ -103,6 +113,8 @@ public class Show extends AbstractBaseDatabase {
         update.append( FIELD_COVERIMAGEURL ).append( " = ?, " );
         update.append( FIELD_FORUMURL ).append( " = ?, " );
         update.append( FIELD_PREFIX ).append( " = ?, " );
+        update.append( FIELD_EPISODE_COUNT ).append( " = ?, " );
+        update.append( FIELD_EPISODE_COUNT_MAX ).append( " = ?, " );
         update.append( FIELD_LAST_MODIFIED_DATE ).append( " = ? " );
         update.append( "WHERE " ).append( _ID ).append( " = ? " );
 
