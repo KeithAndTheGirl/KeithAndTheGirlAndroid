@@ -26,6 +26,9 @@ public class WorkItem extends AbstractBaseDatabase {
     public static final String FIELD_FREQUENCY = "frequency";
     public static final String FIELD_FREQUENCY_DATA_TYPE = "TEXT";
 
+    public static final String FIELD_DOWNLOAD = "download";
+    public static final String FIELD_DOWNLOAD_DATA_TYPE = "TEXT";
+
     public static final String FIELD_ENDPOINT = "endpoint";
     public static final String FIELD_ENDPOINT_DATA_TYPE = "TEXT";
 
@@ -35,17 +38,21 @@ public class WorkItem extends AbstractBaseDatabase {
     public static final String FIELD_PARAMETERS = "parameters";
     public static final String FIELD_PARAMETERS_DATA_TYPE = "TEXT";
 
+    public static final String FIELD_ETAG = "etag";
+    public static final String FIELD_ETAG_DATA_TYPE = "TEXT";
+
     public static final String FIELD_LAST_RUN = "last_run";
     public static final String FIELD_LAST_RUN_DATA_TYPE = "INTEGER";
 
     public static final String FIELD_STATUS = "next_run";
     public static final String FIELD_STATUS_DATA_TYPE = "TEXT";
 
-    public static enum Type { ONCE, HOURLY, DAILY, WEEKLY, ON_DEMAND };
-    public static enum Status { OK, FAILED, NEVER };
+    public static enum Frequency { ONCE, HOURLY, DAILY, WEEKLY, ON_DEMAND };
+    public static enum Status { OK, FAILED, NEVER, NOT_MODIFIED };
+    public static enum Download { JSON, JSONARRAY, JPG }
 
     public static final String[] COLUMN_MAP = { _ID,
-            FIELD_NAME, FIELD_FREQUENCY, FIELD_ENDPOINT, FIELD_ADDRESS, FIELD_PARAMETERS, FIELD_LAST_RUN, FIELD_STATUS,
+            FIELD_NAME, FIELD_FREQUENCY, FIELD_DOWNLOAD, FIELD_ENDPOINT, FIELD_ADDRESS, FIELD_PARAMETERS, FIELD_ETAG, FIELD_LAST_RUN, FIELD_STATUS,
             FIELD_LAST_MODIFIED_DATE
     };
 
@@ -57,9 +64,11 @@ public class WorkItem extends AbstractBaseDatabase {
         createTable.append( _ID ).append( " " ).append( FIELD_ID_DATA_TYPE ).append( " " ).append( FIELD_ID_PRIMARY_KEY_AUTOINCREMENT ).append( ", " );
         createTable.append( FIELD_NAME ).append( " " ).append( FIELD_NAME_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_FREQUENCY ).append( " " ).append( FIELD_FREQUENCY_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_DOWNLOAD ).append( " " ).append( FIELD_DOWNLOAD_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_ENDPOINT ).append( " " ).append( FIELD_ENDPOINT_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_ADDRESS ).append( " " ).append( FIELD_ADDRESS_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_PARAMETERS ).append( " " ).append( FIELD_PARAMETERS_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_ETAG ).append( " " ).append( FIELD_ETAG_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_LAST_RUN ).append( " " ).append( FIELD_LAST_RUN_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_STATUS ).append( " " ).append( FIELD_STATUS_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_LAST_MODIFIED_DATE ).append( " " ).append( FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
@@ -78,14 +87,16 @@ public class WorkItem extends AbstractBaseDatabase {
         insert.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
         insert.append( FIELD_NAME ).append( "," );
         insert.append( FIELD_FREQUENCY ).append( "," );
+        insert.append( FIELD_DOWNLOAD ).append( "," );
         insert.append( FIELD_ENDPOINT ).append( "," );
         insert.append( FIELD_ADDRESS ).append( "," );
         insert.append( FIELD_PARAMETERS ).append( "," );
+        insert.append( FIELD_ETAG ).append( "," );
         insert.append( FIELD_LAST_RUN ).append( "," );
         insert.append( FIELD_STATUS ).append( "," );
         insert.append( FIELD_LAST_MODIFIED_DATE );
         insert.append( " ) " );
-        insert.append( "VALUES( ?,?,?,?,?,?,?,? )" );
+        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,? )" );
 
         INSERT_ROW = insert.toString();
 
@@ -94,9 +105,11 @@ public class WorkItem extends AbstractBaseDatabase {
         update.append( "UPDATE " ).append( TABLE_NAME ).append( " SET " );
         update.append( FIELD_NAME ).append( " = ?, " );
         update.append( FIELD_FREQUENCY ).append( " = ?, " );
+        update.append( FIELD_DOWNLOAD ).append( " = ?, " );
         update.append( FIELD_ENDPOINT ).append( " = ?, " );
         update.append( FIELD_ADDRESS ).append( " = ?, " );
         update.append( FIELD_PARAMETERS ).append( " = ?, " );
+        update.append( FIELD_ETAG ).append( " = ?, " );
         update.append( FIELD_LAST_RUN ).append( " = ?, " );
         update.append( FIELD_STATUS ).append( " = ?, " );
         update.append( FIELD_LAST_MODIFIED_DATE ).append( " = ? " );

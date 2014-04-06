@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.FileObserver;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.utils.ImageUtils;
 
 /**
  * Created by dmfrey on 3/21/14.
@@ -33,6 +35,8 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     OnShowSelectedListener mCallback;
 
     ShowCursorAdapter mAdapter;
+
+    FileObserver fileObserver = null;
 
     public interface OnShowSelectedListener {
         public void onShowSelected( long showId );
@@ -97,11 +101,29 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
             public void onItemClick( AdapterView<?> parent, View v, int position, long id ) {
 
-                mCallback.onShowSelected( id );
+            mCallback.onShowSelected( id );
 
             }
 
         });
+
+        fileObserver = new FileObserver( getActivity().getApplicationContext().getFilesDir().getAbsolutePath() ) {
+
+            @Override
+            public void onEvent( int event, String filename ) {
+
+                if( event == FileObserver.CREATE || event == FileObserver.MODIFY ) {
+
+                    if( filename.endsWith( "_cover.jpg" ) ) {
+
+                        getLoaderManager().restartLoader( 0, new Bundle(), ShowsGridFragment.this );
+
+                    }
+                }
+
+            }
+
+        };
 
         Log.v( TAG, "onActivityCreated : exit" );
     }
@@ -157,15 +179,14 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             String name = cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) );
-            String prefix = cursor.getString(cursor.getColumnIndex(Show.FIELD_PREFIX));
+            String prefix = cursor.getString(cursor.getColumnIndex( Show.FIELD_PREFIX ) );
             boolean vip = cursor.getLong( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 0 ? false : true;
 
-            String filename = prefix + "_150x150.jpg";
+            String filename = prefix + "_cover.jpg";
+            String path = mContext.getFileStreamPath( filename ).getAbsolutePath();
             Log.v( TAG, "bindView : filename=" + filename );
 
-            Bitmap bitmap = BitmapFactory.decodeFile(mContext.getFileStreamPath(filename).getAbsolutePath());
-
-            mHolder.coverImage.setImageBitmap( bitmap );
+            mHolder.coverImage.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, 150, 150 ) );
             mHolder.name.setText( name );
 
             if( vip ) {

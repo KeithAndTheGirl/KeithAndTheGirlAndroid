@@ -32,7 +32,7 @@ public class Endpoint extends AbstractBaseDatabase {
     public static final String FIELD_ETAG = "etag";
     public static final String FIELD_ETAG_DATA_TYPE = "TEXT";
 
-    public static enum Type { EVENTS, LIVE, DETAILS, RECENT, OVERVIEW, LIST };
+    public static enum Type { EVENTS, LIVE, DETAILS, RECENT, OVERVIEW, LIST, IMAGE };
     public static enum DownloadType { ARRAY, OBJECT };
 
     public static final String EVENTS = "http://app.keithandthegirl.com/api/v2/events/";

@@ -148,7 +148,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      */
     @Override
     public void onPerformSync( Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult ) {
-        Log.i( TAG, "onPerformSync : enter" );
+        Log.i(TAG, "onPerformSync : enter");
 
         /*
          * Put the data transfer code here.
@@ -167,12 +167,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Long id = cursor.getLong( cursor.getColumnIndex( WorkItem._ID ) );
                 job.setId( id );
 
+                WorkItem.Frequency wtype = WorkItem.Frequency.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_FREQUENCY ) ) );
+
+                WorkItem.Download dtype = WorkItem.Download.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_DOWNLOAD ) ) );
+                job.setDownload( dtype );
+
                 Endpoint.Type type = Endpoint.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ENDPOINT ) ) );
-                job.setType(type);
+                job.setType( type );
 
                 String address = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ADDRESS ) );
                 String parameters = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_PARAMETERS ) );
-                job.setUrl( address + parameters );
+                if( dtype.equals( WorkItem.Download.JPG ) ) {
+                    job.setUrl( address );
+                    job.setFilename( parameters );
+                } else {
+                    job.setUrl( address + parameters );
+                }
 
                 WorkItem.Status status = WorkItem.Status.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
                 job.setStatus( status );
@@ -183,7 +193,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     lastRun = new DateTime( lastRunMs );
                 }
 
-                WorkItem.Type wtype = WorkItem.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_FREQUENCY ) ) );
                 switch( wtype ) {
 
                     case ON_DEMAND:
@@ -322,6 +331,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         break;
 
+                    case IMAGE:
+                        Log.v( TAG, "runScheduledWorkItems : refreshing images" );
+
+                        saveImage( provider, job );
+
+                        break;
+
                     default:
                         Log.w( TAG, "runScheduledWorkItems : Scheduled '" + job.getType().name() + "' not supported" );
 
@@ -340,7 +356,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getShows : network is available" );
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork( job.getUrl() );
+                JSONArray jsonArray = loadJsonArrayFromNetwork( job );
                 Log.i( TAG, "getShows : jsonArray=" + jsonArray.toString() );
                 processShows( jsonArray, provider, job );
             }
@@ -360,7 +376,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEvents : network is available" );
 
-                JSONObject json = loadJsonFromNetwork(job.getUrl());
+                JSONObject json = loadJsonFromNetwork( job );
                 Log.i( TAG, "getEvents : json=" + json.toString() );
                 processEvents(json, provider, job);
             }
@@ -380,7 +396,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEvents : network is available" );
 
-                JSONObject json = loadJsonFromNetwork( job.getUrl() );
+                JSONObject json = loadJsonFromNetwork(job);
                 Log.i( TAG, "getLives : json=" + json.toString() );
                 processLives(json, provider, job);
             }
@@ -398,20 +414,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItem._ID, job.getId() );
-        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
+        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
 
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEpisodes : network is available" );
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork(job.getUrl());
+                JSONArray jsonArray = loadJsonArrayFromNetwork( job );
                 Log.i( TAG, "getEpisodes : jsonArray=" + jsonArray.toString() );
                 processEpisodes(jsonArray, provider, job.getType());
             }
 
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
             update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getEpisodes : error", e);
@@ -435,15 +452,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         try {
 
             if( wifiConnected || mobileConnected ) {
-                Log.v( TAG, "getRecentEpisodes : network is available" );
+                Log.v(TAG, "getRecentEpisodes : network is available");
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork( job.getUrl() );
+                JSONArray jsonArray = loadJsonArrayFromNetwork(job);
                 Log.i( TAG, "getRecentEpisodes : jsonArray=" + jsonArray.toString() );
-                processEpisodes( jsonArray, provider, job.getType() );
+                processEpisodes(jsonArray, provider, job.getType());
             }
 
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
             update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getRecentEpisodes : error", e);
@@ -473,7 +491,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getShowDetails : network is available" );
 
-                JSONObject json = loadJsonFromNetwork( address + "?showid=" + showId );
+                Job job = new Job();
+                job.setUrl( address + "?showid=" + showId );
+
+                JSONObject json = loadJsonFromNetwork( job );
                 Log.i( TAG, "getShowDetails : json=" + json.toString() );
                 processEpisodeDetails(json, provider, showId);
             }
@@ -485,16 +506,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "getShowDetails : exit" );
     }
 
-    private JSONObject loadJsonFromNetwork( String url ) throws IOException, JSONException {
+    private JSONObject loadJsonFromNetwork( Job job ) throws IOException, JSONException {
         Log.v( TAG, "loadJsonFromNetwork : enter" );
 
-        InputStream stream = null;
         JSONObject json = null;
-        String result = null;
+        InputStream stream = null;
 
         try {
 
-            stream = downloadUrl( url );
+            stream = downloadUrl( job );
 
             // json is UTF-8 by default
             BufferedReader reader = new BufferedReader( new InputStreamReader( stream , "UTF-8" ), 8 );
@@ -505,6 +525,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 sb.append( line + "\n" );
             }
             json = new JSONObject( sb.toString() );
+
+            job.setStatus( WorkItem.Status.OK );
 
         } finally {
 
@@ -520,20 +542,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         return json;
     }
 
-    private JSONArray loadJsonArrayFromNetwork( String url ) throws IOException, JSONException {
+    private JSONArray loadJsonArrayFromNetwork( Job job ) throws IOException, JSONException {
         Log.v( TAG, "loadJsonArrayFromNetwork : enter" );
 
-        InputStream stream = null;
-
         JSONArray jsonArray = null;
-        String result = null;
+        InputStream stream = null;
 
         try {
 
-            stream = downloadUrl( url );
+            stream = downloadUrl( job );
 
             // json is UTF-8 by default
-            BufferedReader reader = new BufferedReader( new InputStreamReader( stream , "UTF-8" ), 8 );
+            BufferedReader reader = new BufferedReader( new InputStreamReader( stream, "UTF-8" ), 8 );
             StringBuilder sb = new StringBuilder();
 
             String line = null;
@@ -541,6 +561,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 sb.append( line + "\n" );
             }
             jsonArray = new JSONArray( sb.toString() );
+
+            job.setStatus( WorkItem.Status.OK );
 
         } finally {
 
@@ -552,71 +574,61 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         }
 
-        Log.v( TAG, "loadJsonArrayFromNetwork : exit" );
+        Log.v(TAG, "loadJsonArrayFromNetwork : exit");
         return jsonArray;
     }
 
-    private void saveImage( String showPrefix, String url, boolean generateThumbnail ) throws IOException {
-        Log.v( TAG, "saveImage : enter" );
+    private void saveImage( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+        Log.v( TAG, "saveImage : enter, url=" +job.getUrl() + ", filename=" + job.getFilename() );
 
-        String filename = showPrefix + "_600x600.jpg";
+        if( null == job.getUrl() ) {
+            Log.v( TAG, "saveImage : exit, url is null" );
 
-        Bitmap bitmap = loadBitmapFromNetwork( url );
+            return;
+        }
 
-        FileOutputStream fos = mContext.openFileOutput( filename, Context.MODE_PRIVATE );
+        if( null == job.getFilename() ) {
+            Log.v( TAG, "saveImage : exit, filename is null" );
+
+            return;
+        }
+
+        Bitmap bitmap = loadBitmapFromNetwork( job );
+
+        FileOutputStream fos = mContext.openFileOutput( job.getFilename(), Context.MODE_PRIVATE );
         bitmap.compress( Bitmap.CompressFormat.JPEG, 100, fos );
         fos.close();
 
-        if( generateThumbnail ) {
-            Log.v( TAG, "saveImage : generate thumbnail for image" );
+        if( null != job.getId() ) {
 
-            String thumbnailFilename = filename.replace( "600", "150" );
+            DateTime lastRun = new DateTime( DateTimeZone.UTC );
+            ContentValues update = new ContentValues();
+            update.put( WorkItem._ID, job.getId() );
+            update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
 
-            Bitmap thumbnail = Bitmap.createScaledBitmap( bitmap, 150, 150, false );
-            fos = mContext.openFileOutput( thumbnailFilename, Context.MODE_PRIVATE );
-            thumbnail.compress( Bitmap.CompressFormat.JPEG, 100, fos );
-            fos.close();
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+
         }
 
         Log.v( TAG, "saveImage : exit" );
     }
 
-    private void saveGuestImage( int showGuestId, String url, boolean generateThumbnail ) throws IOException {
-        Log.v( TAG, "saveGuestImage : enter" );
-
-        String filename = "guest_" + showGuestId + "_150x150.jpg";
-
-        Bitmap bitmap = loadBitmapFromNetwork( url );
-
-        FileOutputStream fos = mContext.openFileOutput( filename, Context.MODE_PRIVATE );
-        bitmap.compress( Bitmap.CompressFormat.JPEG, 100, fos );
-        fos.close();
-
-        if( generateThumbnail ) {
-            Log.v( TAG, "saveGuestImage : generate thumbnail for image" );
-
-            String thumbnailFilename = filename.replace( "150x150", "75x75" );
-
-            Bitmap thumbnail = Bitmap.createScaledBitmap( bitmap, 75, 75, false );
-            fos = mContext.openFileOutput( thumbnailFilename, Context.MODE_PRIVATE );
-            thumbnail.compress( Bitmap.CompressFormat.JPEG, 100, fos );
-            fos.close();
-        }
-
-        Log.v( TAG, "saveGuestImage : exit" );
-    }
-
-    private Bitmap loadBitmapFromNetwork( String url ) throws IOException {
+    private Bitmap loadBitmapFromNetwork( Job job ) throws IOException {
         Log.v( TAG, "loadBitmapFromNetwork : enter" );
 
-        InputStream stream = null;
         Bitmap bitmap = null;
+        InputStream stream = null;
 
         try {
 
-            stream = downloadUrl( url );
+            stream = downloadUrl( job );
 
             bitmap = BitmapFactory.decodeStream( stream );
+
+            job.setStatus( WorkItem.Status.OK );
 
         } finally {
 
@@ -634,24 +646,41 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     // Given a string representation of a URL, sets up a connection and gets
     // an input stream.
-    private InputStream downloadUrl( String address ) throws IOException {
-        Log.v( TAG, "downloadUrl : enter" );
+    private InputStream downloadUrl( Job job ) throws IOException {
+        Log.v( TAG, "downloadUrl : enter, url=" + job.getUrl() );
 
         long currentTime = System.currentTimeMillis();
         InputStream stream = null;
 
 //        TrafficStats.setThreadStatsTag( 0xF00D );
 //        try {
-            URL url = new URL( address );
+            URL url = new URL( job.getUrl() );
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout( 10000 /* milliseconds */ );
             conn.setConnectTimeout( 15000 /* milliseconds */ );
             conn.setRequestMethod( "GET" );
+
+            if( null != job.getEtag() && !"".equals( job.getEtag() ) ) {
+                conn.setRequestProperty( "If-None-Match", job.getEtag() );
+            }
+
             conn.setDoInput( true );
 
             // Starts the query
             conn.connect();
-            stream = conn.getInputStream();
+
+            if( conn.getResponseCode() == HttpURLConnection.HTTP_OK ) {
+                Log.v( TAG, "downloadUrl : HTTP OK" );
+
+                job.setEtag( conn.getHeaderField( "ETag" ) );
+
+                stream = conn.getInputStream();
+
+            } else if( conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED ) {
+                Log.v( TAG, "downloadUrl : HTTP NOT MODIFIED" );
+
+                job.setStatus( WorkItem.Status.NOT_MODIFIED );
+            }
 //        } finally {
 //            TrafficStats.clearThreadStatsTag();
 //        }
@@ -708,12 +737,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.v( TAG, "processShows : SortOrder format is not valid" );
                 }
 
+                String name = json.getString( "Name" );
                 String prefix = json.getString( "Prefix" );
                 String coverImageUrl = json.getString( "CoverImageUrl" );
 
                 values = new ContentValues();
                 values.put( Show._ID, showNameId );
-                values.put( Show.FIELD_NAME, json.getString( "Name" ) );
+                values.put( Show.FIELD_NAME, name );
                 values.put( Show.FIELD_PREFIX, prefix );
                 values.put( Show.FIELD_VIP, vip );
                 values.put( Show.FIELD_SORTORDER, sortOrder );
@@ -751,32 +781,86 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
                 count++;
 
-                saveImage( prefix, coverImageUrl, true );
+                values = new ContentValues();
+                values.put( WorkItem.FIELD_NAME, name + " cover" );
+                values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
+                values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
+                values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
+                values.put( WorkItem.FIELD_ADDRESS, coverImageUrl );
+                values.put( WorkItem.FIELD_PARAMETERS, prefix + "_cover.jpg" );
+                values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+                values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                if( WorkItem.Status.NEVER.equals( job.getStatus() ) ) {
+                cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { coverImageUrl }, null );
+                if( cursor.moveToNext() ) {
+                    Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
 
-                    if( showNameId >  1 ) {
-                        Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
+                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+                    ops.add(
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+                                    .withValues( values )
+                                    .withYieldAllowed( true )
+                                    .build()
+                    );
 
-                        values = new ContentValues();
-                        values.put( WorkItem.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
-                        values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Type.DAILY.name() );
-                        values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.LIST.name() );
-                        values.put( WorkItem.FIELD_ADDRESS, Endpoint.LIST );
-                        values.put( WorkItem.FIELD_PARAMETERS, "?shownameid=" + showNameId );
-                        values.put( WorkItem.FIELD_LAST_RUN, -1 );
-                        values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-                        values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                } else {
+                    Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
 
+                    ops.add(
+                            ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+                                    .withValues( values )
+                                    .withYieldAllowed( true )
+                                    .build()
+                    );
+
+                    Job coverJob = new Job();
+                    coverJob.setUrl( coverImageUrl );
+                    coverJob.setFilename( prefix + "_cover.jpg" );
+
+                    saveImage( provider, coverJob );
+                }
+                cursor.close();
+                count++;
+
+                if( showNameId >  1 ) {
+                    Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
+
+                    values = new ContentValues();
+                    values.put( WorkItem.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
+                    values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.DAILY.name() );
+                    values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JSONARRAY.name() );
+                    values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.LIST.name() );
+                    values.put( WorkItem.FIELD_ADDRESS, Endpoint.LIST );
+                    values.put( WorkItem.FIELD_PARAMETERS, "?shownameid=" + showNameId );
+                    values.put( WorkItem.FIELD_LAST_RUN, -1 );
+                    values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+                    values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { coverImageUrl }, null );
+                    if( cursor.moveToNext() ) {
+                        Log.v( TAG, "processShows : updating daily spinoff show" );
+
+                        values.put( WorkItem.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
                         ops.add(
-                                ContentProviderOperation.newInsert(WorkItem.CONTENT_URI)
-                                        .withValues(values)
-                                        .withYieldAllowed(true)
+                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+                                        .withValues( values )
+                                        .withYieldAllowed( true )
                                         .build()
                         );
-                        count++;
 
+                    } else {
+                        Log.v( TAG, "processShows : adding daily spinoff show" );
+
+                        ops.add(
+                                ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+                                        .withValues( values )
+                                        .withYieldAllowed( true )
+                                        .build()
+                        );
                     }
+                    count++;
 
                 }
 
@@ -810,8 +894,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Log.i( TAG, "processShows : shows loaded '" + loaded + "'" );
 
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
             update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "processShows : error", e );
@@ -830,7 +915,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItem._ID, job.getId() );
-        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
+        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
             int count = 0, loaded = 0;
@@ -929,13 +1014,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Log.i( TAG, "processEvents : events loaded '" + loaded + "'" );
 
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
             update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "processEvents : error", e );
 
-            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
         }
@@ -961,13 +1047,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             provider.update( ContentUris.withAppendedId( Live.CONTENT_URI, 1 ), values, null, null );
 
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
             update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.OK.name() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.v( TAG, "processLives : broadcasting format is not valid" );
 
-            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
         }
@@ -1113,18 +1200,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         Log.v( TAG, "processEpisodes : guest=" + guest.toString() );
 
                         int showGuestId = guest.getInt( "ShowGuestId" );
-
+                        String name = guest.getString( "RealName" );
                         String pictureUrl = guest.getString( "PictureUrl" );
+                        String pictureUrlLarge = guest.getString( "PictureUrlLarge" );
 
                         values = new ContentValues();
                         values.put( Guest._ID, showGuestId );
-                        values.put( Guest.FIELD_REALNAME, guest.getString( "RealName" ) );
+                        values.put( Guest.FIELD_REALNAME, name );
                         values.put( Guest.FIELD_DESCRIPTION, guest.getString( "Description" ) );
                         values.put( Guest.FIELD_PICTUREFILENAME, guest.getString( "PictureFilename" ) );
                         values.put( Guest.FIELD_URL1, guest.getString( "Url1" ) );
                         values.put( Guest.FIELD_URL2, guest.getString( "Url2" ) );
                         values.put( Guest.FIELD_PICTUREURL, pictureUrl );
-                        values.put( Guest.FIELD_PICTUREURLLARGE, guest.getString( "PictureUrlLarge" ) );
+                        values.put( Guest.FIELD_PICTUREURLLARGE, pictureUrlLarge );
                         values.put( Guest.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
                         cursor = provider.query( ContentUris.withAppendedId( Guest.CONTENT_URI, showGuestId ), null, null, null, null );
@@ -1162,7 +1250,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         if( cursor.moveToFirst() ) {
                             Log.v( TAG, "processEpisodes : episodeGuest iteration, updating existing entry" );
 
-                            Long id = cursor.getLong(cursor.getColumnIndexOrThrow( EpisodeGuests._ID ) );
+                            Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EpisodeGuests._ID ) );
                             ops.add(
                                     ContentProviderOperation.newUpdate( ContentUris.withAppendedId( EpisodeGuests.CONTENT_URI, id ) )
                                             .withValues( values )
@@ -1185,7 +1273,99 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         count++;
 
                         if( !"".equals( pictureUrl ) ) {
-                            saveGuestImage( showGuestId, pictureUrl, true );
+
+                            Uri imageUri = Uri.parse( pictureUrl );
+
+                            values = new ContentValues();
+                            values.put( WorkItem.FIELD_NAME, name + " small" );
+                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
+                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
+                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
+                            values.put( WorkItem.FIELD_ADDRESS, pictureUrl );
+                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
+                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { pictureUrl }, null );
+                            if( cursor.moveToNext() ) {
+                                Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
+
+                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+                                ops.add(
+                                        ContentProviderOperation.newUpdate(ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+                                                .withValues( values )
+                                                .withYieldAllowed( true )
+                                                .build()
+                                );
+
+                            } else {
+                                Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
+
+                                ops.add(
+                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+                                                .withValues( values )
+                                                .withYieldAllowed( true )
+                                                .build()
+                                );
+
+                                Job job = new Job();
+                                job.setUrl( pictureUrl );
+                                job.setFilename( imageUri.getLastPathSegment()) ;
+
+                                saveImage( provider, job );
+
+                            }
+                            cursor.close();
+                            count++;
+
+                        }
+
+                        if( !"".equals( pictureUrlLarge ) ) {
+
+                            Uri imageUri = Uri.parse( pictureUrlLarge );
+
+                            values = new ContentValues();
+                            values.put( WorkItem.FIELD_NAME, name + " large" );
+                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
+                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
+                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
+                            values.put( WorkItem.FIELD_ADDRESS, pictureUrlLarge );
+                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
+                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { pictureUrl }, null );
+                            if( cursor.moveToNext() ) {
+                                Log.v( TAG, "processEpisodes : guest image large, updating existing entry" );
+
+                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+                                ops.add(
+                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+                                                .withValues( values )
+                                                .withYieldAllowed( true )
+                                                .build()
+                                );
+
+                            } else {
+                                Log.v( TAG, "processEpisodes : guest image large, adding new entry" );
+
+                                ops.add(
+                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+                                                .withValues( values )
+                                                .withYieldAllowed( true )
+                                                .build()
+                                );
+
+                                Job job = new Job();
+                                job.setUrl( pictureUrlLarge );
+                                job.setFilename( imageUri.getLastPathSegment()) ;
+
+                                saveImage( provider, job );
+
+                            }
+                            cursor.close();
+                            count++;
+
                         }
 
                     }
@@ -1357,16 +1537,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         private Long id;
         private Endpoint.Type type;
+        private WorkItem.Download download;
         private String url;
+        private String filename;
+        private String etag;
         private WorkItem.Status status;
 
-        public Long getId() {
-            return id;
-        }
+        public Long getId() { return id; }
 
-        public void setId( Long id ) {
-            this.id = id;
-        }
+        public void setId( Long id ) { this.id = id; }
+
+        public WorkItem.Download getDownload() { return download; }
+
+        public void setDownload( WorkItem.Download download ) { this.download = download; }
 
         public Endpoint.Type getType() {
             return type;
@@ -1384,6 +1567,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             this.url = url;
         }
 
+        public String getFilename() { return filename; }
+
+        public void setFilename( String filename ) { this.filename = filename; }
+
         public WorkItem.Status getStatus() {
             return status;
         }
@@ -1392,5 +1579,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             this.status = status;
         }
 
+        public String getEtag() {
+            return etag;
+        }
+
+        public void setEtag( String etag ) {
+            this.etag = etag;
+        }
+
     }
+
 }

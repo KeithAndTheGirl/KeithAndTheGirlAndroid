@@ -24,7 +24,6 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.EpisodeGuests;
 import com.keithandthegirl.app.db.model.Guest;
-import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.utils.ImageUtils;
 
 import org.joda.time.DateTime;
