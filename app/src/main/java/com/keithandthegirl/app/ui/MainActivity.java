@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +36,10 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
 
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
     Account mAccount;
+
+    ActionBar.Tab eventsTab, showsTab, guestsTab;
+    EventsFragment eventsFragment = new EventsFragment();
+    ShowsGridFragment showsGridFragment = new ShowsGridFragment();
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -71,6 +76,21 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
         }
 
         alarm.setAlarm( this );
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
+
+        eventsTab = actionBar.newTab().setText(getResources().getString(R.string.action_bar_tab_events));
+        showsTab = actionBar.newTab().setText( getResources().getString( R.string.action_bar_tab_shows ) );
+//        guestsTab = actionBar.newTab().setText( getResources().getString( R.string.action_bar_tab_guests ) );
+
+        eventsTab.setTabListener( new MyTabListener( eventsFragment ) );
+        showsTab.setTabListener( new MyTabListener( showsGridFragment ) );
+
+        actionBar.addTab( eventsTab );
+        actionBar.addTab( showsTab );
+
+        actionBar.selectTab( showsTab );
 
         Log.d( TAG, "onCreate : exit" );
     }
@@ -240,6 +260,28 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
             ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
 
             Log.v( TAG, "onActivityCreated : exit" );
+        }
+
+    }
+
+    private class MyTabListener implements ActionBar.TabListener {
+
+        Fragment fragment;
+
+        public MyTabListener( Fragment fragment ) {
+            this.fragment = fragment;
+        }
+
+        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft ) {
+            ft.replace( R.id.container, fragment );
+        }
+
+        public void onTabUnselected( ActionBar.Tab tab, FragmentTransaction ft ) {
+            ft.remove(fragment);
+        }
+
+        public void onTabReselected( ActionBar.Tab tab, FragmentTransaction ft ) {
+            // nothing done here
         }
 
     }

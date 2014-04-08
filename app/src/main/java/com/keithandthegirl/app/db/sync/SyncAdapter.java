@@ -822,6 +822,49 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
                 count++;
 
+                if( showNameId ==  1 ) {
+                    Log.v( TAG, "processShows : adding on time update for katg main show" );
+
+                    values = new ContentValues();
+                    values.put( WorkItem.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
+                    values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.ONCE.name() );
+                    values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JSONARRAY.name() );
+                    values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.LIST.name() );
+                    values.put( WorkItem.FIELD_ADDRESS, Endpoint.LIST );
+                    values.put( WorkItem.FIELD_PARAMETERS, "?shownameid=" + showNameId );
+                    values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ? and " + WorkItem.FIELD_PARAMETERS + " = ?", new String[] { Endpoint.LIST, "?shownameid=" + showNameId }, null );
+                    if( cursor.moveToNext() ) {
+                        Log.v( TAG, "processShows : updating daily show" );
+
+                        values.put( WorkItem.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+                        ops.add(
+                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+                                        .withValues( values )
+                                        .withYieldAllowed( true )
+                                        .build()
+                        );
+
+                    } else {
+                        Log.v( TAG, "processShows : adding daily show" );
+
+                        values.put( WorkItem.FIELD_LAST_RUN, -1 );
+                        values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+
+                        ops.add(
+                                ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+                                        .withValues( values )
+                                        .withYieldAllowed( true )
+                                        .build()
+                        );
+                    }
+                    count++;
+
+                }
+
                 if( showNameId >  1 ) {
                     Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
 
@@ -832,11 +875,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.LIST.name() );
                     values.put( WorkItem.FIELD_ADDRESS, Endpoint.LIST );
                     values.put( WorkItem.FIELD_PARAMETERS, "?shownameid=" + showNameId );
-                    values.put( WorkItem.FIELD_LAST_RUN, -1 );
                     values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
                     values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { coverImageUrl }, null );
+                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ? and " + WorkItem.FIELD_PARAMETERS + " = ?", new String[] { Endpoint.LIST, "?shownameid=" + showNameId }, null );
                     if( cursor.moveToNext() ) {
                         Log.v( TAG, "processShows : updating daily spinoff show" );
 
@@ -852,6 +894,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                     } else {
                         Log.v( TAG, "processShows : adding daily spinoff show" );
+
+                        values.put( WorkItem.FIELD_LAST_RUN, -1 );
+                        values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
 
                         ops.add(
                                 ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
@@ -1066,7 +1111,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "processEpisodes : enter" );
 
         try {
-            int count = 0, loaded = 0;
+            int loaded = 0;
             List<Integer> detailsQueue = new ArrayList<Integer>();
 
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
@@ -1188,7 +1233,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 }
                 cursor.close();
-                count++;
 
                 Log.v( TAG, "processEpisodes : processing guests" );
                 JSONArray guests = json.getJSONArray( "Guests" );
@@ -1239,7 +1283,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         }
                         cursor.close();
-                        count++;
 
                         values = new ContentValues();
                         values.put( EpisodeGuests.FIELD_SHOWID, showId );
@@ -1270,126 +1313,118 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         }
                         cursor.close();
-                        count++;
 
-                        if( !"".equals( pictureUrl ) ) {
+//                        if( !"".equals( pictureUrl ) ) {
+//
+//                            Uri imageUri = Uri.parse( pictureUrl );
+//
+//                            values = new ContentValues();
+//                            values.put( WorkItem.FIELD_NAME, name + " small" );
+//                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
+//                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
+//                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
+//                            values.put( WorkItem.FIELD_ADDRESS, pictureUrl );
+//                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
+//                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+//                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+//
+//                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_DOWNLOAD + "= ? AND " + WorkItem.FIELD_NAME + " = ?", new String[] { WorkItem.Download.JPG.name(), name + " small" }, null );
+//                            if( cursor.moveToNext() ) {
+//                                Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
+//
+//                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+//                                ops.add(
+//                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+//                                                .withValues( values )
+//                                                .withYieldAllowed( true )
+//                                                .build()
+//                                );
+//
+//                            } else {
+//                                Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
+//
+//                                ops.add(
+//                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+//                                                .withValues( values )
+//                                                .withYieldAllowed( true )
+//                                                .build()
+//                                );
+//
+//                                Job job = new Job();
+//                                job.setUrl( pictureUrl );
+//                                job.setFilename( imageUri.getLastPathSegment()) ;
+//
+//                                saveImage( provider, job );
+//
+//                            }
+//                            cursor.close();
+//
+//                        }
 
-                            Uri imageUri = Uri.parse( pictureUrl );
-
-                            values = new ContentValues();
-                            values.put( WorkItem.FIELD_NAME, name + " small" );
-                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
-                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
-                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
-                            values.put( WorkItem.FIELD_ADDRESS, pictureUrl );
-                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
-                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
-
-                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { pictureUrl }, null );
-                            if( cursor.moveToNext() ) {
-                                Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
-
-                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
-                                ops.add(
-                                        ContentProviderOperation.newUpdate(ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
-                                                .withValues( values )
-                                                .withYieldAllowed( true )
-                                                .build()
-                                );
-
-                            } else {
-                                Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
-
-                                ops.add(
-                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
-                                                .withValues( values )
-                                                .withYieldAllowed( true )
-                                                .build()
-                                );
-
-                                Job job = new Job();
-                                job.setUrl( pictureUrl );
-                                job.setFilename( imageUri.getLastPathSegment()) ;
-
-                                saveImage( provider, job );
-
-                            }
-                            cursor.close();
-                            count++;
-
-                        }
-
-                        if( !"".equals( pictureUrlLarge ) ) {
-
-                            Uri imageUri = Uri.parse( pictureUrlLarge );
-
-                            values = new ContentValues();
-                            values.put( WorkItem.FIELD_NAME, name + " large" );
-                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
-                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
-                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
-                            values.put( WorkItem.FIELD_ADDRESS, pictureUrlLarge );
-                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
-                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
-
-                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { pictureUrl }, null );
-                            if( cursor.moveToNext() ) {
-                                Log.v( TAG, "processEpisodes : guest image large, updating existing entry" );
-
-                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
-                                ops.add(
-                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
-                                                .withValues( values )
-                                                .withYieldAllowed( true )
-                                                .build()
-                                );
-
-                            } else {
-                                Log.v( TAG, "processEpisodes : guest image large, adding new entry" );
-
-                                ops.add(
-                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
-                                                .withValues( values )
-                                                .withYieldAllowed( true )
-                                                .build()
-                                );
-
-                                Job job = new Job();
-                                job.setUrl( pictureUrlLarge );
-                                job.setFilename( imageUri.getLastPathSegment()) ;
-
-                                saveImage( provider, job );
-
-                            }
-                            cursor.close();
-                            count++;
-
-                        }
+//                        if( !"".equals( pictureUrlLarge ) ) {
+//
+//                            Uri imageUri = Uri.parse( pictureUrlLarge );
+//
+//                            values = new ContentValues();
+//                            values.put( WorkItem.FIELD_NAME, name + " large" );
+//                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
+//                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
+//                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
+//                            values.put( WorkItem.FIELD_ADDRESS, pictureUrlLarge );
+//                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
+//                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+//                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+//
+//                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { pictureUrl }, null );
+//                            if( cursor.moveToNext() ) {
+//                                Log.v( TAG, "processEpisodes : guest image large, updating existing entry" );
+//
+//                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+//                                ops.add(
+//                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+//                                                .withValues( values )
+//                                                .withYieldAllowed( true )
+//                                                .build()
+//                                );
+//
+//                            } else {
+//                                Log.v( TAG, "processEpisodes : guest image large, adding new entry" );
+//
+//                                ops.add(
+//                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+//                                                .withValues( values )
+//                                                .withYieldAllowed( true )
+//                                                .build()
+//                                );
+//
+//                                Job job = new Job();
+//                                job.setUrl( pictureUrlLarge );
+//                                job.setFilename( imageUri.getLastPathSegment()) ;
+//
+//                                saveImage( provider, job );
+//
+//                            }
+//                            cursor.close();
+//
+//                        }
 
                     }
                 }
 
-                if( count > 100 ) {
-                    Log.v( TAG, "processEpisodes : applying batch for '" + count + "' transactions" );
+                if( !ops.isEmpty() ) {
 
-                    if( !ops.isEmpty() ) {
+                    ContentProviderResult[] results = provider.applyBatch( ops );
+                    loaded += results.length;
 
-                        ContentProviderResult[] results = provider.applyBatch( ops );
-                        loaded += results.length;
-
-                        if( results.length > 0 ) {
-                            ops.clear();
-                        }
+                    if( results.length > 0 ) {
+                        ops.clear();
                     }
-
-                    count = 0;
                 }
+
             }
 
             if( !ops.isEmpty() ) {
-                Log.v( TAG, "processEpisodes : applying final batch for '" + count + "' transactions" );
+                Log.v( TAG, "processEpisodes : applying final batch for transactions" );
 
                 ContentProviderResult[] results = provider.applyBatch( ops );
                 loaded += results.length;
@@ -1514,7 +1549,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if( !ops.isEmpty() ) {
-                Log.v( TAG, "processEvents : applying final batch for '" + count + "' transactions" );
+                Log.v( TAG, "processEpisodeDetails : applying final batch for '" + count + "' transactions" );
 
                 ContentProviderResult[] results = provider.applyBatch( ops );
                 loaded += results.length;
@@ -1524,10 +1559,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            Log.i( TAG, "processEvents : events loaded '" + loaded + "'" );
+            Log.i( TAG, "processEpisodeDetails : events loaded '" + loaded + "'" );
 
         } catch( Exception e ) {
-            Log.e( TAG, "processEvents : error", e );
+            Log.e( TAG, "processEpisodeDetails : error", e );
         }
 
         Log.v( TAG, "processEpisodeDetails : exit" );

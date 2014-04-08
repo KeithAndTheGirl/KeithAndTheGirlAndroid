@@ -154,7 +154,7 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
         private LayoutInflater mInflater;
 
         String mEpisodesLabel;
-        DateTimeFormatter mFormatter = DateTimeFormat.forPattern( "MMM d, yyyy" ).withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("America/New_York")));
+        DateTimeFormatter mFormatter = DateTimeFormat.forPattern( "MMM d, yyyy" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
 
         public EpisodeCursorAdapter( Context context ) {
             super( context, null, false );
@@ -175,8 +175,8 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
             refHolder.showDate = (TextView) view.findViewById( R.id.episode_date );
             refHolder.title = (TextView) view.findViewById( R.id.episode_title );
             refHolder.details = (ImageView) view.findViewById( R.id.episode_details );
-            refHolder.guestNames = (TextView) view.findViewById( R.id.episode_guest_names );
-            refHolder.guestImages = (LinearLayout) view.findViewById( R.id.episode_guest_images );
+//            refHolder.guestNames = (TextView) view.findViewById( R.id.episode_guest_names );
+//            refHolder.guestImages = (LinearLayout) view.findViewById( R.id.episode_guest_images );
             refHolder.played = (TextView) view.findViewById( R.id.episode_played );
             refHolder.downloaded = (TextView) view.findViewById( R.id.episode_downloaded );
 
@@ -194,70 +194,70 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
             long instant = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_TIMESTAMP ) );
 
             mHolder.number.setText( mEpisodesLabel + " " + cursor.getInt( cursor.getColumnIndex( Episode.FIELD_NUMBER ) ) );
-            mHolder.showDate.setText( mFormatter.print(instant) );
-            mHolder.title.setText(cursor.getString(cursor.getColumnIndex(Episode.FIELD_TITLE)));
+            mHolder.showDate.setText( mFormatter.print( instant ) );
+            mHolder.title.setText(cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
 
-            List<Long> episodeGuests = new ArrayList<Long>();
-            Cursor episodeGuestCursor = mContext.getContentResolver().query( EpisodeGuests.CONTENT_URI, null, EpisodeGuests.FIELD_SHOWID + "=?", new String[] { String.valueOf( id ) }, EpisodeGuests.FIELD_SHOWGUESTID );
-            while( episodeGuestCursor.moveToNext() ) {
-                episodeGuests.add( episodeGuestCursor.getLong( episodeGuestCursor.getColumnIndex( EpisodeGuests.FIELD_SHOWGUESTID ) ) );
-            }
-            episodeGuestCursor.close();
-
-            if( !episodeGuests.isEmpty() ) {
-
-                int index = 0;
-                String guestLabel = "";
-
-                for( long guestId : episodeGuests ) {
-
-                    Cursor guestCursor = mContext.getContentResolver().query( ContentUris.withAppendedId( Guest.CONTENT_URI, guestId ), null, null, null, null );
-                    while( guestCursor.moveToNext() ) {
-
-                        guestLabel = guestLabel + guestCursor.getString( guestCursor.getColumnIndex( Guest.FIELD_REALNAME ) );
-                    }
-                    guestCursor.close();
-
-                    String filename = "guest_" + guestId + "_150x150.jpg";
-
-                    if( mContext.getFileStreamPath( filename ).exists() ) {
-
-                        String path = mContext.getFileStreamPath( filename ).getAbsolutePath();
-
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeFile( path, options);
-                        int imageHeight = options.outHeight;
-                        int imageWidth = options.outWidth;
-                        String imageType = options.outMimeType;
-
-                        float aspectRatio = imageWidth / imageHeight;
-                        float newWidth = imageWidth * 75 / imageHeight;
-
-                        Log.v( TAG, "updateHeader : original image info (hxw) - " + imageHeight + "x" + imageWidth + ", aspectRatio = " + aspectRatio + ", new size (hxw) - 150x" + newWidth + ", " + imageType );
-
-                        ImageView guestImage = new ImageView( mContext );
-                        guestImage.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, (int) newWidth, 75 ) );
-                        guestImage.setPadding( 0, 0, 10, 0 );
-                        mHolder.guestImages.addView( guestImage );
-
-                    }
-
-                    if( index < episodeGuests.size() - 1 ) {
-                        guestLabel = guestLabel + ", ";
-                    }
-
-                    index++;
-
-                }
-
-                if( !"".equals( guestLabel ) ) {
-
-                    mHolder.guestNames.setText( guestLabel );
-
-                }
-
-            }
+//            List<Long> episodeGuests = new ArrayList<Long>();
+//            Cursor episodeGuestCursor = mContext.getContentResolver().query( EpisodeGuests.CONTENT_URI, null, EpisodeGuests.FIELD_SHOWID + "=?", new String[] { String.valueOf( id ) }, EpisodeGuests.FIELD_SHOWGUESTID );
+//            while( episodeGuestCursor.moveToNext() ) {
+//                episodeGuests.add( episodeGuestCursor.getLong( episodeGuestCursor.getColumnIndex( EpisodeGuests.FIELD_SHOWGUESTID ) ) );
+//            }
+//            episodeGuestCursor.close();
+//
+//            if( !episodeGuests.isEmpty() ) {
+//
+//                int index = 0;
+//                String guestLabel = "";
+//
+//                for( long guestId : episodeGuests ) {
+//
+//                    Cursor guestCursor = mContext.getContentResolver().query( ContentUris.withAppendedId( Guest.CONTENT_URI, guestId ), null, null, null, null );
+//                    while( guestCursor.moveToNext() ) {
+//
+//                        guestLabel = guestLabel + guestCursor.getString( guestCursor.getColumnIndex( Guest.FIELD_REALNAME ) );
+//                    }
+//                    guestCursor.close();
+//
+//                    String filename = "guest_" + guestId + "_150x150.jpg";
+//
+//                    if( mContext.getFileStreamPath( filename ).exists() ) {
+//
+//                        String path = mContext.getFileStreamPath( filename ).getAbsolutePath();
+//
+//                        BitmapFactory.Options options = new BitmapFactory.Options();
+//                        options.inJustDecodeBounds = true;
+//                        BitmapFactory.decodeFile( path, options);
+//                        int imageHeight = options.outHeight;
+//                        int imageWidth = options.outWidth;
+//                        String imageType = options.outMimeType;
+//
+//                        float aspectRatio = imageWidth / imageHeight;
+//                        float newWidth = imageWidth * 75 / imageHeight;
+//
+//                        Log.v( TAG, "updateHeader : original image info (hxw) - " + imageHeight + "x" + imageWidth + ", aspectRatio = " + aspectRatio + ", new size (hxw) - 150x" + newWidth + ", " + imageType );
+//
+//                        ImageView guestImage = new ImageView( mContext );
+//                        guestImage.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, (int) newWidth, 75 ) );
+//                        guestImage.setPadding( 0, 0, 10, 0 );
+//                        mHolder.guestImages.addView( guestImage );
+//
+//                    }
+//
+//                    if( index < episodeGuests.size() - 1 ) {
+//                        guestLabel = guestLabel + ", ";
+//                    }
+//
+//                    index++;
+//
+//                }
+//
+//                if( !"".equals( guestLabel ) ) {
+//
+//                    mHolder.guestNames.setText( guestLabel );
+//
+//                }
+//
+//            }
 
         }
 
@@ -269,8 +269,8 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
         TextView showDate;
         TextView title;
         ImageView details;
-        TextView guestNames;
-        LinearLayout guestImages;
+//        TextView guestNames;
+//        LinearLayout guestImages;
         TextView played;
         TextView downloaded;
 

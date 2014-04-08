@@ -60,7 +60,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <!-- LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -86,16 +86,16 @@
             android:text="@string/episode_no_guests"
         />
 
-    </LinearLayout>
+    </LinearLayout -->
 
-    <LinearLayout
+    <!-- LinearLayout
         android:id="@+id/episode_guest_images"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="3dp"
         android:paddingBottom="3dp"
-    />
+    / -->
 
     <LinearLayout
         android:id="@+id/episode_status"
