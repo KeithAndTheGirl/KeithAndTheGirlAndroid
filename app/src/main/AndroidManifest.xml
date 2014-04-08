@@ -20,33 +20,36 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-
         <activity
-            android:name=".ui.MainActivity"
+            android:name="com.keithandthegirl.app.ui.MainActivity"
             android:label="@string/app_name" >
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
+        </activity>
+        <activity
+            android:name="com.keithandthegirl.app.ui.ShowsActivity"
+            android:label="@string/title_activity_shows"
+            android:parentActivityName="com.keithandthegirl.app.ui.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="MainActivity" />
         </activity>
 
         <!-- KATG Receivers -->
-        <receiver android:name=".db.schedule.KatgAlarmReceiver" />
-
-        <receiver android:name=".db.schedule.KatgBootReceiver"
-            android:enabled="false">
+        <receiver android:name="com.keithandthegirl.app.db.schedule.KatgAlarmReceiver" />
+        <receiver
+            android:name="com.keithandthegirl.app.db.schedule.KatgBootReceiver"
+            android:enabled="false" >
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <!-- KATG Services -->
-        <service
-            android:name=".db.sync.AuthenticatorService">
-
+        <service android:name="com.keithandthegirl.app.db.sync.AuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -54,29 +57,24 @@
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
-
         </service>
-
         <service
-            android:name=".db.sync.SyncService"
+            android:name="com.keithandthegirl.app.db.sync.SyncService"
             android:exported="true"
-            android:process=":sync">
-
+            android:process=":sync" >
             <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
+                <action android:name="android.content.SyncAdapter" />
             </intent-filter>
 
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
-
         </service>
-
-        <service android:name=".db.schedule.KatgSchedulingService" />
+        <service android:name="com.keithandthegirl.app.db.schedule.KatgSchedulingService" />
 
         <!-- KATG Providers -->
         <provider
-            android:name=".db.KatgProvider"
+            android:name="com.keithandthegirl.app.db.KatgProvider"
             android:authorities="com.keithandthegirl.provider"
             android:exported="false"
             android:syncable="true" />

@@ -75,6 +75,8 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
         Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated(savedInstanceState);
 
+        setRetainInstance( true );
+
         getLoaderManager().initLoader( 0, getArguments(), this );
         mAdapter = new EventCursorAdapter( getActivity().getApplicationContext() );
         setListAdapter( mAdapter );

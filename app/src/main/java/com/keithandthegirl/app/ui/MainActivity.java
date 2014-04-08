@@ -3,43 +3,37 @@ package com.keithandthegirl.app.ui;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
-import com.keithandthegirl.app.db.model.Endpoint;
-import com.keithandthegirl.app.db.model.Episode;
-import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 
+import java.util.Locale;
 
-public class MainActivity extends ActionBarActivity implements ShowsGridFragment.OnShowSelectedListener {
+
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
     Account mAccount;
 
-    ActionBar.Tab eventsTab, showsTab, guestsTab;
-    EventsFragment eventsFragment = new EventsFragment();
-    ShowsGridFragment showsGridFragment = new ShowsGridFragment();
+    SectionsPagerAdapter mSectionsPagerAdapter;
+    ViewPager mViewPager;
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -47,12 +41,6 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_main );
-
-        if( savedInstanceState == null ) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .add( R.id.container, showsGridFragment )  // WorkFragment()
-//                    .commit();
-        }
 
         mAccount = MainApplication.CreateSyncAccount( this );
 
@@ -77,20 +65,42 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
 
         alarm.setAlarm( this );
 
-        ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
 
-        eventsTab = actionBar.newTab().setText(getResources().getString(R.string.action_bar_tab_events));
-        showsTab = actionBar.newTab().setText( getResources().getString( R.string.action_bar_tab_shows ) );
-//        guestsTab = actionBar.newTab().setText( getResources().getString( R.string.action_bar_tab_guests ) );
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mSectionsPagerAdapter = new SectionsPagerAdapter( getSupportFragmentManager() );
 
-        eventsTab.setTabListener( new MyTabListener( eventsFragment ) );
-        showsTab.setTabListener( new MyTabListener( showsGridFragment ) );
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById( R.id.pager );
+        mViewPager.setAdapter( mSectionsPagerAdapter );
 
-        actionBar.addTab( eventsTab );
-        actionBar.addTab( showsTab );
+        // When swiping between different sections, select the corresponding
+        // tab. We can also use ActionBar.Tab#select() to do this if we have
+        // a reference to the Tab.
+        mViewPager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener() {
 
-        actionBar.selectTab( showsTab );
+            @Override
+            public void onPageSelected( int position ) {
+                actionBar.setSelectedNavigationItem( position );
+            }
+
+        });
+
+        // For each of the sections in the app, add a tab to the action bar.
+        for( int i = 0; i < mSectionsPagerAdapter.getCount(); i++ ) {
+
+            // Create a tab with text corresponding to the page title defined by
+            // the adapter. Also specify this Activity object, which implements
+            // the TabListener interface, as the callback (listener) for when
+            // this tab is selected.
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText( mSectionsPagerAdapter.getPageTitle( i ) )
+                            .setTabListener( this ) );
+
+        }
 
         Log.d( TAG, "onCreate : exit" );
     }
@@ -137,151 +147,64 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
     }
 
     @Override
-    public void onShowSelected( long showNameId ) {
-        Log.d( TAG, "onShowSelected : enter" );
+    public void onTabSelected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
 
-        ShowFragment showFragment = (ShowFragment) getSupportFragmentManager().findFragmentById( R.id.frag );
+        // When the given tab is selected, switch to the corresponding page in
+        // the ViewPager.
+        mViewPager.setCurrentItem( tab.getPosition() );
 
-        if( null != showFragment ) {
-
-            showFragment.updateShow( showNameId );
-
-        } else {
-
-            // Create fragment and give it an argument for the selected article
-            ShowFragment newFragment = new ShowFragment();
-            Bundle args = new Bundle();
-            args.putLong( ShowFragment.SHOW_NAME_ID_KEY, showNameId );
-            newFragment.setArguments( args );
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            // Replace whatever is in the fragment_container view with this fragment,
-            // and add the transaction to the back stack so the user can navigate back
-            transaction.replace( R.id.container, newFragment );
-            transaction.addToBackStack( null );
-
-            // Commit the transaction
-            transaction.commit();
-        }
-
-        Log.d( TAG, "onShowSelected : exit" );
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
+    @Override
+    public void onTabUnselected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
+    }
 
-        private static final String TAG = PlaceholderFragment.class.getSimpleName();
+    @Override
+    public void onTabReselected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
+    }
 
-        Account mAccount;
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public PlaceholderFragment() {
+        public SectionsPagerAdapter( FragmentManager fm ) {
+
+            super( fm );
+
         }
 
         @Override
-        public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+        public Fragment getItem( int position ) {
 
-            View rootView = inflater.inflate( R.layout.fragment_main, container, false );
-
-            return rootView;
-        }
-
-        @Override
-        public void onActivityCreated( Bundle savedInstanceState ) {
-            Log.d( TAG, "onActivityCreated : enter" );
-            super.onActivityCreated( savedInstanceState );
-
-            View view = getActivity().findViewById( R.id.frag );
-
-            Log.v( TAG, "PlaceholderFragment.onActivityCreated : creating account" );
-            mAccount = MainApplication.CreateSyncAccount( getActivity() );
-
-            try {
-
-                Cursor cursor = getActivity().getContentResolver().query( Endpoint.CONTENT_URI, null, null, null, null );
-                while( cursor.moveToNext() ) {
-
-                    String url = cursor.getString( cursor.getColumnIndex( Endpoint.FIELD_URL ) );
-                    Log.i( TAG, "onActivityCreated url=" + url );
-
-                    TextView t = new TextView( getActivity() );
-                    t.setText( url );
-                    ( (LinearLayout) view ).addView(t);
-                }
-                cursor.close();
-
-                cursor = getActivity().getContentResolver().query( Show.CONTENT_URI, null, null, null, Show.FIELD_SORTORDER );
-                while( cursor.moveToNext() ) {
-
-                    String name = cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) );
-                    Log.i( TAG, "onActivityCreated name=" + name );
-
-                    TextView t = new TextView( getActivity() );
-                    t.setText( name );
-                    ( (LinearLayout) view ).addView( t );
-                }
-                cursor.close();
-
-                cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId(Live.CONTENT_URI, 1), null, null, null, null );
-                while( cursor.moveToNext() ) {
-
-                    boolean broadcasting = cursor.getInt( cursor.getColumnIndex( Live.FIELD_BROADCASTING ) ) == 1 ? true : false;
-                    Log.i( TAG, "onActivityCreated broadcasting=" + broadcasting );
-
-                    TextView t = new TextView( getActivity() );
-                    t.setText( "Broadcasting: " + broadcasting );
-                    ( (LinearLayout) view ).addView( t );
-                }
-                cursor.close();
-
-                cursor = getActivity().getContentResolver().query( Episode.CONTENT_URI, null, null, null, Episode.FIELD_NUMBER + " DESC" );
-                while( cursor.moveToNext() ) {
-
-                    String title = cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) );
-                    Log.i( TAG, "onActivityCreated title=" + title );
-
-                    TextView t = new TextView( getActivity() );
-                    t.setText( title );
-                    ( (LinearLayout) view ).addView( t );
-                }
-                cursor.close();
-
-            } catch( Exception e ) {
-                Log.e( TAG, "onActivityCreated : error", e );
+            switch ( position ) {
+                case 0:
+                    return new ShowsGridFragment();
+                case 1:
+                    return new EventsFragment();
+//                case 2:
+//                    return getString(R.string.title_section3);
             }
 
-            Bundle settingsBundle = new Bundle();
-            settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
-            settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
-
-            Log.v( TAG, "onActivityCreated : requesting sync" );
-            ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
-
-            Log.v( TAG, "onActivityCreated : exit" );
+            return null;
         }
 
-    }
-
-    private class MyTabListener implements ActionBar.TabListener {
-
-        Fragment fragment;
-
-        public MyTabListener( Fragment fragment ) {
-            this.fragment = fragment;
+        @Override
+        public int getCount() {
+            // Show 3 total pages.
+            return 2;
         }
 
-        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft ) {
-            ft.replace( R.id.container, fragment );
-        }
+        @Override
+        public CharSequence getPageTitle( int position ) {
 
-        public void onTabUnselected( ActionBar.Tab tab, FragmentTransaction ft ) {
-            ft.remove(fragment);
-        }
+            switch( position ) {
+                case 0:
+                    return getString( R.string.action_bar_tab_shows );
+                case 1:
+                    return getString( R.string.action_bar_tab_events );
+//                case 2:
+//                    return getString( R.string.action_bar_tab_guests );
+            }
 
-        public void onTabReselected( ActionBar.Tab tab, FragmentTransaction ft ) {
-            // nothing done here
+            return null;
         }
 
     }

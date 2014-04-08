@@ -47,6 +47,20 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
     EpisodeCursorAdapter mAdapter;
     long mShowNameId;
 
+    /**
+     * Returns a new instance of this fragment for the given show id.
+     */
+    public static ShowFragment newInstance( long showNameId ) {
+
+        ShowFragment fragment = new ShowFragment();
+
+        Bundle args = new Bundle();
+        args.putLong( SHOW_NAME_ID_KEY, showNameId );
+        fragment.setArguments( args );
+
+        return fragment;
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v(TAG, "onCreateLoader : enter");

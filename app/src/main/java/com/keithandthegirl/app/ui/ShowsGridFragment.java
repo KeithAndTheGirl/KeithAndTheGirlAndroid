@@ -2,6 +2,7 @@ package com.keithandthegirl.app.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,15 +33,9 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
     private static final String TAG = ShowsGridFragment.class.getSimpleName();
 
-    OnShowSelectedListener mCallback;
-
     ShowCursorAdapter mAdapter;
 
     FileObserver fileObserver = null;
-
-    public interface OnShowSelectedListener {
-        public void onShowSelected( long showId );
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
@@ -69,9 +64,9 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v(TAG, "onLoaderReset : enter");
+        Log.v( TAG, "onLoaderReset : enter" );
 
-        mAdapter.swapCursor(null);
+        mAdapter.swapCursor( null );
 
         Log.v( TAG, "onLoaderReset : exit" );
     }
@@ -89,19 +84,25 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
         Log.v( TAG, "onActivityCreated : enter" );
-        super.onActivityCreated(savedInstanceState);
+        super.onActivityCreated( savedInstanceState );
+
+        setRetainInstance( true );
 
         getLoaderManager().initLoader( 0, getArguments(), this );
         mAdapter = new ShowCursorAdapter( getActivity().getApplicationContext() );
 
-        GridView gridview = (GridView) getActivity().findViewById(R.id.shows_gridview);
+        GridView gridview = (GridView) getActivity().findViewById( R.id.shows_gridview );
         gridview.setAdapter( mAdapter );
 
         gridview.setOnItemClickListener( new AdapterView.OnItemClickListener() {
 
             public void onItemClick( AdapterView<?> parent, View v, int position, long id ) {
+                Log.v( TAG, "onItemClick : enter - position=" + position + ", id=" + id );
 
-            mCallback.onShowSelected( id );
+                Intent intent = new Intent( getActivity(), ShowsActivity.class );
+                intent.putExtra( ShowsActivity.SHOW_NAME_POSITION_KEY, position );
+
+                startActivity( intent );
 
             }
 
@@ -126,22 +127,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         };
 
         Log.v( TAG, "onActivityCreated : exit" );
-    }
-
-    @Override
-    public void onAttach( Activity activity ) {
-        Log.v( TAG, "onAttach : enter" );
-        super.onAttach( activity );
-
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception
-        try {
-            mCallback = (OnShowSelectedListener) activity;
-        } catch( ClassCastException e ) {
-            throw new ClassCastException( activity.toString() + " must implement OnShowSelectedListener");
-        }
-
-        Log.v( TAG, "onAttach : exit" );
     }
 
     private class ShowCursorAdapter extends CursorAdapter {
