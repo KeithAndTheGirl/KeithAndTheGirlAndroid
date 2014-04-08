@@ -49,9 +49,9 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
         setContentView( R.layout.activity_main );
 
         if( savedInstanceState == null ) {
-            getSupportFragmentManager().beginTransaction()
-                    .add( R.id.container, new ShowsGridFragment() )  // WorkFragment()
-                    .commit();
+//            getSupportFragmentManager().beginTransaction()
+//                    .add( R.id.container, showsGridFragment )  // WorkFragment()
+//                    .commit();
         }
 
         mAccount = MainApplication.CreateSyncAccount( this );
@@ -144,7 +144,7 @@ public class MainActivity extends ActionBarActivity implements ShowsGridFragment
 
         if( null != showFragment ) {
 
-            showFragment.updateShow(showNameId);
+            showFragment.updateShow( showNameId );
 
         } else {
 
