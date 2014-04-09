@@ -28,6 +28,14 @@
             android:text="real name"
             android:textSize="18sp" />
 
+        <TextView
+            android:id="@+id/guest_episodes"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/black"
+            android:text="episodes"
+            android:textSize="14sp" />
+
     </LinearLayout>
 
     <View

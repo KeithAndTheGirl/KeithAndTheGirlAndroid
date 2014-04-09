@@ -18,60 +18,41 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.Guest;
 import com.keithandthegirl.app.utils.ImageUtils;
 
-public class GuestsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GuestsFragment extends ListFragment {
 
     private static final String TAG = GuestsFragment.class.getSimpleName();
 
+    private static final String RAW_GUESTS_QUERY =
+            "SELECT distinct " +
+            "    g._id, g.realname, g.pictureurl, count( eg.showguestid) as count " +
+            "FROM " +
+            "    guest g left join episode_guests eg on g._id = eg.showguestid " +
+            "group by " +
+            "    eg.showguestid " +
+            "order by " +
+            "    eg.showid desc";
+
+    DatabaseHelper dbHelper;
+    Cursor cursor;
     GuestCursorAdapter mAdapter;
-
-    @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        Log.v(TAG, "onCreateLoader : enter");
-
-        String[] projection = null;
-
-        String selection = null;
-
-        String[] selectionArgs = null;
-
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Guest.CONTENT_URI, projection, selection, selectionArgs, null );
-
-        Log.v( TAG, "onCreateLoader : exit" );
-        return cursorLoader;
-    }
-
-    @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        Log.v( TAG, "onLoadFinished : enter" );
-
-        mAdapter.swapCursor( cursor );
-
-        Log.v( TAG, "onLoadFinished : exit" );
-    }
-
-    @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v( TAG, "onLoaderReset : enter" );
-
-        mAdapter.swapCursor( null );
-
-        Log.v( TAG, "onLoaderReset : exit" );
-    }
 
     public GuestsFragment() { }
 
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    public void onActivityCreated( Bundle savedInstanceState ) {
         Log.v( TAG, "onActivityCreated : enter" );
-        super.onCreate( savedInstanceState );
+        super.onActivityCreated( savedInstanceState );
 
         setRetainInstance( true );
 
-        getLoaderManager().initLoader( 0, getArguments(), this );
-        mAdapter = new GuestCursorAdapter( getActivity().getApplicationContext() );
+        dbHelper = new DatabaseHelper( getActivity() );
+        cursor = dbHelper.getReadableDatabase().rawQuery( RAW_GUESTS_QUERY, null );
+
+        mAdapter = new GuestCursorAdapter( getActivity(), cursor );
         setListAdapter( mAdapter );
 
         Log.v( TAG, "onActivityCreated : exit" );
@@ -88,8 +69,8 @@ public class GuestsFragment extends ListFragment implements LoaderManager.Loader
         private Context mContext;
         private LayoutInflater mInflater;
 
-        public GuestCursorAdapter( Context context ) {
-            super( context, null, false );
+        public GuestCursorAdapter( Context context, Cursor cursor ) {
+            super( context, cursor, false );
 
             mContext = context;
             mInflater = LayoutInflater.from( context );
@@ -103,6 +84,7 @@ public class GuestsFragment extends ListFragment implements LoaderManager.Loader
             ViewHolder refHolder = new ViewHolder();
             refHolder.image = (ImageView) view.findViewById( R.id.guest_image );
             refHolder.realName = (TextView) view.findViewById( R.id.guest_real_name );
+            refHolder.episodes = (TextView) view.findViewById( R.id.guest_episodes );
 
             view.setTag( refHolder );
 
@@ -117,7 +99,7 @@ public class GuestsFragment extends ListFragment implements LoaderManager.Loader
             String pictureUrl = cursor.getString( cursor.getColumnIndex( Guest.FIELD_PICTUREURL ) );
             if( null != pictureUrl && !"".equals( pictureUrl ) ) {
 
-                Uri pictureUri = Uri.parse( pictureUrl );
+                Uri pictureUri = Uri.parse(pictureUrl);
                 if( mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).exists() ) {
 
                     String path = mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).getAbsolutePath();
@@ -134,6 +116,7 @@ public class GuestsFragment extends ListFragment implements LoaderManager.Loader
             }
 
             mHolder.realName.setText( cursor.getString( cursor.getColumnIndex( Guest.FIELD_REALNAME ) ) );
+            mHolder.episodes.setText( "Episodes: " + cursor.getString( cursor.getColumnIndex( "count" ) ) );
 
         }
 
@@ -143,6 +126,7 @@ public class GuestsFragment extends ListFragment implements LoaderManager.Loader
 
         ImageView image;
         TextView realName;
+        TextView episodes;
 
         ViewHolder() { }
 
