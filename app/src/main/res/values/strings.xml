@@ -13,9 +13,7 @@
     <string name="episode_not_played">Not Played</string>
     <string name="episode_not_downloaded">Not Downloaded</string>
     <string name="title_activity_shows">ShowsActivity</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
-    <string name="title_activity_main_activity2">MainActivity2</string>
+
+    <string name="no_network_connection_toast">No network connection found</string>
 
 </resources>

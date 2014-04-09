@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.Guest;
+import com.keithandthegirl.app.utils.ImageCache;
+import com.keithandthegirl.app.utils.ImageFetcher;
 import com.keithandthegirl.app.utils.ImageUtils;
 
 public class GuestsFragment extends ListFragment {
@@ -36,11 +38,37 @@ public class GuestsFragment extends ListFragment {
             "order by " +
             "    eg.showid desc";
 
+    private static final String IMAGE_CACHE_DIR = "thumbs";
+
+    private int mImageThumbSize;
+    private int mImageThumbSpacing;
+    private ImageFetcher mImageFetcher;
+
     DatabaseHelper dbHelper;
     Cursor cursor;
     GuestCursorAdapter mAdapter;
 
     public GuestsFragment() { }
+
+    @Override
+    public void onCreate( Bundle savedInstanceState ) {
+        Log.v( TAG, "onCreate : enter" );
+        super.onCreate( savedInstanceState );
+
+        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.list_image_thumbnail_size );
+        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
+
+        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
+
+        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
+
+        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
+        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
+//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
+        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
+
+        Log.v( TAG, "onCreate : exit" );
+    }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
@@ -56,6 +84,39 @@ public class GuestsFragment extends ListFragment {
         setListAdapter( mAdapter );
 
         Log.v( TAG, "onActivityCreated : exit" );
+    }
+
+    @Override
+    public void onResume() {
+        Log.v( TAG, "onResume : enter" );
+
+        super.onResume();
+        mImageFetcher.setExitTasksEarly( false );
+        mAdapter.notifyDataSetChanged();
+
+        Log.v( TAG, "onResume : exit" );
+    }
+
+    @Override
+    public void onPause() {
+        Log.v( TAG, "onPause : enter" );
+
+        super.onPause();
+        mImageFetcher.setPauseWork( false );
+        mImageFetcher.setExitTasksEarly( true );
+        mImageFetcher.flushCache();
+
+        Log.v( TAG, "onPause : exit" );
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.v( TAG, "onDestroy : enter" );
+
+        super.onDestroy();
+        mImageFetcher.closeCache();
+
+        Log.v( TAG, "onDestroy : exit" );
     }
 
     @Override
@@ -99,19 +160,26 @@ public class GuestsFragment extends ListFragment {
             String pictureUrl = cursor.getString( cursor.getColumnIndex( Guest.FIELD_PICTUREURL ) );
             if( null != pictureUrl && !"".equals( pictureUrl ) ) {
 
-                Uri pictureUri = Uri.parse(pictureUrl);
-                if( mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).exists() ) {
+//                Uri pictureUri = Uri.parse(pictureUrl);
+//                if( mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).exists() ) {
+//
+//                    String path = mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).getAbsolutePath();
+//                    mHolder.image.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, 75, 75 ) );
+//
+//                } else {
+//
+//                    mHolder.image.setImageBitmap( null );
+//                    mHolder.image.setVisibility( View.GONE );
+//
+//                }
 
-                    String path = mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).getAbsolutePath();
-                    mHolder.image.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, 75, 75 ) );
-                    mHolder.image.setVisibility( View.VISIBLE );
+                mHolder.image.setVisibility( View.VISIBLE );
 
-                } else {
+                mImageFetcher.loadImage( pictureUrl, mHolder.image );
 
-                    mHolder.image.setImageBitmap( null );
-                    mHolder.image.setVisibility( View.GONE );
+            } else {
 
-                }
+                mHolder.image.setVisibility( View.GONE );
 
             }
 

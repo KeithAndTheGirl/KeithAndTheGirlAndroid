@@ -10,7 +10,8 @@
         android:id="@+id/guest_image"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:visibility="gone" />
+        android:layout_margin="10dp"
+        android:padding="5dp" />
 
     <LinearLayout
         android:orientation="vertical"

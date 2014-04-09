@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.utils.ImageCache;
+import com.keithandthegirl.app.utils.ImageFetcher;
 import com.keithandthegirl.app.utils.ImageUtils;
 
 import java.io.File;
@@ -32,6 +34,32 @@ public class ShowHeaderFragment extends Fragment {
     Context mContext;
     ImageView mCoverImageView;
     TextView mTitleTextView, mDescriptionTextView;
+
+    private static final String IMAGE_CACHE_DIR = "thumbs";
+
+    private int mImageThumbSize;
+    private int mImageThumbSpacing;
+    private ImageFetcher mImageFetcher;
+
+    @Override
+    public void onCreate( Bundle savedInstanceState ) {
+        Log.v( TAG, "onCreate : enter" );
+        super.onCreate( savedInstanceState );
+
+        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_size );
+        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
+
+        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
+
+        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
+
+        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
+        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
+//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
+        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
+
+        Log.v( TAG, "onCreate : exit" );
+    }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
@@ -53,7 +81,7 @@ public class ShowHeaderFragment extends Fragment {
         mCoverImageView = (ImageView) getActivity().findViewById( R.id.show_coverimage );
         mTitleTextView = (TextView) getActivity().findViewById( R.id.show_title );
         mDescriptionTextView = (TextView) getActivity().findViewById( R.id.show_description );
-        mDescriptionTextView.setMovementMethod(new ScrollingMovementMethod());
+        mDescriptionTextView.setMovementMethod( new ScrollingMovementMethod() );
 
         if( null != getArguments() ) {
 
@@ -66,23 +94,55 @@ public class ShowHeaderFragment extends Fragment {
         Log.v( TAG, "onActivityCreated : enter" );
     }
 
+    @Override
+    public void onResume() {
+        Log.v( TAG, "onResume : enter" );
+
+        super.onResume();
+        mImageFetcher.setExitTasksEarly( false );
+//        mAdapter.notifyDataSetChanged();
+
+        Log.v( TAG, "onResume : exit" );
+    }
+
+    @Override
+    public void onPause() {
+        Log.v( TAG, "onPause : enter" );
+
+        super.onPause();
+        mImageFetcher.setPauseWork( false );
+        mImageFetcher.setExitTasksEarly( true );
+        mImageFetcher.flushCache();
+
+        Log.v( TAG, "onPause : exit" );
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.v( TAG, "onDestroy : enter" );
+
+        super.onDestroy();
+        mImageFetcher.closeCache();
+
+        Log.v( TAG, "onDestroy : exit" );
+    }
+
     public void updateHeader( long showNameId ) {
         Log.v( TAG, "updateHeader : enter" );
 
         Log.v( TAG, "updateHeader : showNameId=" + showNameId );
 
-        String[] projection = new String[] { Show._ID, Show.FIELD_NAME, Show.FIELD_DESCRIPTION, Show.FIELD_PREFIX };
+        String[] projection = new String[] { Show._ID, Show.FIELD_NAME, Show.FIELD_DESCRIPTION, Show.FIELD_COVERIMAGEURL };
 
         Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( Show.CONTENT_URI, showNameId ), projection, null, null, null );
         if( cursor.moveToNext() ) {
 
-            String filename = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) ) + "_cover.jpg";
-            String path = mContext.getFileStreamPath( filename ).getAbsolutePath();
-
-            mCoverImageView.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, 150, 150 ) );
+            String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL ) );
 
             mTitleTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) ) );
             mDescriptionTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_DESCRIPTION ) ) );
+
+            mImageFetcher.loadImage( coverUrl, mCoverImageView );
 
         }
         cursor.close();

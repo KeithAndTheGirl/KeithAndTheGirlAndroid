@@ -334,7 +334,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     case IMAGE:
                         Log.v( TAG, "runScheduledWorkItems : refreshing images" );
 
-                        saveImage( provider, job );
+//                        saveImage( provider, job );
 
                         break;
 
@@ -578,43 +578,43 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         return jsonArray;
     }
 
-    private void saveImage( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        Log.v( TAG, "saveImage : enter, url=" +job.getUrl() + ", filename=" + job.getFilename() );
-
-        if( null == job.getUrl() ) {
-            Log.v( TAG, "saveImage : exit, url is null" );
-
-            return;
-        }
-
-        if( null == job.getFilename() ) {
-            Log.v( TAG, "saveImage : exit, filename is null" );
-
-            return;
-        }
-
-        Bitmap bitmap = loadBitmapFromNetwork( job );
-
-        FileOutputStream fos = mContext.openFileOutput( job.getFilename(), Context.MODE_PRIVATE );
-        bitmap.compress( Bitmap.CompressFormat.JPEG, 100, fos );
-        fos.close();
-
-        if( null != job.getId() ) {
-
-            DateTime lastRun = new DateTime( DateTimeZone.UTC );
-            ContentValues update = new ContentValues();
-            update.put( WorkItem._ID, job.getId() );
-            update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
-
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
-
-        }
-
-        Log.v( TAG, "saveImage : exit" );
-    }
+//    private void saveImage( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+//        Log.v( TAG, "saveImage : enter, url=" +job.getUrl() + ", filename=" + job.getFilename() );
+//
+//        if( null == job.getUrl() ) {
+//            Log.v( TAG, "saveImage : exit, url is null" );
+//
+//            return;
+//        }
+//
+//        if( null == job.getFilename() ) {
+//            Log.v( TAG, "saveImage : exit, filename is null" );
+//
+//            return;
+//        }
+//
+//        Bitmap bitmap = loadBitmapFromNetwork( job );
+//
+//        FileOutputStream fos = mContext.openFileOutput( job.getFilename(), Context.MODE_PRIVATE );
+//        bitmap.compress( Bitmap.CompressFormat.JPEG, 100, fos );
+//        fos.close();
+//
+//        if( null != job.getId() ) {
+//
+//            DateTime lastRun = new DateTime( DateTimeZone.UTC );
+//            ContentValues update = new ContentValues();
+//            update.put( WorkItem._ID, job.getId() );
+//            update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+//            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
+//            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+//            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+//
+//            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+//
+//        }
+//
+//        Log.v( TAG, "saveImage : exit" );
+//    }
 
     private Bitmap loadBitmapFromNetwork( Job job ) throws IOException {
         Log.v( TAG, "loadBitmapFromNetwork : enter" );
@@ -781,46 +781,46 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
                 count++;
 
-                values = new ContentValues();
-                values.put( WorkItem.FIELD_NAME, name + " cover" );
-                values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
-                values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
-                values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
-                values.put( WorkItem.FIELD_ADDRESS, coverImageUrl );
-                values.put( WorkItem.FIELD_PARAMETERS, prefix + "_cover.jpg" );
-                values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-                values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
-
-                cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { coverImageUrl }, null );
-                if( cursor.moveToNext() ) {
-                    Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
-
-                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
-                    ops.add(
-                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
-                                    .withValues( values )
-                                    .withYieldAllowed( true )
-                                    .build()
-                    );
-
-                } else {
-                    Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
-
-                    ops.add(
-                            ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
-                                    .withValues( values )
-                                    .withYieldAllowed( true )
-                                    .build()
-                    );
-
-                    Job coverJob = new Job();
-                    coverJob.setUrl( coverImageUrl );
-                    coverJob.setFilename( prefix + "_cover.jpg" );
-
-                    saveImage( provider, coverJob );
-                }
-                cursor.close();
-                count++;
+//                values = new ContentValues();
+//                values.put( WorkItem.FIELD_NAME, name + " cover" );
+//                values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
+//                values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
+//                values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
+//                values.put( WorkItem.FIELD_ADDRESS, coverImageUrl );
+//                values.put( WorkItem.FIELD_PARAMETERS, prefix + "_cover.jpg" );
+//                values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+//                values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+//
+//                cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { coverImageUrl }, null );
+//                if( cursor.moveToNext() ) {
+//                    Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
+//
+//                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+//                    ops.add(
+//                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+//                                    .withValues( values )
+//                                    .withYieldAllowed( true )
+//                                    .build()
+//                    );
+//
+//                } else {
+//                    Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
+//
+//                    ops.add(
+//                            ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+//                                    .withValues( values )
+//                                    .withYieldAllowed( true )
+//                                    .build()
+//                    );
+//
+//                    Job coverJob = new Job();
+//                    coverJob.setUrl( coverImageUrl );
+//                    coverJob.setFilename( prefix + "_cover.jpg" );
+//
+//                    saveImage( provider, coverJob );
+//                }
+//                cursor.close();
+//                count++;
 
                 if( showNameId ==  1 ) {
                     Log.v( TAG, "processShows : adding on time update for katg main show" );
