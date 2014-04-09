@@ -178,9 +178,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 case 0:
                     return new ShowsGridFragment();
                 case 1:
+                    return new GuestsFragment();
+                case 2:
                     return new EventsFragment();
-//                case 2:
-//                    return getString(R.string.title_section3);
             }
 
             return null;
@@ -189,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 2;
+            return 3;
         }
 
         @Override
@@ -199,9 +199,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 case 0:
                     return getString( R.string.action_bar_tab_shows );
                 case 1:
+                    return getString( R.string.action_bar_tab_guests );
+                case 2:
                     return getString( R.string.action_bar_tab_events );
-//                case 2:
-//                    return getString( R.string.action_bar_tab_guests );
             }
 
             return null;
