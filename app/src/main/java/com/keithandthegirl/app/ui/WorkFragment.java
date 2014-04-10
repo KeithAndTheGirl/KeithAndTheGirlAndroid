@@ -113,7 +113,7 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
             mHolder.name.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_NAME ) ) );
             mHolder.status.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
-            mHolder.frequency.setText(cursor.getString(cursor.getColumnIndex(WorkItem.FIELD_FREQUENCY)));
+            mHolder.frequency.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_FREQUENCY ) ) );
 
             long instant = cursor.getLong( cursor.getColumnIndex( WorkItem.FIELD_LAST_RUN ) );
             if( instant < 0 ) {

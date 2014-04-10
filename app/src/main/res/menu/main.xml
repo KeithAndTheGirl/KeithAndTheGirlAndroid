@@ -7,8 +7,14 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
 
+    <item android:id="@+id/action_broadcasting"
+        android:title="@string/action_broadcasting"
+        android:orderInCategory="200"
+        android:showAsAction="always" />
+
     <item android:id="@+id/action_work_items"
         android:title="@string/action_work_items"
         android:orderInCategory="200"
         android:showAsAction="never" />
+
 </menu>
