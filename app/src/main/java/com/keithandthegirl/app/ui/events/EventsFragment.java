@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.events;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -15,14 +15,12 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.Event;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.w3c.dom.Text;
 
 import java.util.TimeZone;
 

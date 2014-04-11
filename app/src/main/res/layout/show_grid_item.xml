@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.keithandthegirl.app.ui.RecyclingImageView
+    <com.keithandthegirl.app.ui.widgets.RecyclingImageView
         android:id="@+id/show_grid_item_coverimage"
         android:layout_width="150dp"
         android:layout_height="150dp" />

@@ -17,6 +17,9 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
+import com.keithandthegirl.app.ui.events.EventsFragment;
+import com.keithandthegirl.app.ui.guests.GuestsFragment;
+import com.keithandthegirl.app.ui.shows.ShowsGridFragment;
 
 public class MainActivity extends AbstractBaseActivity implements ActionBar.TabListener {
 

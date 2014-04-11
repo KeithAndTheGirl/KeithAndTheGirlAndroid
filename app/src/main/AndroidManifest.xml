@@ -37,6 +37,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
+        <activity
+            android:name="com.keithandthegirl.app.ui.EpisodeActivity"
+            android:label="@string/app_name">
+        </activity>
 
         <!-- KATG Receivers -->
         <receiver android:name="com.keithandthegirl.app.db.schedule.KatgAlarmReceiver" />

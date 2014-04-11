@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.widgets;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

@@ -125,7 +125,7 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
             case R.id.action_broadcasting :
 
-                Toast.makeText( this, "KATG is broadcasting now!", Toast.LENGTH_LONG );
+                Toast.makeText( this, "KATG is broadcasting now!", Toast.LENGTH_LONG ).show();
 
                 return true;
 

@@ -1,13 +1,9 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.guests;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +18,6 @@ import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.Guest;
 import com.keithandthegirl.app.utils.ImageCache;
 import com.keithandthegirl.app.utils.ImageFetcher;
-import com.keithandthegirl.app.utils.ImageUtils;
 
 public class GuestsFragment extends ListFragment {
 

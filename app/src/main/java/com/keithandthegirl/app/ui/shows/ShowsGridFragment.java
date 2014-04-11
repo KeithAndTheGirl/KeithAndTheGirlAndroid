@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.shows;
 
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
@@ -14,21 +14,18 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewTreeObserver;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.keithandthegirl.app.BuildConfig;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.ui.ShowsActivity;
+import com.keithandthegirl.app.ui.widgets.RecyclingImageView;
 import com.keithandthegirl.app.utils.ImageCache;
 import com.keithandthegirl.app.utils.ImageFetcher;
 import com.keithandthegirl.app.utils.Utils;
@@ -128,87 +125,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         final GridView mGridView = (GridView) getActivity().findViewById( R.id.shows_gridview );
         mGridView.setAdapter( mAdapter );
         mGridView.setOnItemClickListener( this );
-//        mGridView.setOnScrollListener( new AbsListView.OnScrollListener() {
-//
-//            @Override
-//            public void onScrollStateChanged( AbsListView absListView, int scrollState ) {
-//
-//                // Pause fetcher to ensure smoother scrolling when flinging
-//                if( scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING ) {
-//
-//                    // Before Honeycomb pause image loading on scroll to help with performance
-//                    if( !Utils.hasHoneycomb() ) {
-//                        mImageFetcher.setPauseWork( true );
-//                    }
-//
-//                } else {
-//
-//                    mImageFetcher.setPauseWork( false );
-//
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onScroll( AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount ) { }
-//
-//        });
-
-        // This listener is used to get the final width of the GridView and then calculate the
-        // number of columns and the width of each column. The width of each column is variable
-        // as the GridView has stretchMode=columnWidth. The column width is used to set the height
-        // of each view so we get nice square thumbnails.
-//        mGridView.getViewTreeObserver().addOnGlobalLayoutListener(
-//                new ViewTreeObserver.OnGlobalLayoutListener() {
-//
-//                    @TargetApi( Build.VERSION_CODES.JELLY_BEAN )
-//                    @Override
-//                    public void onGlobalLayout() {
-//
-//                        if( mAdapter.getNumColumns() == 0 ) {
-//
-//                            final int numColumns = (int) Math.floor( mGridView.getWidth() / ( mImageThumbSize + mImageThumbSpacing ) );
-//                            if( numColumns > 0 ) {
-//
-//                                final int columnWidth = ( mGridView.getWidth() / numColumns ) - mImageThumbSpacing;
-//                                mAdapter.setNumColumns( numColumns );
-//                                mAdapter.setItemHeight( columnWidth );
-//
-//                                if( BuildConfig.DEBUG ) {
-//                                    Log.d(TAG, "onCreateView - numColumns set to " + numColumns);
-//                                }
-//
-//                                if( Utils.hasJellyBean() ) {
-//                                    mGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//                                } else {
-//                                    mGridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-//                                }
-//
-//                            }
-//
-//                        }
-//
-//                    }
-//
-//                });
-
-//        fileObserver = new FileObserver( getActivity().getApplicationContext().getFilesDir().getAbsolutePath() ) {
-//
-//            @Override
-//            public void onEvent( int event, String filename ) {
-//
-//                if( event == FileObserver.CREATE || event == FileObserver.MODIFY ) {
-//
-//                    if( filename.endsWith( "_cover.jpg" ) ) {
-//
-//                        getLoaderManager().restartLoader( 0, new Bundle(), ShowsGridFragment.this );
-//
-//                    }
-//                }
-//
-//            }
-//
-//        };
 
         Log.v( TAG, "onActivityCreated : exit" );
     }
@@ -273,26 +189,11 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         private final Context mContext;
         private LayoutInflater mInflater;
 
-//        private int mItemHeight = 0;
-//        private int mNumColumns = 0;
-//        private int mActionBarHeight = 0;
-        //private GridView.LayoutParams mImageViewLayoutParams;
-
         public ShowCursorAdapter( Context context ) {
             super( context, null, false );
 
             mContext = context;
             mInflater = LayoutInflater.from( context );
-
-            //mImageViewLayoutParams = new GridView.LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT );
-
-            // Calculate ActionBar height
-//            TypedValue tv = new TypedValue();
-//            if( context.getTheme().resolveAttribute( android.R.attr.actionBarSize, tv, true ) ) {
-//
-//                mActionBarHeight = TypedValue.complexToDimensionPixelSize( tv.data, context.getResources().getDisplayMetrics() );
-//
-//            }
 
         }
 
@@ -305,7 +206,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             ViewHolder refHolder = new ViewHolder();
             refHolder.coverImage = (RecyclingImageView) view.findViewById( R.id.show_grid_item_coverimage );
             refHolder.coverImage.setScaleType( ImageView.ScaleType.CENTER_CROP );
-            //refHolder.coverImage.setLayoutParams( mImageViewLayoutParams );
 
             refHolder.vip = (TextView) view.findViewById( R.id.show_grid_item_vip );
             refHolder.name = (TextView) view.findViewById( R.id.show_grid_item_name );
@@ -327,18 +227,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL ) );
             boolean vip = cursor.getLong( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 0 ? false : true;
 
-//            String filename = prefix + "_cover.jpg";
-//            String path = mContext.getFileStreamPath( filename ).getAbsolutePath();
-//            Log.v( TAG, "bindView : filename=" + filename );
-
-//            mHolder.coverImage.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, 150, 150 ) );
-
-//            if( mHolder.coverImage.getLayoutParams().height != mItemHeight ) {
-//                Log.v( TAG, "bindView : height != mItemHeight" );
-//
-//                mHolder.coverImage.setLayoutParams( mImageViewLayoutParams );
-//            }
-
             mHolder.name.setText( name );
 
             if( vip ) {
@@ -351,36 +239,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
             Log.v( TAG, "bindView : exit" );
         }
-
-        /**
-         * Sets the item height. Useful for when we know the column width so the height can be set
-         * to match.
-         *
-         * @param height
-         */
-//        public void setItemHeight( int height ) {
-//
-//            if( height == mItemHeight ) {
-//                return;
-//            }
-//
-//            mItemHeight = height;
-//            //mImageViewLayoutParams = new GridView.LayoutParams( LayoutParams.MATCH_PARENT, mItemHeight );
-//            mImageFetcher.setImageSize( height );
-//
-//            notifyDataSetChanged();
-//
-//        }
-//
-//        public void setNumColumns( int numColumns ) {
-//
-//            mNumColumns = numColumns;
-//
-//        }
-//
-//        public int getNumColumns() {
-//            return mNumColumns;
-//        }
 
     }
 

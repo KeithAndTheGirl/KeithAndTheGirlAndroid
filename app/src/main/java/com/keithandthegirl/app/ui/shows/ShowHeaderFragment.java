@@ -1,10 +1,8 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.shows;
 
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
@@ -13,16 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.utils.ImageCache;
 import com.keithandthegirl.app.utils.ImageFetcher;
-import com.keithandthegirl.app.utils.ImageUtils;
-
-import java.io.File;
 
 /**
  * Created by dmfrey on 3/30/14.

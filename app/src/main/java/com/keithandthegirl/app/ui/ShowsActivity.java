@@ -5,25 +5,17 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
-import com.keithandthegirl.app.utils.ImageUtils;
+import com.keithandthegirl.app.ui.shows.ShowFragment;
 
 public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnNavigationListener, LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -84,6 +76,10 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
 
         setContentView( R.layout.activity_shows );
 
+        if( null != savedInstanceState && savedInstanceState.containsKey( STATE_SELECTED_NAVIGATION_ITEM ) ) {
+            mSelectedNavigationItem = savedInstanceState.getInt( STATE_SELECTED_NAVIGATION_ITEM );
+        }
+
         // Set up the action bar to show a dropdown list.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled( false );
@@ -92,10 +88,10 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
         // Show the Up button in the action bar.
         actionBar.setDisplayHomeAsUpEnabled( true );
 
-        getSupportLoaderManager().initLoader( 0, null, this );
-
         Bundle extras = getIntent().getExtras();
-        mSelectedNavigationItem = extras.getInt( SHOW_NAME_POSITION_KEY );
+        if( null != extras && extras.containsKey( SHOW_NAME_POSITION_KEY ) ) {
+            mSelectedNavigationItem = extras.getInt( SHOW_NAME_POSITION_KEY );
+        }
         Log.v( TAG, "onCreate : mSelectedNavigationItem=" + mSelectedNavigationItem );
 
         mAdapter = new ShowCursorAdapter( actionBar.getThemedContext() );
@@ -103,27 +99,34 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
         // Set up the dropdown list navigation in the action bar.
         actionBar.setListNavigationCallbacks( mAdapter, this );
 
+        getSupportLoaderManager().initLoader( 0, null, this );
+
         Log.v( TAG, "onCreate : exit" );
     }
 
     @Override
     public void onRestoreInstanceState( Bundle savedInstanceState ) {
+        Log.v( TAG, "onRestoreInstanceState : enter" );
 
         // Restore the previously serialized current dropdown position.
         if( savedInstanceState.containsKey( STATE_SELECTED_NAVIGATION_ITEM ) ) {
+            Log.v( TAG, "onRestoreInstanceState : savedInstanceState contains selected navigation item" );
 
             getSupportActionBar().setSelectedNavigationItem( savedInstanceState.getInt( STATE_SELECTED_NAVIGATION_ITEM ) );
 
         }
 
+        Log.v( TAG, "onRestoreInstanceState : exit" );
     }
 
     @Override
     public void onSaveInstanceState( Bundle outState ) {
+        Log.v( TAG, "onSaveInstanceState : enter" );
 
         // Serialize the current dropdown position.
         outState.putInt( STATE_SELECTED_NAVIGATION_ITEM, getSupportActionBar().getSelectedNavigationIndex() );
 
+        Log.v( TAG, "onSaveInstanceState : exit" );
     }
 
     @Override
@@ -135,7 +138,7 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
         // When the given dropdown item is selected, show its contents in the
         // container view.
         getSupportFragmentManager().beginTransaction()
-                .replace( R.id.container, ShowFragment.newInstance( id ) )
+                .replace( R.id.container, ShowFragment.newInstance(id) )
                 .commit();
 
         Log.v( TAG, "onNavigationItemSelected : exit" );
