@@ -25,7 +25,7 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.utils.ImageUtils;
 
-public class ShowsActivity extends ActionBarActivity implements ActionBar.OnNavigationListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnNavigationListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ShowsActivity.class.getSimpleName();
 
@@ -124,30 +124,6 @@ public class ShowsActivity extends ActionBarActivity implements ActionBar.OnNavi
         // Serialize the current dropdown position.
         outState.putInt( STATE_SELECTED_NAVIGATION_ITEM, getSupportActionBar().getSelectedNavigationIndex() );
 
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate( R.menu.shows, menu );
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item ) {
-
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if( id == R.id.action_settings ) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected( item );
     }
 
     @Override
