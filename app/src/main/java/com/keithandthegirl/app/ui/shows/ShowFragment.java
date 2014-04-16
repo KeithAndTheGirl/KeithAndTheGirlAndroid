@@ -214,7 +214,7 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
 
             mHolder.number.setText( mEpisodesLabel + " " + cursor.getInt( cursor.getColumnIndex( Episode.FIELD_NUMBER ) ) );
             mHolder.showDate.setText( mFormatter.print( instant ) );
-            mHolder.title.setText(cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
+            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
 
         }
 

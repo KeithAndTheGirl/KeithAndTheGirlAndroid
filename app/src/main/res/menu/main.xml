@@ -6,6 +6,7 @@
     <item android:id="@+id/action_broadcasting"
         android:title="@string/action_broadcasting"
         android:orderInCategory="100"
+        android:icon="@drawable/ic_live_mic_off"
         katg:showAsAction="always" />
 
     <item android:id="@+id/action_settings"

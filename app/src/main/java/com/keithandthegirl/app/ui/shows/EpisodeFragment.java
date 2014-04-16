@@ -70,7 +70,7 @@ public class EpisodeFragment extends Fragment {
     public void onActivityCreated( Bundle savedInstanceState ) {
         super.onActivityCreated( savedInstanceState );
 
-        Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId(Episode.CONTENT_URI, mEpisodeId ), null, null, null, null );
+        Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( Episode.CONTENT_URI, mEpisodeId ), null, null, null, null );
         if( cursor.moveToNext() ) {
 
             TextView number = (TextView) getActivity().findViewById(R.id.episode_number);
