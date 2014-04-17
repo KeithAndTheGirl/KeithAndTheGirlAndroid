@@ -17,9 +17,11 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
+import com.keithandthegirl.app.ui.about.AboutFragment;
 import com.keithandthegirl.app.ui.events.EventsFragment;
 import com.keithandthegirl.app.ui.guests.GuestsFragment;
 import com.keithandthegirl.app.ui.shows.ShowsGridFragment;
+import com.keithandthegirl.app.ui.youtube.YoutubeFragment;
 
 public class MainActivity extends AbstractBaseActivity implements ActionBar.TabListener {
 
@@ -139,6 +141,10 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
                     return new GuestsFragment();
                 case 2:
                     return new EventsFragment();
+                case 3:
+                    return new YoutubeFragment();
+                case 4:
+                    return new AboutFragment();
             }
 
             return null;
@@ -146,8 +152,8 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            // Show 5 total pages.
+            return 5;
         }
 
         @Override
@@ -160,6 +166,10 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
                     return getResources().getString( R.string.action_bar_tab_guests );
                 case 2:
                     return getResources().getString( R.string.action_bar_tab_events );
+                case 3:
+                    return getResources().getString( R.string.action_bar_tab_youtube );
+                case 4:
+                    return getResources().getString( R.string.action_bar_tab_about );
             }
 
             return null;
