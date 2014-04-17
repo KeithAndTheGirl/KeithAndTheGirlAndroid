@@ -3,6 +3,9 @@
 
     <color name="katg_green">#74be66</color>
 
+    <color name="action_bar_tab_selected">#ffffff</color>
+    <color name="action_bar_tab_unselected">#b6bcbf</color>
+
     <color name="main_background">#191f25</color>
     <color name="main_vip">#ea454b</color>
     <color name="main_name">#506577</color>

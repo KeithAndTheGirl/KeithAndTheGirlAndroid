@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -23,12 +24,17 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
     private BroadcastingObserver mBroadcastingObserver;
 
+    private Drawable micOn, micOff;
+
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         Log.d( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         mBroadcastingObserver = new BroadcastingObserver();
+
+        micOn = getResources().getDrawable( R.drawable.ic_live_mic_on );
+        micOff = getResources().getDrawable( R.drawable.ic_live_mic_off );
 
         Log.d( TAG, "onCreate : exit" );
     }
@@ -85,10 +91,12 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         if( broadcasting ) {
 
             menu.findItem( R.id.action_broadcasting ).setEnabled( true );
+            menu.findItem( R.id.action_broadcasting ).setIcon( micOn );
 
         } else {
 
             menu.findItem( R.id.action_broadcasting ).setEnabled( false );
+            menu.findItem( R.id.action_broadcasting ).setIcon( micOff );
 
         }
 

@@ -33,6 +33,9 @@
                 <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.Katg.Widget</item>
 
+                <!-- KATG specific -->
+        <item name="actionBarTabTextStyle">@style/ActionBarTabTitleText.Katg</item>
+
     </style>
 
     <style name="ActionBar.Solid.Katg" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
@@ -77,6 +80,10 @@
     <style name="Theme.Katg.Widget" parent="@style/Theme.AppCompat">
         <item name="popupMenuStyle">@style/PopupMenu.Katg</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Katg</item>
+    </style>
+
+    <style name="ActionBarTabTitleText.Katg" parent="@style/Widget.AppCompat.ActionBar.TabText">
+        <item name="android:textColor">@drawable/ab_tab_text</item>
     </style>
 
 </resources>

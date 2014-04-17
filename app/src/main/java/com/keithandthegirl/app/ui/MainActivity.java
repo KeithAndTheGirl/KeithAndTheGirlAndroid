@@ -112,6 +112,9 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
 
     @Override
     public void onTabUnselected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
+
+
+
     }
 
     @Override
