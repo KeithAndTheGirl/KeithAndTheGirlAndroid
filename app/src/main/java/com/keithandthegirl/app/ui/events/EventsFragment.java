@@ -7,6 +7,9 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,7 +79,7 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
         setRetainInstance( true );
 
         getLoaderManager().initLoader( 0, getArguments(), this );
-        mAdapter = new EventCursorAdapter( getActivity().getApplicationContext() );
+        mAdapter = new EventCursorAdapter( getActivity() );
         setListAdapter( mAdapter );
 
         Log.v( TAG, "onActivityCreated : exit" );
@@ -144,7 +147,11 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
             mHolder.location.setText( cursor.getString( cursor.getColumnIndex( Event.FIELD_LOCATION ) ) );
 
             if( null != details && !"null".equals( details ) && !"".equals( details ) ) {
-                mHolder.details.setText( details );
+
+                details = "<p>" + details + "</p>";
+
+                mHolder.details.setMovementMethod( LinkMovementMethod.getInstance() );
+                mHolder.details.setText( Html.fromHtml( details ) );
             }
 
         }

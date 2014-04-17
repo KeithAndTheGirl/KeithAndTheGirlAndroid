@@ -52,7 +52,9 @@
             android:layout_height="wrap_content"
             android:layout_weight=".25"
             android:textColor="@android:color/black"
-            android:id="@+id/event_details" />
+            android:id="@+id/event_details"
+            android:linksClickable="true"
+            android:autoLink="web" />
 
     </LinearLayout>
 
