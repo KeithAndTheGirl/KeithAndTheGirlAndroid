@@ -17,10 +17,13 @@
    xml:space="preserve"
    y="0px"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="mic_on.svg"><metadata
+   sodipodi:docname="mic_on.svg"
+   inkscape:export-filename="/home/dmfrey/Development/Android/git/KeithAndTheGirlApp/Planning/Images/mic_on.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"><metadata
      id="metadata19"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
      id="defs17" /><sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -42,7 +45,10 @@
      inkscape:window-maximized="0"
      inkscape:current-layer="Layer_1" /><g
      id="g3"
-     style="fill:#74be66;fill-opacity:1"><defs
+     style="fill:#74be66;fill-opacity:1"
+     inkscape:export-filename="/home/dmfrey/Development/Android/git/KeithAndTheGirlApp/app/src/main/res/drawable-hdpi/ic_live_mic_on.png"
+     inkscape:export-xdpi="90"
+     inkscape:export-ydpi="90"><defs
        id="defs5"><rect
          height="36"
          id="SVGID_1_"
