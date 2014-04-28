@@ -1,7 +1,34 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.keithandthegirl.app.ui.EpisodeActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame">
+
+    <FrameLayout
+        android:id="@+id/episode_header"
+        android:layout_width="match_parent"
+        android:layout_height="125dp" />
+
+    <FrameLayout
+        android:id="@+id/episode_guests"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="10dp" />
+
+    <FrameLayout
+        android:id="@+id/episode_guest_images"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_margin="10dp" />
+
+    <FrameLayout
+        android:id="@+id/episode_description"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:layout_margin="10dp" />
+
+</LinearLayout>

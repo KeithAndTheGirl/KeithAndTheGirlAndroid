@@ -45,8 +45,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
     ShowCursorAdapter mAdapter;
 
-    FileObserver fileObserver = null;
-
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v(TAG, "onCreateLoader : enter");
