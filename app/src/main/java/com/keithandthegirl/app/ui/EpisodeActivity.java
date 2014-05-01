@@ -21,10 +21,12 @@ import com.keithandthegirl.app.db.model.Detail;
 import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
+import com.keithandthegirl.app.ui.shows.EpisodeDetailsFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestImagesFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestsFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeHeaderFragment;
+import com.keithandthegirl.app.ui.shows.EpisodeImagesFragment;
 
 import org.joda.time.DateTime;
 
@@ -142,7 +144,7 @@ public class EpisodeActivity extends AbstractBaseActivity {
         episodeHeaderArgs.putInt( EPISODE_NUMBER_KEY, mEpisodeNumber );
         episodeHeaderArgs.putString( EPISODE_TITLE_KEY, mEpisodeTitle );
         episodeHeaderArgs.putLong( EPISODE_POSTED_KEY, mEpisodePosted );
-        episodeHeaderArgs.putString( SHOW_NAME_KEY, mShowName );
+        episodeHeaderArgs.putString( SHOW_NAME_KEY, mShowPrefix );
         episodeHeaderArgs.putString( SHOW_COVER_IMAGE_URL_KEY, mShowCoverImageUrl );
         episodeHeaderFragment.setArguments( episodeHeaderArgs );
         getSupportFragmentManager().beginTransaction().add( R.id.episode_header, episodeHeaderFragment ).commit();
@@ -156,6 +158,20 @@ public class EpisodeActivity extends AbstractBaseActivity {
         EpisodeGuestImagesFragment episodeGuestImagesFragment = new EpisodeGuestImagesFragment();
         episodeGuestImagesFragment.setArguments( episodeGuestsArgs );
         getSupportFragmentManager().beginTransaction().add( R.id.episode_guest_images, episodeGuestImagesFragment ).commit();
+
+        EpisodeDetailsFragment episodeDetailsFragment = new EpisodeDetailsFragment();
+        Bundle episodeDetailsArgs = new Bundle();
+        episodeDetailsArgs.putLong( EPISODE_KEY, mEpisodeId );
+        episodeDetailsArgs.putInt( EPISODE_NUMBER_KEY, mEpisodeNumber );
+        episodeDetailsArgs.putString( SHOW_PREFIX_KEY, mShowPrefix );
+        episodeDetailsFragment.setArguments( episodeDetailsArgs );
+        getSupportFragmentManager().beginTransaction().add( R.id.episode_details, episodeDetailsFragment ).commit();
+
+        EpisodeImagesFragment episodeImagesFragment = new EpisodeImagesFragment();
+        Bundle episodeImagesArgs = new Bundle();
+        episodeImagesArgs.putLong( EPISODE_KEY, mEpisodeId );
+        episodeImagesFragment.setArguments( episodeImagesArgs );
+        getSupportFragmentManager().beginTransaction().add( R.id.episode_images, episodeImagesFragment ).commit();
 
         Log.v( TAG, "updateView : exit" );
     }

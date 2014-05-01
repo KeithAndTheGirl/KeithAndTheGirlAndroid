@@ -28,7 +28,6 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
     private static final String TAG = MainActivity.class.getSimpleName();
 
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
-    Account mAccount;
 
     SectionsPagerAdapter mSectionsPagerAdapter;
     ViewPager mViewPager;
@@ -40,16 +39,12 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
 
         setContentView( R.layout.activity_main );
 
-        mAccount = MainApplication.CreateSyncAccount( this );
-
         boolean neverRun = false;
         Cursor cursor = getContentResolver().query( Show.CONTENT_URI, null, null, null, null );
         if( cursor.getCount() == 0 ) {
             neverRun = true;
         }
         cursor.close();
-
-        ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
 
         if( neverRun ) {
 

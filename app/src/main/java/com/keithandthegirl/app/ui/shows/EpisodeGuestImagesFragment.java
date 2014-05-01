@@ -2,6 +2,7 @@ package com.keithandthegirl.app.ui.shows;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.widget.ImageView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
+import com.keithandthegirl.app.db.model.Detail;
 import com.keithandthegirl.app.db.model.EpisodeGuests;
 import com.keithandthegirl.app.db.model.Guest;
 import com.keithandthegirl.app.ui.EpisodeActivity;
@@ -29,7 +31,7 @@ import com.keithandthegirl.app.utils.ImageFetcher;
 /**
  * Created by dmfrey on 4/26/14.
  */
-public class EpisodeGuestImagesFragment extends Fragment /* implements LoaderManager.LoaderCallbacks<Cursor> */ {
+public class EpisodeGuestImagesFragment extends Fragment {
 
     private static final String TAG = EpisodeGuestImagesFragment.class.getSimpleName();
 
@@ -48,45 +50,15 @@ public class EpisodeGuestImagesFragment extends Fragment /* implements LoaderMan
     private int mImageThumbSpacing;
     private ImageFetcher mImageFetcher;
 
+    private GridView mGridView;
+
     DatabaseHelper dbHelper;
     Cursor cursor;
     EpisodeGuestCursorAdapter mAdapter;
 
-    private long mEpisodeId;
+    private GuestsObserver guestsObserver = new GuestsObserver();
 
-//    @Override
-//    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-//        Log.v(TAG, "onCreateLoader : enter");
-//
-//        String[] projection = null;
-//
-//        String selection = EpisodeGuests.FIELD_SHOWID + " = ?";
-//
-//        String[] selectionArgs = new String[] { String.valueOf( mEpisodeId ) };
-//
-//        CursorLoader cursorLoader = new CursorLoader( getActivity(), Uri.withAppendedPath( Guest.CONTENT_URI, "/Episodes" ), projection, selection, selectionArgs, null );
-//
-//        Log.v( TAG, "onCreateLoader : exit" );
-//        return cursorLoader;
-//    }
-//
-//    @Override
-//    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-//        Log.v( TAG, "onLoadFinished : enter" );
-//
-//        mAdapter.swapCursor( cursor );
-//
-//        Log.v( TAG, "onLoadFinished : exit" );
-//    }
-//
-//    @Override
-//    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-//        Log.v( TAG, "onLoaderReset : enter" );
-//
-//        mAdapter.swapCursor( null );
-//
-//        Log.v( TAG, "onLoaderReset : exit" );
-//    }
+    private long mEpisodeId;
 
     /**
      * Use this factory method to create a new instance of
@@ -129,6 +101,8 @@ public class EpisodeGuestImagesFragment extends Fragment /* implements LoaderMan
 //        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
         mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
 
+        getActivity().getContentResolver().registerContentObserver( Guest.CONTENT_URI, true, guestsObserver );
+
         Log.v( TAG, "onCreate : exit") ;
     }
 
@@ -147,6 +121,8 @@ public class EpisodeGuestImagesFragment extends Fragment /* implements LoaderMan
 
         setRetainInstance( true );
 
+        mGridView = (GridView) getActivity().findViewById( R.id.episode_guest_images_gridview );
+
         dbHelper = new DatabaseHelper( getActivity() );
         cursor = dbHelper.getReadableDatabase().rawQuery( RAW_GUESTS_QUERY, new String[] { String.valueOf( mEpisodeId ) } );
 
@@ -155,7 +131,6 @@ public class EpisodeGuestImagesFragment extends Fragment /* implements LoaderMan
             getActivity().startManagingCursor(cursor);
             mAdapter = new EpisodeGuestCursorAdapter( getActivity(), cursor );
 
-            final GridView mGridView = (GridView) getActivity().findViewById( R.id.episode_guest_images_gridview );
             mGridView.setAdapter( mAdapter );
 
         }
@@ -194,6 +169,8 @@ public class EpisodeGuestImagesFragment extends Fragment /* implements LoaderMan
         mImageFetcher.closeCache();
         cursor.close();
         dbHelper.close();
+
+        getActivity().getContentResolver().unregisterContentObserver( guestsObserver );
 
         Log.v( TAG, "onDestroy : exit" );
     }
@@ -250,6 +227,38 @@ public class EpisodeGuestImagesFragment extends Fragment /* implements LoaderMan
         RecyclingImageView guestImage;
 
         ViewHolder() { }
+
+    }
+
+    private class GuestsObserver extends ContentObserver {
+
+        public GuestsObserver() {
+            super( null );
+
+        }
+
+        @Override
+        public void onChange( boolean selfChange ) {
+
+            this.onChange( selfChange, null );
+
+        }
+
+        @Override
+        public void onChange( boolean selfChange, Uri uri ) {
+
+            getActivity().runOnUiThread( new Runnable() {
+
+                @Override
+                public void run() {
+
+                    mAdapter.notifyDataSetChanged();
+
+                }
+
+            });
+
+        }
 
     }
 

@@ -70,6 +70,8 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
         mAdapter = new EpisodeCursorAdapter( getActivity().getApplicationContext() );
         setListAdapter( mAdapter );
 
+        getListView().setFastScrollEnabled( true );
+
         Log.v( TAG, "onActivityCreated : exit" );
     }
 

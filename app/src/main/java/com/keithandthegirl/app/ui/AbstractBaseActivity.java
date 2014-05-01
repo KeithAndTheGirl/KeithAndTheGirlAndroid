@@ -1,13 +1,16 @@
 package com.keithandthegirl.app.ui;
 
 
+import android.accounts.Account;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -15,26 +18,50 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Live;
+import com.keithandthegirl.app.db.model.WorkItem;
 
 public abstract class AbstractBaseActivity extends ActionBarActivity {
 
     private static final String TAG = AbstractBaseActivity.class.getSimpleName();
 
+    private ContentResolver mContentResolver;
+    private Uri mUri;
+
     private BroadcastingObserver mBroadcastingObserver;
 
     private Drawable micOn, micOff;
+
+    protected Account mAccount;
+
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         Log.d( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
+        mContentResolver = getContentResolver();
+
+        mUri = new Uri.Builder()
+                .scheme( "content://" )
+                .authority( KatgProvider.AUTHORITY )
+                .path( WorkItem.TABLE_NAME )
+                .build();
+
+        TableObserver observer = new TableObserver();
+
         mBroadcastingObserver = new BroadcastingObserver();
+
+        mAccount = MainApplication.CreateSyncAccount( this );
+        ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
 
         micOn = getResources().getDrawable( R.drawable.ic_live_mic_on );
         micOff = getResources().getDrawable( R.drawable.ic_live_mic_off );
+
+        mContentResolver.registerContentObserver( mUri, true, observer );
 
         Log.d( TAG, "onCreate : exit" );
     }
@@ -161,6 +188,46 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
             Log.i( TAG, "onChange : enter" );
 
             invalidateOptionsMenu();
+
+            Log.i( TAG, "onChange : exit" );
+        }
+
+    }
+
+    public class TableObserver extends ContentObserver {
+
+        private final String TAG = TableObserver.class.getSimpleName();
+
+        public TableObserver() {
+            super( null );
+        }
+
+        @Override
+        public void onChange( boolean selfChange ) {
+            Log.i( TAG, "onChange : enter" );
+            super.onChange(selfChange);
+
+            onChange( selfChange, null );
+
+            Log.i(TAG, "onChange : exit");
+        }
+
+        @Override
+        public void onChange( boolean selfChange, Uri uri ) {
+            Log.i( TAG, "onChange : enter" );
+
+            boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
+            boolean syncPending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY);
+
+            if( !syncActive && !syncPending ) {
+
+                Bundle settingsBundle = new Bundle();
+                settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
+                settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
+
+                ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
+
+            }
 
             Log.i( TAG, "onChange : exit" );
         }

@@ -196,9 +196,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 switch( wtype ) {
 
                     case ON_DEMAND:
-                        Log.v( TAG, "onPerformSync : adding On Demand job" );
+                        if( !status.equals( WorkItem.Status.OK ) ) {
+                            Log.v( TAG, "onPerformSync : adding On Demand job" );
 
-                        jobs.add( job );
+                            jobs.add( job );
+                        }
+
                         break;
 
                     case ONCE:
@@ -338,6 +341,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         break;
 
+                    case DETAILS:
+                        Log.v( TAG, "runScheduledWorkItems : refreshing episode details" );
+
+                        getEpisodeDetails( provider, job );
+
+                        break;
+
                     default:
                         Log.w( TAG, "runScheduledWorkItems : Scheduled '" + job.getType().name() + "' not supported" );
 
@@ -439,6 +449,42 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         Log.v( TAG, "getEpisodes : exit" );
+    }
+
+    private void getEpisodeDetails( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+        Log.v( TAG, "getEpisodeDetails : enter" );
+
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+
+        try {
+
+            if( wifiConnected || mobileConnected ) {
+                Log.v( TAG, "getEpisodeDetails : network is available" );
+
+                Uri uri = Uri.parse( job.getUrl() );
+                String showId = uri.getQueryParameter( "showid" );
+
+                JSONObject json = loadJsonFromNetwork(job);
+                Log.i( TAG, "getEpisodeDetails : json=" + json.toString() );
+                processEpisodeDetails(json, provider, Integer.parseInt(showId));
+            }
+
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+
+        } catch( Exception e ) {
+            Log.e(TAG, "getEpisodeDetails : error", e);
+
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+        }
+
+        Log.v( TAG, "getEpisodeDetails : exit" );
     }
 
     private void getRecentEpisodes( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
@@ -1503,6 +1549,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( Image.FIELD_MEDIAURL, mediaUrl );
                 values.put( Image.FIELD_TITLE, json.getString( "title" ) );
                 values.put( Image.FIELD_DESCRIPTION, json.getString( "description" ) );
+                values.put( Image.FIELD_SHOWID, showId );
                 values.put( Image.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
                 cursor = provider.query( Image.CONTENT_URI, projection, Image.FIELD_MEDIAURL + "=?", new String[] { mediaUrl }, null );
@@ -1559,7 +1606,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            Log.i( TAG, "processEpisodeDetails : events loaded '" + loaded + "'" );
+            Log.i( TAG, "processEpisodeDetails : details loaded '" + loaded + "'" );
 
         } catch( Exception e ) {
             Log.e( TAG, "processEpisodeDetails : error", e );

@@ -76,6 +76,7 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
         Log.v( TAG, "onLoadFinished : enter" );
 
         mAdapter.swapCursor( cursor );
+        getListView().setFastScrollEnabled( true );
 
         Log.v( TAG, "onLoadFinished : exit" );
     }

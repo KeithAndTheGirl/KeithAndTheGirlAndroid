@@ -1,7 +1,9 @@
 package com.keithandthegirl.app.ui.shows;
 
 import android.content.ContentUris;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -39,6 +41,10 @@ public class EpisodeGuestsFragment extends Fragment {
     Cursor cursor;
     private long mEpisodeId;
 
+    private TextView mNames;
+
+    private GuestsObserver guestsObserver = new GuestsObserver();
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -67,6 +73,8 @@ public class EpisodeGuestsFragment extends Fragment {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
         }
 
+        getActivity().getContentResolver().registerContentObserver( Guest.CONTENT_URI, true, guestsObserver );
+
         Log.v( TAG, "onCreate : exit") ;
     }
 
@@ -83,9 +91,28 @@ public class EpisodeGuestsFragment extends Fragment {
         super.onActivityCreated( savedInstanceState );
 
         dbHelper = new DatabaseHelper( getActivity() );
-        cursor = dbHelper.getReadableDatabase().rawQuery( RAW_GUESTS_QUERY, new String[] { String.valueOf( mEpisodeId ) } );
 
-        TextView names = (TextView) getActivity().findViewById( R.id.episode_guest_names );
+        mNames = (TextView) getActivity().findViewById( R.id.episode_guest_names );
+
+        updateView();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.v( TAG, "onDestroy : enter" );
+        super.onDestroy();
+
+        dbHelper.close();
+
+        getActivity().getContentResolver().unregisterContentObserver( guestsObserver );
+
+        Log.v( TAG, "onDestroy : exit" );
+    }
+
+    private void updateView() {
+
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery( RAW_GUESTS_QUERY, new String[] { String.valueOf( mEpisodeId ) } );
 
         List<Long> guestIds = new ArrayList<Long>();
         List<String> guestNames = new ArrayList<String>();
@@ -112,7 +139,39 @@ public class EpisodeGuestsFragment extends Fragment {
                 count++;
             }
 
-            names.setText( combined );
+            mNames.setText( combined );
+        }
+
+    }
+
+    private class GuestsObserver extends ContentObserver {
+
+        public GuestsObserver() {
+            super( null );
+
+        }
+
+        @Override
+        public void onChange( boolean selfChange ) {
+
+            this.onChange( selfChange, null );
+
+        }
+
+        @Override
+        public void onChange( boolean selfChange, Uri uri ) {
+
+            getActivity().runOnUiThread( new Runnable() {
+
+                @Override
+                public void run() {
+
+                    updateView();
+
+                }
+
+            });
+
         }
 
     }

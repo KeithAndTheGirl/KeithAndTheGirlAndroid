@@ -14,5 +14,6 @@
     <color name="show_status">#f3f5f6</color>
 
     <color name="episode_light">#80868a</color>
+    <color name="episode_description">#f3f5f6</color>
 
 </resources>
