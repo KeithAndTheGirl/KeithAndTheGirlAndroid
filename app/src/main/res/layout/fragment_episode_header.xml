@@ -3,7 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:gravity="center"
     android:background="@android:color/black"
     tools:context="com.keithandthegirl.app.ui.shows.EpisodeHeaderFragment">
@@ -12,7 +12,7 @@
         android:id="@+id/episode_heading"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerInside"
+        android:scaleType="centerCrop"
         android:layout_centerInParent="true" />
 
     <LinearLayout
