@@ -10,4 +10,7 @@
 
     <dimen name="image_episode_header_size">100dp</dimen>
 
+    <dimen name="episode_images_gridview_vertical_spacing">20dp</dimen>
+    <dimen name="episode_images_gridview_horizontal_spacing">20dp</dimen>
+
 </resources>

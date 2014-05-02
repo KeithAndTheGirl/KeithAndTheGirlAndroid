@@ -10,7 +10,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <FrameLayout
             android:id="@+id/episode_header"
@@ -38,7 +38,7 @@
         <FrameLayout
             android:id="@+id/episode_images"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp" />
 
     </LinearLayout>

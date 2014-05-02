@@ -3,7 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <TextView
         android:layout_width="wrap_content"
@@ -19,12 +19,13 @@
     <GridView
         android:id="@+id/episode_images_gridview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:columnWidth="150dp"
         android:numColumns="auto_fit"
-        android:verticalSpacing="20dp"
-        android:horizontalSpacing="20dp"
+        android:verticalSpacing="@dimen/episode_images_gridview_vertical_spacing"
+        android:horizontalSpacing="@dimen/episode_images_gridview_horizontal_spacing"
         android:stretchMode="columnWidth"
-        android:gravity="center" />
+        android:scrollbars="none"
+        android:gravity="center"/>
 
 </LinearLayout>

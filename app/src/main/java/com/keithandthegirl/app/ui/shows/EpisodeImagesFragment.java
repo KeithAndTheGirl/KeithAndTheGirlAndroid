@@ -34,6 +34,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
     private int mImageThumbSize;
     private int mImageThumbSpacing;
     private ImageFetcher mImageFetcher;
+    private GridView mGridViewImages;
 
     private long mEpisodeId;
 
@@ -139,9 +140,9 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
         mAdapter = new EpisodeImageCursorAdapter( getActivity() );
 
-        final GridView mGridView = (GridView) getActivity().findViewById( R.id.episode_images_gridview );
-        mGridView.setAdapter( mAdapter );
-//        mGridView.setOnItemClickListener( this );
+        mGridViewImages = (GridView) getActivity().findViewById( R.id.episode_images_gridview );
+        mGridViewImages.setAdapter( mAdapter );
+//        mGridViewImages.setOnItemClickListener( this );
 
         Log.v( TAG, "onActivityCreated : exit" );
     }
@@ -185,6 +186,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
         private final Context mContext;
         private LayoutInflater mInflater;
+        private int mLastKnownCount = -1;
 
         public EpisodeImageCursorAdapter( Context context ) {
             super( context, null, false );
@@ -194,9 +196,48 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
         }
 
+        /**
+         * Sets the height of mGridViewImages based on item height and row count.
+         */
+        private void setGridViewHeight(){
+            if(mGridViewImages == null) return;
+
+            //get image count
+            final int imageCount = mAdapter.getCount();
+
+            //determine row count
+            int rowCount = imageCount / mGridViewImages.getNumColumns();
+
+            //account for partial rows
+            if((float)imageCount%(float)mGridViewImages.getNumColumns() > 0) rowCount++;
+
+            //determine the height of 1 row
+            int verticalSpacing = (int)getResources().getDimension(R.dimen.episode_images_gridview_vertical_spacing);
+            final int rowHeight = mImageThumbSize + verticalSpacing;    //this requires API 16 -- final int rowHeight = mImageThumbSize + mGridViewImages.getVerticalSpacing();
+
+            //set gridview height
+            ViewGroup.LayoutParams params = mGridViewImages.getLayoutParams();
+            params.height =  (rowCount * rowHeight) + mGridViewImages.getPaddingTop() + mGridViewImages.getPaddingBottom();
+            mGridViewImages.setLayoutParams(params);
+
+            mLastKnownCount = mAdapter.getCount();
+        }
+
+        /**
+         * If the content changes resize the gridview's height
+         */
+        @Override
+        protected void onContentChanged() {
+            super.onContentChanged();
+            setGridViewHeight();
+        }
+
         @Override
         public View newView( Context context, Cursor cursor, ViewGroup parent ) {
             Log.v(TAG, "newView : enter");
+
+            //resize the gridview height based on item count.
+            if(mAdapter.getCount() != mLastKnownCount) setGridViewHeight();
 
             View view = mInflater.inflate( R.layout.episode_image_grid_item, parent, false );
 
