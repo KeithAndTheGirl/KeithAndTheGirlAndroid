@@ -49,7 +49,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
         String[] selectionArgs = new String[] { String.valueOf( mEpisodeId ) };
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Image.CONTENT_URI, projection, selection, selectionArgs, null );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), Image.CONTENT_URI, projection, selection, selectionArgs, Image.FIELD_DISPLAY_ORDER );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -97,8 +97,10 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
+        setRetainInstance( true );
+
         if( null != getArguments() ) {
-            mEpisodeId = getArguments().getLong(EpisodeActivity.EPISODE_KEY);
+            mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
         }
 
         mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_size );

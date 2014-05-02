@@ -64,6 +64,8 @@ public class EpisodeDetailsFragment extends Fragment {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
+        setRetainInstance( true );
+
         if( null != getArguments()) {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
             mEpisodeNumber = getArguments().getInt( EpisodeActivity.EPISODE_NUMBER_KEY );

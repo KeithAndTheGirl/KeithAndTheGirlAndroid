@@ -1543,16 +1543,26 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 JSONObject json = jsonObject.getJSONArray( "images" ).getJSONObject( i );
                 Log.v( TAG, "processEpisodeDetails : json=" + json.toString() );
 
-                String mediaUrl = json.getString( "media_url" );
+                int pictureid = json.getInt( "pictureid" );
+
+                int explicit = 0;
+                try {
+                    explicit = json.getInt( "explicit" );
+                } catch( Exception e ) {
+                    Log.v( TAG, "processEpisodes : Public format is not valid or not present" );
+                }
 
                 values = new ContentValues();
-                values.put( Image.FIELD_MEDIAURL, mediaUrl );
+                values.put( Image._ID, pictureid );
                 values.put( Image.FIELD_TITLE, json.getString( "title" ) );
                 values.put( Image.FIELD_DESCRIPTION, json.getString( "description" ) );
+                values.put( Image.FIELD_EXPLICIT, explicit );
+                values.put( Image.FIELD_DISPLAY_ORDER, json.getInt( "displayorder" ) );
+                values.put( Image.FIELD_MEDIAURL, json.getString( "media_url" ) );
                 values.put( Image.FIELD_SHOWID, showId );
                 values.put( Image.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                cursor = provider.query( Image.CONTENT_URI, projection, Image.FIELD_MEDIAURL + "=?", new String[] { mediaUrl }, null );
+                cursor = provider.query( ContentUris.withAppendedId( Image.CONTENT_URI, pictureid ), null, null, null, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processEpisodeDetails : image iteration, updating existing entry" );
 

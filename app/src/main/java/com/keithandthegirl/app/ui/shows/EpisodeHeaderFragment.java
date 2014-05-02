@@ -75,6 +75,8 @@ public class EpisodeHeaderFragment extends Fragment {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
+        setRetainInstance( true );
+
         if( null != getArguments() ) {
             mEpisodeNumber = getArguments().getInt( EpisodeActivity.EPISODE_NUMBER_KEY );
             mEpisodeTitle = getArguments().getString( EpisodeActivity.EPISODE_TITLE_KEY );

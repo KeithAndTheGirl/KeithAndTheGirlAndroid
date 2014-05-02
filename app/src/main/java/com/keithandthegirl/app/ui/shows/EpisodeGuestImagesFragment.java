@@ -84,6 +84,8 @@ public class EpisodeGuestImagesFragment extends Fragment {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
+        setRetainInstance( true );
+
         if( null != getArguments() ) {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
             Log.v( TAG, "onCreate : mEpisodeId=" + mEpisodeId );

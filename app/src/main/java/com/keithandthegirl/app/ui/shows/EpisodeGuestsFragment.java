@@ -69,6 +69,8 @@ public class EpisodeGuestsFragment extends Fragment {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
+        setRetainInstance( true );
+
         if( null != getArguments() ) {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
         }
