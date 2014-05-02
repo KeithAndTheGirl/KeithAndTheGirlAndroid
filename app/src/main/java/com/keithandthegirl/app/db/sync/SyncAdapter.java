@@ -467,9 +467,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Uri uri = Uri.parse( job.getUrl() );
                 String showId = uri.getQueryParameter( "showid" );
 
-                JSONObject json = loadJsonFromNetwork(job);
-                Log.i( TAG, "getEpisodeDetails : json=" + json.toString() );
-                processEpisodeDetails(json, provider, Integer.parseInt(showId));
+                JSONObject json = loadJsonFromNetwork( job );
+                if( null != json ) {
+                    Log.i( TAG, "getEpisodeDetails : json=" + json.toString() );
+                    processEpisodeDetails( json, provider, Integer.parseInt( showId ) );
+                }
             }
 
             update.put( WorkItem.FIELD_ETAG, job.getEtag() );
@@ -563,7 +565,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             stream = downloadUrl( job );
 
             // json is UTF-8 by default
-            BufferedReader reader = new BufferedReader( new InputStreamReader( stream , "UTF-8" ), 8 );
+            BufferedReader reader = new BufferedReader( new InputStreamReader( stream, "UTF-8" ), 8 );
             StringBuilder sb = new StringBuilder();
 
             String line = null;
@@ -574,6 +576,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             job.setStatus( WorkItem.Status.OK );
 
+        } catch( NullPointerException e ) {
+            Log.e( TAG, "loadJsonFromNetwork : error", e );
+
+            job.setStatus( WorkItem.Status.FAILED );
         } finally {
 
             // Makes sure that the InputStream is closed after the app is
