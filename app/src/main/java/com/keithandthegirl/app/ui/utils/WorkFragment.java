@@ -1,6 +1,9 @@
 package com.keithandthegirl.app.ui.utils;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -16,6 +19,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.sync.SyncAdapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -27,6 +31,8 @@ import org.joda.time.format.DateTimeFormatter;
 public class WorkFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = WorkFragment.class.getSimpleName();
+
+    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
 
     WorkItemCursorAdapter mAdapter;
 
@@ -71,9 +77,32 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
         getLoaderManager().initLoader( 0, getArguments(), this );
         mAdapter = new WorkItemCursorAdapter( getActivity().getApplicationContext() );
-        setListAdapter( mAdapter );
+        setListAdapter(mAdapter);
 
         Log.v( TAG, "onActivityCreated : exit" );
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(TAG, "onPause : enter");
+        super.onPause();
+
+        if( null != mSyncCompleteReceiver ) {
+            getActivity().unregisterReceiver( mSyncCompleteReceiver );
+        }
+
+        Log.d(TAG, "onPause : exit");
+    }
+
+    @Override
+    public void onResume() {
+        Log.d( TAG, "onResume : enter" );
+        super.onResume();
+
+        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
+        getActivity().registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
+
+        Log.d( TAG, "onResume : exit" );
     }
 
     private class WorkItemCursorAdapter extends CursorAdapter {
@@ -134,6 +163,26 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
         TextView lastRun;
 
         ViewHolder() { }
+
+    }
+
+    private class SyncCompleteReceiver extends BroadcastReceiver {
+
+        private final String TAG = SyncCompleteReceiver.class.getSimpleName();
+
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+            Log.d( TAG, "onReceive : enter" );
+
+            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
+                Log.v( TAG, "onReceive : sync complete" );
+
+                mAdapter.notifyDataSetChanged();
+
+            }
+
+            Log.d( TAG, "onReceive : exit" );
+        }
 
     }
 

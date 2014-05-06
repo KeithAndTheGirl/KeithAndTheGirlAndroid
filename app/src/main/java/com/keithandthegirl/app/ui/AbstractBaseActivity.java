@@ -317,7 +317,7 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         @Override
         public void onChange( boolean selfChange ) {
             Log.i( TAG, "onChange : enter" );
-            super.onChange(selfChange);
+            super.onChange( selfChange );
 
             onChange( selfChange, null );
 
