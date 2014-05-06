@@ -141,15 +141,18 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
-        
+        Log.d( TAG, "onCreateOptionsMenu : enter" );
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate( R.menu.main, menu );
 
+        Log.d( TAG, "onCreateOptionsMenu : exit" );
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu( Menu menu ) {
+        Log.d( TAG, "onPrepareOptionsMenu : enter" );
         super.onPrepareOptionsMenu( menu );
 
         boolean broadcasting = false;
@@ -183,6 +186,7 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
         }
 
+        Log.d( TAG, "onPrepareOptionsMenu : exit" );
         return true;
     }
 
@@ -247,8 +251,10 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
     }
 
     public void refresh() {
+        Log.d( TAG, "refresh : enter" );
 
         if( null != refreshImageView && null != refreshItem ) {
+            Log.d( TAG, "refresh : starting animation" );
 
            /* Attach a rotating ImageView to the refresh item as an ActionView */
 
@@ -258,17 +264,22 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
         }
 
+        Log.d( TAG, "refresh : exit" );
     }
 
     public void refreshComplete() {
+        Log.d( TAG, "refreshComplete : enter" );
 
         if( null != refreshItem && null != refreshItem.getActionView() ) {
+            Log.d( TAG, "refreshComplete : cleaning up animation" );
 
             refreshItem.getActionView().clearAnimation();
             refreshItem.setActionView( null );
 
+            invalidateOptionsMenu();
         }
 
+        Log.d( TAG, "refreshComplete : exit" );
     }
 
     @SuppressLint( "NewApi" )
@@ -289,7 +300,12 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         public void onChange( boolean selfChange, Uri uri ) {
             Log.i( TAG, "onChange : enter" );
 
-            invalidateOptionsMenu();
+            boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
+            boolean syncPending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY);
+
+            if( !syncActive && !syncPending ) {
+                invalidateOptionsMenu();
+            }
 
             Log.i( TAG, "onChange : exit" );
         }
@@ -311,7 +327,7 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
             onChange( selfChange, null );
 
-            Log.i(TAG, "onChange : exit");
+            Log.i( TAG, "onChange : exit" );
         }
 
         @Override
@@ -338,30 +354,40 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
     private class SyncStartReceiver extends BroadcastReceiver {
 
+        private final String TAG = SyncStartReceiver.class.getSimpleName();
+
         @Override
         public void onReceive( Context context, Intent intent ) {
+            Log.d( TAG, "onReceive : enter" );
 
             if( intent.getAction().equals( SyncAdapter.START_ACTION ) ) {
+                Log.v( TAG, "onReceive : sync started" );
 
                 refresh();
 
             }
 
+            Log.d( TAG, "onReceive : exit" );
         }
 
     }
 
     private class SyncCompleteReceiver extends BroadcastReceiver {
 
+        private final String TAG = SyncCompleteReceiver.class.getSimpleName();
+
         @Override
         public void onReceive( Context context, Intent intent ) {
+            Log.d( TAG, "onReceive : enter" );
 
             if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
+                Log.v( TAG, "onReceive : sync complete" );
 
                 refreshComplete();
 
             }
 
+            Log.d( TAG, "onReceive : exit" );
         }
 
     }
