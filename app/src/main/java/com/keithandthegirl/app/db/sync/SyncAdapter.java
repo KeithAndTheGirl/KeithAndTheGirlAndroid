@@ -9,6 +9,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -66,6 +67,9 @@ import java.util.TimeZone;
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final String TAG = SyncAdapter.class.getSimpleName();
+
+    public static final String START_ACTION = "com.keithandthegirl.app.db.sync.START_ACTION";
+    public static final String COMPLETE_ACTION = "com.keithandthegirl.app.db.sync.COMPLETE_ACTION";
 
     private static final DateTimeFormatter format = DateTimeFormat.forPattern( "MM/dd/yyyy HH:mm" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
     private static final DateTimeFormatter formata = DateTimeFormat.forPattern( "M/d/yyyy hh:mm:ss a" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
@@ -148,13 +152,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      */
     @Override
     public void onPerformSync( Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult ) {
-        Log.i(TAG, "onPerformSync : enter");
+        Log.i( TAG, "onPerformSync : enter" );
 
         /*
          * Put the data transfer code here.
          */
         SyncResult result = new SyncResult();
         try {
+
+            Intent startIntent = new Intent();
+            startIntent.setAction( START_ACTION );
+            mContext.sendBroadcast( startIntent );
 
             DateTime now = new DateTime( DateTimeZone.UTC );
 
@@ -285,6 +293,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e( TAG, "onPerformSync : error, IOException", e );
 
             result.hasHardError();
+        } finally {
+
+            Intent completeIntent = new Intent();
+            completeIntent.setAction( COMPLETE_ACTION );
+            mContext.sendBroadcast( completeIntent );
+
         }
 
         Log.i( TAG, "onPerformSync : exit" );
@@ -495,7 +509,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItem._ID, job.getId() );
-        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
+        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
 
@@ -629,44 +643,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v(TAG, "loadJsonArrayFromNetwork : exit");
         return jsonArray;
     }
-
-//    private void saveImage( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-//        Log.v( TAG, "saveImage : enter, url=" +job.getUrl() + ", filename=" + job.getFilename() );
-//
-//        if( null == job.getUrl() ) {
-//            Log.v( TAG, "saveImage : exit, url is null" );
-//
-//            return;
-//        }
-//
-//        if( null == job.getFilename() ) {
-//            Log.v( TAG, "saveImage : exit, filename is null" );
-//
-//            return;
-//        }
-//
-//        Bitmap bitmap = loadBitmapFromNetwork( job );
-//
-//        FileOutputStream fos = mContext.openFileOutput( job.getFilename(), Context.MODE_PRIVATE );
-//        bitmap.compress( Bitmap.CompressFormat.JPEG, 100, fos );
-//        fos.close();
-//
-//        if( null != job.getId() ) {
-//
-//            DateTime lastRun = new DateTime( DateTimeZone.UTC );
-//            ContentValues update = new ContentValues();
-//            update.put( WorkItem._ID, job.getId() );
-//            update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
-//            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-//            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-//            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
-//
-//            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
-//
-//        }
-//
-//        Log.v( TAG, "saveImage : exit" );
-//    }
 
     private Bitmap loadBitmapFromNetwork( Job job ) throws IOException {
         Log.v( TAG, "loadBitmapFromNetwork : enter" );
@@ -833,49 +809,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
                 count++;
 
-//                values = new ContentValues();
-//                values.put( WorkItem.FIELD_NAME, name + " cover" );
-//                values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
-//                values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
-//                values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
-//                values.put( WorkItem.FIELD_ADDRESS, coverImageUrl );
-//                values.put( WorkItem.FIELD_PARAMETERS, prefix + "_cover.jpg" );
-//                values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-//                values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
-//
-//                cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { coverImageUrl }, null );
-//                if( cursor.moveToNext() ) {
-//                    Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
-//
-//                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
-//                    ops.add(
-//                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
-//                                    .withValues( values )
-//                                    .withYieldAllowed( true )
-//                                    .build()
-//                    );
-//
-//                } else {
-//                    Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
-//
-//                    ops.add(
-//                            ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
-//                                    .withValues( values )
-//                                    .withYieldAllowed( true )
-//                                    .build()
-//                    );
-//
-//                    Job coverJob = new Job();
-//                    coverJob.setUrl( coverImageUrl );
-//                    coverJob.setFilename( prefix + "_cover.jpg" );
-//
-//                    saveImage( provider, coverJob );
-//                }
-//                cursor.close();
-//                count++;
-
                 if( showNameId ==  1 ) {
-                    Log.v( TAG, "processShows : adding on time update for katg main show" );
+                    Log.v( TAG, "processShows : adding one time update for katg main show" );
 
                     values = new ContentValues();
                     values.put( WorkItem.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
@@ -930,7 +865,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
                     values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ? and " + WorkItem.FIELD_PARAMETERS + " = ?", new String[] { Endpoint.LIST, "?shownameid=" + showNameId }, null );
+                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ADDRESS + " = ? and " + WorkItem.FIELD_PARAMETERS + " = ?", new String[] { Endpoint.LIST, "?shownameid=" + showNameId }, null );
                     if( cursor.moveToNext() ) {
                         Log.v( TAG, "processShows : updating daily spinoff show" );
 
@@ -1551,9 +1486,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 int pictureid = json.getInt( "pictureid" );
 
-                int explicit = 0;
+                boolean explicit = false;
                 try {
-                    explicit = json.getInt( "explicit" );
+                    explicit = json.getBoolean( "explicit" );
                 } catch( Exception e ) {
                     Log.v( TAG, "processEpisodes : Public format is not valid or not present" );
                 }
@@ -1562,7 +1497,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( Image._ID, pictureid );
                 values.put( Image.FIELD_TITLE, json.getString( "title" ) );
                 values.put( Image.FIELD_DESCRIPTION, json.getString( "description" ) );
-                values.put( Image.FIELD_EXPLICIT, explicit );
+                values.put( Image.FIELD_EXPLICIT, explicit ? 1 : 0 );
                 values.put( Image.FIELD_DISPLAY_ORDER, json.getInt( "displayorder" ) );
                 values.put( Image.FIELD_MEDIAURL, json.getString( "media_url" ) );
                 values.put( Image.FIELD_SHOWID, showId );

@@ -9,9 +9,15 @@
         android:icon="@drawable/ic_live_mic_off"
         katg:showAsAction="always" />
 
+    <item android:id="@+id/action_refresh"
+        android:title="@string/action_refresh"
+        android:orderInCategory="200"
+        android:icon="@drawable/ic_action_refresh"
+        katg:showAsAction="ifRoom" />
+
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
-        android:orderInCategory="200"
+        android:orderInCategory="300"
         katg:showAsAction="never" />
 
     <!--item android:id="@+id/action_work_items"

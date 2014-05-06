@@ -128,14 +128,14 @@ public class EpisodeGuestImagesFragment extends Fragment {
         dbHelper = new DatabaseHelper( getActivity() );
         cursor = dbHelper.getReadableDatabase().rawQuery( RAW_GUESTS_QUERY, new String[] { String.valueOf( mEpisodeId ) } );
 
-        if( null != cursor ) {
+//        if( null != cursor ) {
 
             getActivity().startManagingCursor(cursor);
             mAdapter = new EpisodeGuestCursorAdapter( getActivity(), cursor );
 
             mGridView.setAdapter( mAdapter );
 
-        }
+//        }
 
         Log.v( TAG, "onActivityCreated : exit" );
     }

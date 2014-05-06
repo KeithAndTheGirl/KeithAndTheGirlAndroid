@@ -3,8 +3,13 @@ package com.keithandthegirl.app.ui;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -14,8 +19,12 @@ import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.keithandthegirl.app.MainApplication;
@@ -23,6 +32,10 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.sync.SyncAdapter;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 public abstract class AbstractBaseActivity extends ActionBarActivity {
 
@@ -31,12 +44,19 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
     private ContentResolver mContentResolver;
     private Uri mUri;
 
+    private LayoutInflater mInflater;
     private BroadcastingObserver mBroadcastingObserver;
 
     private Drawable micOn, micOff;
 
     protected Account mAccount;
 
+    protected MenuItem refreshItem;
+    protected ImageView refreshImageView;
+    protected Animation mRefreshRotation;
+
+    private SyncStartReceiver mSyncStartReceiver = new SyncStartReceiver();
+    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -63,6 +83,12 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
         mContentResolver.registerContentObserver( mUri, true, observer );
 
+        mInflater = (LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        refreshImageView = (ImageView) mInflater.inflate( R.layout.refresh_action_view, null );
+
+        mRefreshRotation = AnimationUtils.loadAnimation( this, R.anim.clockwise_refresh );
+        mRefreshRotation.setRepeatCount( Animation.INFINITE );
+
         Log.d( TAG, "onCreate : exit" );
     }
 
@@ -70,6 +96,14 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
     protected void onPause() {
         Log.d( TAG, "onPause : enter" );
         super.onPause();
+
+        if( null != mSyncStartReceiver ) {
+            unregisterReceiver( mSyncStartReceiver );
+        }
+
+        if( null != mSyncCompleteReceiver ) {
+            unregisterReceiver( mSyncCompleteReceiver );
+        }
 
         getContentResolver().unregisterContentObserver( mBroadcastingObserver );
 
@@ -81,12 +115,26 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         Log.d( TAG, "onResume : enter" );
         super.onResume();
 
+        IntentFilter syncStartIntentFilter = new IntentFilter( SyncAdapter.START_ACTION );
+        registerReceiver( mSyncStartReceiver, syncStartIntentFilter );
+
+        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
+        registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
+
         getContentResolver().
             registerContentObserver(
-                    ContentUris.withAppendedId( Live.CONTENT_URI, 1 ),
+                    ContentUris.withAppendedId(Live.CONTENT_URI, 1),
                     true,
                     mBroadcastingObserver
             );
+
+        boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
+
+        if( syncActive ) {
+
+            refresh();
+
+        }
 
         Log.d( TAG, "onResume : exit" );
     }
@@ -127,6 +175,14 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
         }
 
+        boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
+
+        if( syncActive ) {
+
+            refresh();
+
+        }
+
         return true;
     }
 
@@ -142,6 +198,7 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         }
 
         switch( id ) {
+
             case R.id.action_settings :
                 return true;
 
@@ -164,9 +221,54 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
                 return true;
 
+            case R.id.action_refresh :
+
+                refreshItem = item;
+
+                boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
+                boolean syncPending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY );
+
+                if( !syncActive && !syncPending ) {
+
+                    DateTime now = new DateTime( DateTimeZone.UTC );
+                    now = now.minusDays( 1 );
+
+                    ContentValues values = new ContentValues();
+                    values.put( WorkItem.FIELD_LAST_RUN, now.getMillis() );
+
+                    getContentResolver().update( WorkItem.CONTENT_URI, values, WorkItem.FIELD_FREQUENCY + " = ? OR " + WorkItem.FIELD_FREQUENCY + " = ?", new String[]{ WorkItem.Frequency.HOURLY.name(), WorkItem.Frequency.DAILY.name() } );
+
+                }
+
+                return true;
         }
 
         return super.onOptionsItemSelected( item );
+    }
+
+    public void refresh() {
+
+        if( null != refreshImageView && null != refreshItem ) {
+
+           /* Attach a rotating ImageView to the refresh item as an ActionView */
+
+           refreshImageView.startAnimation( mRefreshRotation );
+
+           refreshItem.setActionView( refreshImageView );
+
+        }
+
+    }
+
+    public void refreshComplete() {
+
+        if( null != refreshItem && null != refreshItem.getActionView() ) {
+
+            refreshItem.getActionView().clearAnimation();
+            refreshItem.setActionView( null );
+
+        }
+
     }
 
     @SuppressLint( "NewApi" )
@@ -230,6 +332,36 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
             }
 
             Log.i( TAG, "onChange : exit" );
+        }
+
+    }
+
+    private class SyncStartReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+
+            if( intent.getAction().equals( SyncAdapter.START_ACTION ) ) {
+
+                refresh();
+
+            }
+
+        }
+
+    }
+
+    private class SyncCompleteReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+
+            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
+
+                refreshComplete();
+
+            }
+
         }
 
     }
