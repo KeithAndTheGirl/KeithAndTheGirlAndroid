@@ -206,18 +206,12 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
             case R.id.action_settings :
                 return true;
 
-//            case R.id.action_work_items :
-//
-//                WorkFragment newFragment = new WorkFragment();
-//
-//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//                transaction.replace( R.id.container, newFragment );
-//                transaction.addToBackStack( null );
-//
-//                // Commit the transaction
-//                transaction.commit();
-//
-//                return true;
+            case R.id.action_work_items :
+
+                Intent workItemsIntent = new Intent( this, WorkItemsActivity.class );
+                startActivity( workItemsIntent );
+
+                return true;
 
             case R.id.action_broadcasting :
 

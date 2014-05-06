@@ -21,6 +21,7 @@
     <string name="episode_not_played">Not Played</string>
     <string name="episode_not_downloaded">Not Downloaded</string>
     <string name="title_activity_shows">ShowsActivity</string>
+    <string name="title_activity_workitems">WorkItemsActivity</string>
     <string name="no_network_connection_toast">No network connection found</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

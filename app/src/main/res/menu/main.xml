@@ -20,9 +20,9 @@
         android:orderInCategory="300"
         katg:showAsAction="never" />
 
-    <!--item android:id="@+id/action_work_items"
+    <item android:id="@+id/action_work_items"
         android:title="@string/action_work_items"
-        android:orderInCategory="300"
-        katg:showAsAction="never" / -->
+        android:orderInCategory="400"
+        katg:showAsAction="never" />
 
 </menu>
