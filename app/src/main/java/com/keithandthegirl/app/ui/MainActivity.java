@@ -1,8 +1,9 @@
 package com.keithandthegirl.app.ui;
 
-import android.accounts.Account;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,8 +12,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Show;
@@ -88,10 +91,25 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
             // the adapter. Also specify this Activity object, which implements
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText( mSectionsPagerAdapter.getPageTitle( i ) )
-                            .setTabListener( this ) );
+            LinearLayout view = (LinearLayout) getLayoutInflater().inflate(R.layout.custom_tab, null);
+
+            ImageView icon = (ImageView) view.findViewById(R.id.icon);
+            icon.setImageDrawable(mSectionsPagerAdapter.getUnselectedIcon(i));
+
+            TextView title = (TextView) view.findViewById( R.id.title );
+            title.setText( mSectionsPagerAdapter.getPageTitle( i ) );
+
+            actionBar.addTab( actionBar.newTab()
+                    .setCustomView(view)
+                    .setTabListener( this )
+            );
+
+            //            actionBar.addTab(
+//                    actionBar.newTab()
+//                            .setText( mSectionsPagerAdapter.getPageTitle( i ) )
+//                            .setIcon( mSectionsPagerAdapter.getUnselectedIcon( i ) )
+//                            .setTabListener( this )
+//            );
 
         }
 
@@ -105,12 +123,26 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
         // the ViewPager.
         mViewPager.setCurrentItem( tab.getPosition() );
 
+        ImageView icon = (ImageView) tab.getCustomView().findViewById( R.id.icon );
+        icon.setImageDrawable( mSectionsPagerAdapter.getSelectedIcon(tab.getPosition()) );
+
+        TextView title = (TextView) tab.getCustomView().findViewById(R.id.title);
+        title.setTextColor(Color.WHITE);
+
+//        tab.setIcon( mSectionsPagerAdapter.getSelectedIcon( tab.getPosition() ) );
+
     }
 
     @Override
     public void onTabUnselected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
 
+        ImageView icon = (ImageView) tab.getCustomView().findViewById( R.id.icon );
+        icon.setImageDrawable( mSectionsPagerAdapter.getUnselectedIcon(tab.getPosition()) );
 
+        TextView title = (TextView) tab.getCustomView().findViewById(R.id.title);
+        title.setTextColor(Color.BLACK);
+
+//        tab.setIcon( mSectionsPagerAdapter.getUnselectedIcon(tab.getPosition()) );
 
     }
 
@@ -165,6 +197,42 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
                     return getResources().getString( R.string.action_bar_tab_youtube );
                 case 4:
                     return getResources().getString( R.string.action_bar_tab_about );
+            }
+
+            return null;
+        }
+
+        public Drawable getUnselectedIcon( int position ) {
+
+            switch( position ) {
+                case 0:
+                    return getResources().getDrawable( R.drawable.ic_tab_shows_off );
+                case 1:
+                    return null;
+                case 2:
+                    return getResources().getDrawable( R.drawable.ic_tab_calendar_off );
+                case 3:
+                    return getResources().getDrawable( R.drawable.ic_tab_youtube_off );
+                case 4:
+                    return getResources().getDrawable( R.drawable.ic_tab_about_off );
+            }
+
+            return null;
+        }
+
+        public Drawable getSelectedIcon( int position ) {
+
+            switch( position ) {
+                case 0:
+                    return getResources().getDrawable( R.drawable.ic_tab_shows_on );
+                case 1:
+                    return null;
+                case 2:
+                    return getResources().getDrawable( R.drawable.ic_tab_calendar_on );
+                case 3:
+                    return getResources().getDrawable( R.drawable.ic_tab_youtube_on );
+                case 4:
+                    return getResources().getDrawable( R.drawable.ic_tab_about_on );
             }
 
             return null;
