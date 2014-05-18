@@ -26,6 +26,12 @@ public class Episode extends AbstractBaseDatabase {
     public static final String FIELD_TITLE = "title";
     public static final String FIELD_TITLE_DATA_TYPE = "TEXT";
 
+    public static final String FIELD_VIDEOFILEURL = "videofileurl";
+    public static final String FIELD_VIDEOFILEURL_DATA_TYPE = "TEXT";
+
+    public static final String FIELD_VIDEOTHUMBNAILURL = "videothumbnailurl";
+    public static final String FIELD_VIDEOTHUMBNAILURL_DATA_TYPE = "TEXT";
+
     public static final String FIELD_PREVIEWURL = "previewurl";
     public static final String FIELD_PREVIEWURL_DATA_TYPE = "TEXT";
 
@@ -47,7 +53,10 @@ public class Episode extends AbstractBaseDatabase {
     public static final String FIELD_PUBLIC = "public";
     public static final String FIELD_PUBLIC_DATA_TYPE = "INTEGER";
 
-    public static final String FIELD_TIMESTAMP = "posted";
+    public static final String FIELD_POSTED = "posted";
+    public static final String FIELD_POSTED_DATA_TYPE = "STRING";
+
+    public static final String FIELD_TIMESTAMP = "timestamp";
     public static final String FIELD_TIMESTAMP_DATA_TYPE = "INTEGER";
 
     public static final String FIELD_DOWNLOADED = "downloaded";
@@ -64,7 +73,7 @@ public class Episode extends AbstractBaseDatabase {
     public static final String FIELD_SHOWNAMEID_DATA_TYPE = "INTEGER";
 
     public static final String[] COLUMN_MAP = { _ID,
-            FIELD_NUMBER, FIELD_TITLE, FIELD_PREVIEWURL, FIELD_FILEURL, FIELD_FILENAME, FIELD_LENGTH, FIELD_FILESIZE, FIELD_TYPE, FIELD_PUBLIC, FIELD_TIMESTAMP,
+            FIELD_NUMBER, FIELD_TITLE, FIELD_VIDEOFILEURL, FIELD_VIDEOTHUMBNAILURL, FIELD_PREVIEWURL, FIELD_FILEURL, FIELD_FILENAME, FIELD_LENGTH, FIELD_FILESIZE, FIELD_TYPE, FIELD_PUBLIC, FIELD_POSTED, FIELD_TIMESTAMP,
             FIELD_DOWNLOADED, FIELD_PLAYED, FIELD_LASTPLAYED, FIELD_SHOWNAMEID,
             FIELD_LAST_MODIFIED_DATE
     };
@@ -77,6 +86,8 @@ public class Episode extends AbstractBaseDatabase {
         createTable.append( _ID ).append( " " ).append( FIELD_ID_DATA_TYPE ).append( " " ).append( FIELD_ID_PRIMARY_KEY ).append( ", " );
         createTable.append( FIELD_NUMBER ).append( " " ).append( FIELD_NUMBER_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_TITLE ).append( " " ).append( FIELD_TITLE_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_VIDEOFILEURL ).append( " " ).append( FIELD_VIDEOFILEURL_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_VIDEOTHUMBNAILURL ).append( " " ).append( FIELD_VIDEOTHUMBNAILURL_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_PREVIEWURL ).append( " " ).append( FIELD_PREVIEWURL_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_FILEURL ).append( " " ).append( FIELD_FILEURL_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_FILENAME ).append( " " ).append( FIELD_FILENAME_DATA_TYPE ).append( ", " );
@@ -84,6 +95,7 @@ public class Episode extends AbstractBaseDatabase {
         createTable.append( FIELD_FILESIZE ).append( " " ).append( FIELD_FILESIZE_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_TYPE ).append( " " ).append( FIELD_TYPE_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_PUBLIC ).append( " " ).append( FIELD_PUBLIC_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_POSTED ).append( " " ).append( FIELD_POSTED_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_TIMESTAMP ).append( " " ).append( FIELD_TIMESTAMP_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_DOWNLOADED ).append( " " ).append( FIELD_DOWNLOADED_DATA_TYPE ).append( " DEFAULT " ).append( FIELD_DOWNLOADED_DEFAULT ).append( ", " );
         createTable.append( FIELD_PLAYED ).append( " " ).append( FIELD_PLAYED_DATA_TYPE ).append( ", " );
@@ -106,6 +118,8 @@ public class Episode extends AbstractBaseDatabase {
         insert.append( _ID ).append( "," );
         insert.append( FIELD_NUMBER ).append( "," );
         insert.append( FIELD_TITLE ).append( "," );
+        insert.append( FIELD_VIDEOFILEURL ).append( "," );
+        insert.append( FIELD_VIDEOTHUMBNAILURL ).append( "," );
         insert.append( FIELD_PREVIEWURL ).append( "," );
         insert.append( FIELD_FILEURL ).append( "," );
         insert.append( FIELD_FILENAME ).append( "," );
@@ -113,6 +127,7 @@ public class Episode extends AbstractBaseDatabase {
         insert.append( FIELD_FILESIZE ).append( "," );
         insert.append( FIELD_TYPE ).append( "," );
         insert.append( FIELD_PUBLIC ).append( "," );
+        insert.append( FIELD_POSTED ).append( "," );
         insert.append( FIELD_TIMESTAMP ).append( "," );
         insert.append( FIELD_DOWNLOADED ).append( "," );
         insert.append( FIELD_PLAYED ).append( "," );
@@ -120,7 +135,7 @@ public class Episode extends AbstractBaseDatabase {
         insert.append( FIELD_LAST_MODIFIED_DATE ).append( "," );
         insert.append( FIELD_SHOWNAMEID );
         insert.append( " ) " );
-        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 
         INSERT_ROW = insert.toString();
 
@@ -129,6 +144,8 @@ public class Episode extends AbstractBaseDatabase {
         update.append( "UPDATE " ).append( TABLE_NAME ).append( " SET " );
         update.append( FIELD_NUMBER ).append( " = ?, " );
         update.append( FIELD_TITLE ).append( " = ?, " );
+        update.append( FIELD_VIDEOFILEURL ).append( " = ?, " );
+        update.append( FIELD_VIDEOTHUMBNAILURL ).append( " = ?, " );
         update.append( FIELD_PREVIEWURL ).append( " = ?, " );
         update.append( FIELD_FILEURL ).append( " = ?, " );
         update.append( FIELD_FILENAME ).append( " = ?, " );
@@ -136,6 +153,7 @@ public class Episode extends AbstractBaseDatabase {
         update.append( FIELD_FILESIZE ).append( " = ?, " );
         update.append( FIELD_TYPE ).append( " = ?, " );
         update.append( FIELD_PUBLIC ).append( " = ?, " );
+        update.append( FIELD_POSTED ).append( " = ?, " );
         update.append( FIELD_TIMESTAMP ).append( " = ?, " );
         update.append( FIELD_DOWNLOADED ).append( " = ?, " );
         update.append( FIELD_PLAYED ).append( " = ?, " );

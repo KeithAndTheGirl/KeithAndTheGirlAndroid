@@ -10,7 +10,7 @@
     <string name="action_bar_tab_events">Schedule</string>
     <string name="action_bar_tab_shows">Shows</string>
     <string name="action_bar_tab_guests">Guests</string>
-    <string name="action_bar_tab_youtube">Youtube</string>
+    <string name="action_bar_tab_youtube">Videos</string>
     <string name="action_bar_tab_about">About</string>
     <string name="episode_label">EPISODE</string>
     <string name="episode_description_label">Description</string>
@@ -20,21 +20,21 @@
     <string name="episode_no_guests">No Guests</string>
     <string name="episode_not_played">Not Played</string>
     <string name="episode_not_downloaded">Not Downloaded</string>
+    <string name="youtube_preview">(Preview)</string>
     <string name="title_activity_shows">ShowsActivity</string>
     <string name="title_activity_workitems">WorkItemsActivity</string>
     <string name="no_network_connection_toast">No network connection found</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <string name="about_the_show_title">The Show</string>
     <string name="about_the_show">Keith and the Girl is a free comedy talk show hosted by <a href="">Keith Malley</a> and <a href="">Chemda</a>. Topics include current events, pop culture, politics and even intimate details of their lives. A new hour-long show is posted each weekday.</string>
-
     <string name="about_the_show_keith_title">Keith Malley</string>
     <string name="about_the_show_keith">After a mere year performing stand-up comedy, Keith Malley was the 2004 grand prize winner at the prestigious World Comedy Laugh Off in New York City. He immediately recorded his debut CD/DVD Coming of Age and vowed to record a new one-take only CD/DVD each and every birthday with all new material. He has just released his tenth CD/DVD which has reached #1 in iTunes in multiple countries.</string>
     <string name="about_the_show_keith_button">More on Keith</string>
-
     <string name="about_the_show_chemda_title">Chemda</string>
     <string name="about_the_show_chemda">Chemda was born in Isreal and has lived in New York City since she was 4 years old. She currently lives in Queens with her fiance, actor Lauren Hennessy. She is a talk show host, writer and singer.</string>
     <string name="about_the_show_chemda_2">In addition to Keith and the Girl, Chemda is host of the What\'s My Name Show found on the KATG network. Along with Keith, Chemda\'s first published book, What Do We Do Now? (A relationship advice book) was released March, 2010 and went into its second printing within one week of its release.</string>
     <string name="about_the_show_chemda_button">More on Chemda</string>
+    <string name="title_activity_video_player">VideoPlayerActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

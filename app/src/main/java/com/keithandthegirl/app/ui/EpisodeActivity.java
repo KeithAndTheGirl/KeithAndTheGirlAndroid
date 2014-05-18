@@ -141,7 +141,7 @@ public class EpisodeActivity extends AbstractBaseActivity {
                 mShowName = cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) );
                 mShowPrefix = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) );
                 mShowVip = cursor.getInt( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 1 ? true : false;
-                mShowCoverImageUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL ) );
+                mShowCoverImageUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL_200 ) );
                 mShowForumUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_FORUMURL ) );
 
             }

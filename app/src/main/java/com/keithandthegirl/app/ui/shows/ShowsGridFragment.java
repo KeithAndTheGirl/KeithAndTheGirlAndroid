@@ -49,7 +49,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v(TAG, "onCreateLoader : enter");
 
-        String[] projection = { Show._ID, Show.FIELD_NAME, Show.FIELD_PREFIX, Show.FIELD_COVERIMAGEURL, Show.FIELD_VIP };
+        String[] projection = { Show._ID, Show.FIELD_NAME, Show.FIELD_PREFIX, Show.FIELD_COVERIMAGEURL_200, Show.FIELD_VIP };
 
         String selection = null;
 
@@ -222,7 +222,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
             String name = cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) );
             String prefix = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) );
-            String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL ) );
+            String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL_200 ) );
             boolean vip = cursor.getLong( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 0 ? false : true;
 
             mHolder.name.setText( name );

@@ -126,12 +126,12 @@ public class ShowHeaderFragment extends Fragment {
 
         Log.v( TAG, "updateHeader : showNameId=" + showNameId );
 
-        String[] projection = new String[] { Show._ID, Show.FIELD_NAME, Show.FIELD_DESCRIPTION, Show.FIELD_COVERIMAGEURL };
+        String[] projection = new String[] { Show._ID, Show.FIELD_NAME, Show.FIELD_DESCRIPTION, Show.FIELD_COVERIMAGEURL_200 };
 
         Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( Show.CONTENT_URI, showNameId ), projection, null, null, null );
         if( cursor.moveToNext() ) {
 
-            String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL ) );
+            String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL_200 ) );
 
             mTitleTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) ) );
             mDescriptionTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_DESCRIPTION ) ) );

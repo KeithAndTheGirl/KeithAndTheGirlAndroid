@@ -777,6 +777,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( Show.FIELD_SORTORDER, sortOrder );
                 values.put( Show.FIELD_DESCRIPTION, json.getString( "Description" ) );
                 values.put( Show.FIELD_COVERIMAGEURL, coverImageUrl );
+                values.put( Show.FIELD_COVERIMAGEURL_SQUARED, coverImageUrl );
+                values.put( Show.FIELD_COVERIMAGEURL_100, coverImageUrl );
+                values.put( Show.FIELD_COVERIMAGEURL_200, coverImageUrl );
                 values.put( Show.FIELD_FORUMURL, json.getString( "ForumUrl" ) );
                 values.put( Show.FIELD_PREVIEWURL, json.getString( "PreviewUrl" ) );
                 values.put( Show.FIELD_EPISODE_COUNT, json.getInt( "EpisodeCount" ) );
@@ -1113,13 +1116,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 int showId = json.getInt( "ShowId" );
                 detailsQueue.add( showId );
 
-                DateTime posted = new DateTime();
+                String videoFileUrl = "";
                 try {
-                    posted = formata.parseDateTime( json.getString( "PostedDate" ) );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processEpisodes : PostedDate format is not valid" );
+                    videoFileUrl = json.getString( "VideoFileUrl" );
+                } catch( JSONException e ) {
+                    Log.v( TAG, "processEpisodes : VideoFileUrl format is not valid or does not exist" );
                 }
-                posted = posted.withZone( DateTimeZone.UTC );
+
+                String videoThumbnailUrl = "";
+                try {
+                    videoThumbnailUrl = json.getString( "VideoThumbnailUrl" );
+                } catch( JSONException e ) {
+                    Log.v( TAG, "processEpisodes : VideoThumbnailUrl format is not valid or does not exist" );
+                }
 
                 String previewUrl = "";
                 try {
@@ -1143,7 +1152,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 int length = -1;
                 try {
-                    length = json.getInt("Length");
+                    length = json.getInt( "Length" );
                 } catch( Exception e ) {
                     Log.v( TAG, "processEpisodes : Length format is not valid or not present" );
                 }
@@ -1172,7 +1181,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values = new ContentValues();
                 values.put( Episode._ID, showId );
                 values.put( Episode.FIELD_NUMBER, json.getInt( "Number" ) );
-                values.put( Episode.FIELD_TITLE, json.getString("Title") );
+                values.put( Episode.FIELD_TITLE, json.getString( "Title" ) );
+                values.put( Episode.FIELD_VIDEOFILEURL, videoFileUrl );
+                values.put( Episode.FIELD_VIDEOTHUMBNAILURL, videoThumbnailUrl );
                 values.put( Episode.FIELD_PREVIEWURL, previewUrl );
                 values.put( Episode.FIELD_FILEURL, fileUrl );
                 values.put( Episode.FIELD_FILENAME, fileName );
@@ -1180,7 +1191,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( Episode.FIELD_FILESIZE, fileSize );
                 values.put( Episode.FIELD_TYPE, json.getInt( "Type" ) );
                 values.put( Episode.FIELD_PUBLIC, vip );
-                values.put( Episode.FIELD_TIMESTAMP, posted.getMillis() );
+                values.put( Episode.FIELD_POSTED, json.getString( "PostedDate" ) );
+                values.put( Episode.FIELD_TIMESTAMP, json.getLong( "Timestamp") );
                 values.put( Episode.FIELD_SHOWNAMEID, showNameId );
                 values.put( Episode.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 

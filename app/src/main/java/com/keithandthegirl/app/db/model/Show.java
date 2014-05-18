@@ -38,7 +38,16 @@ public class Show extends AbstractBaseDatabase {
     public static final String FIELD_COVERIMAGEURL = "coverimageurl";
     public static final String FIELD_COVERIMAGEURL_DATA_TYPE = "TEXT";
 
-    public static final String FIELD_FORUMURL = "FORUMURL";
+    public static final String FIELD_COVERIMAGEURL_SQUARED = "coverimageurlsquared";
+    public static final String FIELD_COVERIMAGEURL_SQUARED_DATA_TYPE = "TEXT";
+
+    public static final String FIELD_COVERIMAGEURL_100 = "coverimageurlsquared100";
+    public static final String FIELD_COVERIMAGEURL_100_DATA_TYPE = "TEXT";
+
+    public static final String FIELD_COVERIMAGEURL_200 = "coverimageurlsquared200";
+    public static final String FIELD_COVERIMAGEURL_200_DATA_TYPE = "TEXT";
+
+    public static final String FIELD_FORUMURL = "forumurl";
     public static final String FIELD_FORUMURL_DATA_TYPE = "TEXT";
 
     public static final String FIELD_PREVIEWURL = "previewurl";
@@ -51,7 +60,7 @@ public class Show extends AbstractBaseDatabase {
     public static final String FIELD_EPISODE_COUNT_MAX_DATA_TYPE = "INTEGER";
 
     public static final String[] COLUMN_MAP = { _ID,
-            FIELD_NAME, FIELD_PREFIX, FIELD_VIP, FIELD_SORTORDER, FIELD_DESCRIPTION, FIELD_COVERIMAGEURL, FIELD_FORUMURL, FIELD_PREVIEWURL, FIELD_EPISODE_COUNT, FIELD_EPISODE_COUNT_MAX,
+            FIELD_NAME, FIELD_PREFIX, FIELD_VIP, FIELD_SORTORDER, FIELD_DESCRIPTION, FIELD_COVERIMAGEURL, FIELD_COVERIMAGEURL_SQUARED, FIELD_COVERIMAGEURL_100, FIELD_COVERIMAGEURL_200, FIELD_FORUMURL, FIELD_PREVIEWURL, FIELD_EPISODE_COUNT, FIELD_EPISODE_COUNT_MAX,
             FIELD_LAST_MODIFIED_DATE
     };
 
@@ -67,6 +76,9 @@ public class Show extends AbstractBaseDatabase {
         createTable.append( FIELD_SORTORDER ).append( " " ).append( FIELD_SORTORDER_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_DESCRIPTION ).append( " " ).append( FIELD_DESCRIPTION_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_COVERIMAGEURL ).append( " " ).append( FIELD_COVERIMAGEURL_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_COVERIMAGEURL_SQUARED ).append( " " ).append( FIELD_COVERIMAGEURL_SQUARED_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_COVERIMAGEURL_100 ).append( " " ).append( FIELD_COVERIMAGEURL_100_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_COVERIMAGEURL_200 ).append( " " ).append( FIELD_COVERIMAGEURL_200_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_FORUMURL ).append( " " ).append( FIELD_FORUMURL_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_PREVIEWURL ).append( " " ).append( FIELD_PREVIEWURL_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_EPISODE_COUNT ).append( " " ).append( FIELD_EPISODE_COUNT_DATA_TYPE ).append( ", " );
@@ -92,13 +104,16 @@ public class Show extends AbstractBaseDatabase {
         insert.append( FIELD_SORTORDER ).append( "," );
         insert.append( FIELD_DESCRIPTION ).append( "," );
         insert.append( FIELD_COVERIMAGEURL ).append( "," );
+        insert.append( FIELD_COVERIMAGEURL_SQUARED ).append( "," );
+        insert.append( FIELD_COVERIMAGEURL_100 ).append( "," );
+        insert.append( FIELD_COVERIMAGEURL_200 ).append( "," );
         insert.append( FIELD_FORUMURL ).append( "," );
         insert.append( FIELD_PREFIX ).append( "," );
         insert.append( FIELD_EPISODE_COUNT ).append( "," );
         insert.append( FIELD_EPISODE_COUNT_MAX ).append( "," );
         insert.append( FIELD_LAST_MODIFIED_DATE );
         insert.append( " ) " );
-        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,? )" );
+        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 
         INSERT_ROW = insert.toString();
 
@@ -111,6 +126,9 @@ public class Show extends AbstractBaseDatabase {
         update.append( FIELD_SORTORDER ).append( " = ?, " );
         update.append( FIELD_DESCRIPTION ).append( " = ?, " );
         update.append( FIELD_COVERIMAGEURL ).append( " = ?, " );
+        update.append( FIELD_COVERIMAGEURL_SQUARED ).append( " = ?, " );
+        update.append( FIELD_COVERIMAGEURL_100 ).append( " = ?, " );
+        update.append( FIELD_COVERIMAGEURL_200 ).append( " = ?, " );
         update.append( FIELD_FORUMURL ).append( " = ?, " );
         update.append( FIELD_PREFIX ).append( " = ?, " );
         update.append( FIELD_EPISODE_COUNT ).append( " = ?, " );
