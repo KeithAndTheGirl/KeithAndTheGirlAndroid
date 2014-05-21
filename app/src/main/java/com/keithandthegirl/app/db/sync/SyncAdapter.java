@@ -10,6 +10,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -35,6 +36,7 @@ import com.keithandthegirl.app.db.model.Image;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.model.Youtube;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -73,6 +75,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final DateTimeFormatter format = DateTimeFormat.forPattern( "MM/dd/yyyy HH:mm" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
     private static final DateTimeFormatter formata = DateTimeFormat.forPattern( "M/d/yyyy hh:mm:ss a" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
+    private static final DateTimeFormatter formaty = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
 
     // Whether there is a Wi-Fi connection.
     private static boolean wifiConnected = false;
@@ -201,9 +204,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     lastRun = new DateTime( lastRunMs );
                 }
 
+                Log.i( TAG, "onPerformSync : job=" + job.toString() );
+
                 switch( wtype ) {
 
                     case ON_DEMAND:
+
                         if( !status.equals( WorkItem.Status.OK ) ) {
                             Log.v( TAG, "onPerformSync : adding On Demand job" );
 
@@ -213,6 +219,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
 
                     case ONCE:
+
                         if( !status.equals( WorkItem.Status.OK ) ) {
                             Log.v( TAG, "onPerformSync : adding One Time job" );
 
@@ -222,15 +229,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
 
                     case HOURLY:
+
                         if( status.equals( WorkItem.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Hourly job, never run" );
 
                             jobs.add( job );
 
                         } else {
-                            Log.v( TAG, "onPerformSync : adding Hourly job" );
 
                             if( Minutes.minutesBetween( lastRun, now ).getMinutes() >= 60 ) {
+                                Log.v( TAG, "onPerformSync : adding Hourly job" );
 
                                 jobs.add( job );
 
@@ -241,14 +249,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
 
                     case DAILY:
+
                         if( status.equals( WorkItem.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Daily job, never run" );
 
                             jobs.add( job );
                         } else {
-                            Log.v( TAG, "onPerformSync : adding Daily job" );
 
                             if( Days.daysBetween( lastRun, now ).getDays() >= 1 ) {
+                                Log.v( TAG, "onPerformSync : adding Daily job" );
 
                                 jobs.add( job );
 
@@ -259,14 +268,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
 
                     case WEEKLY:
+
                         if( status.equals( WorkItem.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Weekly job, never run" );
 
                             jobs.add( job );
                         } else {
-                            Log.v( TAG, "onPerformSync : adding Weekly job" );
 
                             if( Days.daysBetween( lastRun, now ).getDays() >= 7 ) {
+                                Log.v( TAG, "onPerformSync : adding Weekly job" );
 
                                 jobs.add( job );
 
@@ -314,56 +324,63 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 switch( job.getType() ) {
 
                     case OVERVIEW:
-                        Log.v( TAG, "runScheduledWorkItems : refreshing shows" );
+                        Log.v( TAG, "executeJobs : refreshing shows" );
 
                         getShows( provider, job );
 
                         break;
 
                     case EVENTS:
-                        Log.v( TAG, "runScheduledWorkItems : refreshing events" );
+                        Log.v( TAG, "executeJobs : refreshing events" );
 
                         getEvents( provider, job );
 
                         break;
 
                     case LIVE:
-                        Log.v( TAG, "runScheduledWorkItems : refreshing live status" );
+                        Log.v( TAG, "executeJobs : refreshing live status" );
 
                         getLives( provider, job );
 
                         break;
 
                     case LIST:
-                        Log.v( TAG, "runScheduledWorkItems : refreshing episode list" );
+                        Log.v( TAG, "executeJobs : refreshing episode list" );
 
                         getEpisodes( provider, job );
 
                         break;
 
                     case RECENT:
-                        Log.v( TAG, "runScheduledWorkItems : refreshing recent episodes" );
+                        Log.v( TAG, "executeJobs : refreshing recent episodes" );
 
                         getRecentEpisodes( provider, job );
 
                         break;
 
                     case IMAGE:
-                        Log.v( TAG, "runScheduledWorkItems : refreshing images" );
+                        Log.v( TAG, "executeJobs : refreshing images" );
 
 //                        saveImage( provider, job );
 
                         break;
 
                     case DETAILS:
-                        Log.v( TAG, "runScheduledWorkItems : refreshing episode details" );
+                        Log.v( TAG, "executeJobs : refreshing episode details" );
 
                         getEpisodeDetails( provider, job );
 
                         break;
 
+                    case YOUTUBE:
+                        Log.v( TAG, "executeJobs : refreshing youtube episodes" );
+
+                        getYoutubeEpisodes(provider, job);
+
+                        break;
+
                     default:
-                        Log.w( TAG, "runScheduledWorkItems : Scheduled '" + job.getType().name() + "' not supported" );
+                        Log.w( TAG, "executeJobs : Scheduled '" + job.getType().name() + "' not supported" );
 
                 }
             }
@@ -566,6 +583,41 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         Log.v( TAG, "getShowDetails : exit" );
+    }
+
+    private void getYoutubeEpisodes( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
+        Log.v( TAG, "getYoutubeEpisodes : enter" );
+
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+
+        try {
+
+            if( wifiConnected || mobileConnected ) {
+                Log.v( TAG, "getYoutubeEpisodes : network is available" );
+
+                JSONObject json = loadJsonFromNetwork( job );
+                if( null != json ) {
+                    Log.i( TAG, "getYoutubeEpisodes : json=" + json.toString() );
+                    processYoutubeEpisodes(json, provider, job);
+                }
+            }
+
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+
+        } catch( Exception e ) {
+            Log.e( TAG, "getYoutubeEpisodes : error", e );
+
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+        }
+
+        Log.v( TAG, "getYoutubeEpisodes : exit" );
     }
 
     private JSONObject loadJsonFromNetwork( Job job ) throws IOException, JSONException {
@@ -1178,6 +1230,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.v( TAG, "processEpisodes : ShowNameId format is not valid or not present" );
                 }
 
+                int episodeType = -1;
+                try {
+                    episodeType = json.getInt( "Type" );
+                } catch( Exception e ) {
+                    Log.v( TAG, "processEpisodes : Type format is not valid or not present" );
+                }
+
                 values = new ContentValues();
                 values.put( Episode._ID, showId );
                 values.put( Episode.FIELD_NUMBER, json.getInt( "Number" ) );
@@ -1189,7 +1248,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( Episode.FIELD_FILENAME, fileName );
                 values.put( Episode.FIELD_LENGTH, length );
                 values.put( Episode.FIELD_FILESIZE, fileSize );
-                values.put( Episode.FIELD_TYPE, json.getInt( "Type" ) );
+                values.put( Episode.FIELD_TYPE, episodeType );
                 values.put( Episode.FIELD_PUBLIC, vip );
                 values.put( Episode.FIELD_POSTED, json.getString( "PostedDate" ) );
                 values.put( Episode.FIELD_TIMESTAMP, json.getLong( "Timestamp") );
@@ -1312,100 +1371,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         }
                         cursor.close();
-
-//                        if( !"".equals( pictureUrl ) ) {
-//
-//                            Uri imageUri = Uri.parse( pictureUrl );
-//
-//                            values = new ContentValues();
-//                            values.put( WorkItem.FIELD_NAME, name + " small" );
-//                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
-//                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
-//                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
-//                            values.put( WorkItem.FIELD_ADDRESS, pictureUrl );
-//                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
-//                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-//                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
-//
-//                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_DOWNLOAD + "= ? AND " + WorkItem.FIELD_NAME + " = ?", new String[] { WorkItem.Download.JPG.name(), name + " small" }, null );
-//                            if( cursor.moveToNext() ) {
-//                                Log.v( TAG, "processEpisodes : guest image small, updating existing entry" );
-//
-//                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
-//                                ops.add(
-//                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
-//                                                .withValues( values )
-//                                                .withYieldAllowed( true )
-//                                                .build()
-//                                );
-//
-//                            } else {
-//                                Log.v( TAG, "processEpisodes : guest image small, adding new entry" );
-//
-//                                ops.add(
-//                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
-//                                                .withValues( values )
-//                                                .withYieldAllowed( true )
-//                                                .build()
-//                                );
-//
-//                                Job job = new Job();
-//                                job.setUrl( pictureUrl );
-//                                job.setFilename( imageUri.getLastPathSegment()) ;
-//
-//                                saveImage( provider, job );
-//
-//                            }
-//                            cursor.close();
-//
-//                        }
-
-//                        if( !"".equals( pictureUrlLarge ) ) {
-//
-//                            Uri imageUri = Uri.parse( pictureUrlLarge );
-//
-//                            values = new ContentValues();
-//                            values.put( WorkItem.FIELD_NAME, name + " large" );
-//                            values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.WEEKLY.name() );
-//                            values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JPG.name() );
-//                            values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.IMAGE.name() );
-//                            values.put( WorkItem.FIELD_ADDRESS, pictureUrlLarge );
-//                            values.put( WorkItem.FIELD_PARAMETERS, imageUri.getLastPathSegment() );
-//                            values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-//                            values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
-//
-//                            cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ?", new String[] { pictureUrl }, null );
-//                            if( cursor.moveToNext() ) {
-//                                Log.v( TAG, "processEpisodes : guest image large, updating existing entry" );
-//
-//                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
-//                                ops.add(
-//                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
-//                                                .withValues( values )
-//                                                .withYieldAllowed( true )
-//                                                .build()
-//                                );
-//
-//                            } else {
-//                                Log.v( TAG, "processEpisodes : guest image large, adding new entry" );
-//
-//                                ops.add(
-//                                        ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
-//                                                .withValues( values )
-//                                                .withYieldAllowed( true )
-//                                                .build()
-//                                );
-//
-//                                Job job = new Job();
-//                                job.setUrl( pictureUrlLarge );
-//                                job.setFilename( imageUri.getLastPathSegment()) ;
-//
-//                                saveImage( provider, job );
-//
-//                            }
-//                            cursor.close();
-//
-//                        }
 
                     }
                 }
@@ -1578,6 +1543,198 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "processEpisodeDetails : exit" );
     }
 
+    private void processYoutubeEpisodes( JSONObject jsonObject, ContentProviderClient provider, Job job ) throws RemoteException, OperationApplicationException, JSONException {
+        Log.v( TAG, "processYoutubeEpisodes : enter" );
+
+        DateTime lastRun = new DateTime( DateTimeZone.UTC );
+        ContentValues update = new ContentValues();
+        update.put( WorkItem._ID, job.getId() );
+        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+
+        DateTime now = new DateTime( DateTimeZone.UTC );
+
+        try {
+            int count = 0, loaded = 0;
+
+            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+            String[] projection = new String[] { Youtube._ID };
+
+            ContentValues values;
+
+            JSONObject feed = jsonObject.getJSONObject( "feed" );
+            //Log.v( TAG, "processYoutubeEpisodes : feed=" + feed.toString() );
+            if( null != feed ) {
+
+                if( null != feed.getJSONArray( "entry" ) && feed.getJSONArray( "entry" ).length() > 0 ) {
+
+                    JSONObject json = null;
+
+                    for( int i = 0; i < feed.getJSONArray( "entry" ).length(); i++ ) {
+
+                        json = feed.getJSONArray( "entry" ).getJSONObject( i );
+                        if( null != json ) {
+                            //Log.v( TAG, "processYoutubeEpisodes : json=" + json.toString() );
+
+                            String content = "", thumbnail = "";
+                            try {
+                                content = json.getJSONObject( "content" ).getString( "$t" );
+                            } catch( JSONException e ) {
+                                Log.v( TAG, "processYoutubeEpisodes : content is not valid" );
+                            }
+
+                            if( !"".equals( content ) ) {
+                                String img = content.substring( content.indexOf( "<img" ) );
+                                img = img.substring( 0, img.indexOf( "</a>" ) - 2 );
+
+                                String src = img.substring( img.indexOf( "src=" ) + 5 );
+
+                                thumbnail = src;
+                            }
+
+                            String etag = "";
+                            try {
+                                etag = json.getString( "gd$etag" );
+                            } catch( JSONException e ) {
+                                Log.v( TAG, "processYoutubeEpisodes : etag is not valid" );
+                            }
+
+                            String youtubeId = "";
+                            try {
+                                youtubeId = json.getJSONObject( "id" ).getString( "$t" );
+                            } catch( JSONException e ) {
+                                Log.v( TAG, "processYoutubeEpisodes : id is not valid" );
+                            }
+
+                            DateTime published = new DateTime();
+                            try {
+                                published = formaty.parseDateTime(json.getJSONObject( "published" ).getString( "$t" ) );
+                            } catch( JSONException e ) {
+                                Log.v( TAG, "processYoutubeEpisodes : published is not valid" );
+                            } finally {
+                                published = published.withZone( DateTimeZone.UTC );
+                            }
+
+                            DateTime updated = new DateTime();
+                            try {
+                                updated = formaty.parseDateTime( json.getJSONObject( "updated" ).getString( "$t" ) );
+                            } catch( JSONException e ) {
+                                Log.v( TAG, "processYoutubeEpisodes : updated is not valid" );
+                            } finally {
+                                updated = updated.withZone( DateTimeZone.UTC );
+                            }
+
+                            String title = "";
+                            try {
+                                title = json.getJSONObject( "title" ).getString( "$t");
+                            } catch( JSONException e ) {
+                                Log.v( TAG, "processYoutubeEpisodes : title is not valid" );
+                            }
+
+                            String link = "";
+                            if( null != json.getJSONArray( "link" ) && json.getJSONArray( "link" ).length() > 0 ) {
+
+                                for( int linkIdx = 0; linkIdx < json.getJSONArray( "link" ).length() - 1; linkIdx++ ) {
+
+                                    JSONObject aLink = json.getJSONArray( "link" ).getJSONObject( linkIdx );
+                                    //Log.v( TAG, "processYoutubeEpisodes : link=" + aLink.toString() );
+
+                                    if( "alternate".equals(aLink.getString("rel")) ) {
+                                        link = aLink.getString( "href" );
+                                    }
+
+                                }
+
+                            }
+
+                            values = new ContentValues();
+                            values.put( Youtube.FIELD_YOUTUBE_ID, youtubeId );
+                            values.put( Youtube.FIELD_YOUTUBE_ETAG, etag );
+                            values.put( Youtube.FIELD_YOUTUBE_TITLE, title );
+                            values.put( Youtube.FIELD_YOUTUBE_LINK, link );
+                            values.put( Youtube.FIELD_YOUTUBE_THUMBNAIL, thumbnail );
+                            values.put( Youtube.FIELD_YOUTUBE_PUBLISHED, published.getMillis() );
+                            values.put( Youtube.FIELD_YOUTUBE_UPDATED, updated.getMillis() );
+                            values.put( Youtube.FIELD_LAST_MODIFIED_DATE, now.getMillis() );
+
+                            Cursor cursor = provider.query( Youtube.CONTENT_URI, projection, Youtube.FIELD_YOUTUBE_ID + " = ?", new String[] { youtubeId }, null );
+                            if( cursor.moveToFirst() ) {
+                                Log.v( TAG, "processYoutubeEpisodes : updating existing entry" );
+
+                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( Youtube._ID ) );
+                                ops.add(
+                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Youtube.CONTENT_URI, id ) )
+                                                .withValues( values )
+                                                .withYieldAllowed( true )
+                                                .build()
+                                );
+
+                            } else {
+                                Log.v( TAG, "processYoutubeEpisodes : adding new entry" );
+
+                                ops.add(
+                                        ContentProviderOperation.newInsert( Youtube.CONTENT_URI )
+                                                .withValues( values )
+                                                .withYieldAllowed( true )
+                                                .build()
+                                );
+
+                            }
+                            cursor.close();
+                            count++;
+
+                            if( count > 100 ) {
+                                Log.v( TAG, "processYoutubeEpisodes : applying batch for '" + count + "' transactions" );
+
+                                if( !ops.isEmpty() ) {
+
+                                    ContentProviderResult[] results = provider.applyBatch( ops );
+                                    loaded += results.length;
+
+                                    if( results.length > 0 ) {
+                                        ops.clear();
+                                    }
+                                }
+
+                                count = 0;
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if( !ops.isEmpty() ) {
+                Log.v( TAG, "processYoutubeEpisodes : applying final batch for '" + count + "' transactions" );
+
+                ContentProviderResult[] results = provider.applyBatch( ops );
+                loaded += results.length;
+
+                if( results.length > 0 ) {
+                    ops.clear();
+                }
+            }
+
+            mContext.getContentResolver().delete( Youtube.CONTENT_URI, Youtube.FIELD_LAST_MODIFIED_DATE + " != ?", new String[] { String.valueOf( now.getMillis() ) } );
+
+            Log.i( TAG, "processYoutubeEpisodes : events loaded '" + loaded + "'" );
+
+            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+
+        } catch( Exception e ) {
+            Log.e( TAG, "processYoutubeEpisodes : error", e );
+
+            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+        } finally {
+            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+        }
+
+        Log.v(TAG, "processYoutubeEpisodes : exit");
+    }
+
     private class Job {
 
         private Long id;
@@ -1630,6 +1787,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         public void setEtag( String etag ) {
             this.etag = etag;
+        }
+
+        @Override
+        public String toString() {
+            return "Job{" +
+                    "id=" + id +
+                    ", type=" + type +
+                    ", download=" + download +
+                    ", url='" + url + '\'' +
+                    ", filename='" + filename + '\'' +
+                    ", etag='" + etag + '\'' +
+                    ", status=" + status +
+                    '}';
         }
 
     }

@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +22,7 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.Youtube;
 import com.keithandthegirl.app.ui.VideoPlayerActivity;
 import com.keithandthegirl.app.utils.ImageCache;
 import com.keithandthegirl.app.utils.ImageFetcher;
@@ -28,26 +32,9 @@ import org.joda.time.DateTime;
 /**
  * Created by dmfrey on 4/17/14.
  */
-public class YoutubeFragment extends ListFragment {
+public class YoutubeFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = YoutubeFragment.class.getSimpleName();
-
-    private static final String RAW_VIDEO_QUERY =
-            "SELECT " +
-             "    e._id as _id, s.name as name, s.prefix as prefix, e.title as title, e.number as number, e.videofileurl as video_url, e.videothumbnailurl as thumbnail, 0 as preview, e.timestamp as timestamp " +
-             "FROM " +
-             "    episode e left join show s on s._id = e.shownameid " +
-             "WHERE " +
-             "    e.videofileurl IS NOT NULL AND NOT e.videofileurl = ''" +
-             "UNION " +
-             "SELECT " +
-             "    e._id as _id, s.name as name, s.prefix as prefix, e.title as title, e.number as number, e.previewurl as video_url, \"\" as thumbnail, 1 as preview, e.timestamp as timestamp " +
-             "FROM " +
-             "    episode e left join show s on s._id = e.shownameid " +
-             "WHERE " +
-             "    e.previewurl IS NOT NULL AND NOT e.previewurl = ''" +
-             "ORDER BY " +
-             "    timestamp desc";
 
     private static final String IMAGE_CACHE_DIR = "thumbs";
 
@@ -58,6 +45,40 @@ public class YoutubeFragment extends ListFragment {
     DatabaseHelper dbHelper;
     Cursor cursor;
     YoutubeCursorAdapter mAdapter;
+
+    @Override
+    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
+        Log.v(TAG, "onCreateLoader : enter");
+
+        String[] projection = null;
+
+        String selection = null;
+
+        String[] selectionArgs = null;
+
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), Youtube.CONTENT_URI, projection, selection, selectionArgs, Youtube.FIELD_YOUTUBE_PUBLISHED + " DESC" );
+
+        Log.v( TAG, "onCreateLoader : exit" );
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
+        Log.v( TAG, "onLoadFinished : enter" );
+
+        mAdapter.swapCursor( cursor );
+
+        Log.v( TAG, "onLoadFinished : exit" );
+    }
+
+    @Override
+    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
+        Log.v( TAG, "onLoaderReset : enter" );
+
+        mAdapter.swapCursor( null );
+
+        Log.v( TAG, "onLoaderReset : exit" );
+    }
 
     public YoutubeFragment() { }
 
@@ -85,11 +106,12 @@ public class YoutubeFragment extends ListFragment {
 
         setRetainInstance( true );
 
-        dbHelper = new DatabaseHelper( getActivity() );
-        cursor = dbHelper.getReadableDatabase().rawQuery( RAW_VIDEO_QUERY, null );
-
-        mAdapter = new YoutubeCursorAdapter( getActivity(), cursor );
+        getLoaderManager().initLoader( 0, getArguments(), this );
+        mAdapter = new YoutubeCursorAdapter( getActivity() );
         setListAdapter( mAdapter );
+
+        getListView().setFastScrollEnabled( true );
+
     }
 
     @Override
@@ -149,8 +171,8 @@ public class YoutubeFragment extends ListFragment {
         private Context mContext;
         private LayoutInflater mInflater;
 
-        public YoutubeCursorAdapter( Context context, Cursor cursor ) {
-            super( context, cursor, false );
+        public YoutubeCursorAdapter( Context context ) {
+            super( context, null, false );
 
             mContext = context;
             mInflater = LayoutInflater.from( context );
@@ -164,7 +186,6 @@ public class YoutubeFragment extends ListFragment {
             ViewHolder refHolder = new ViewHolder();
             refHolder.thumbnail = (ImageView) view.findViewById( R.id.youtube_thumbnail );
             refHolder.title = (TextView) view.findViewById( R.id.youtube_title );
-            refHolder.subTitle = (TextView) view.findViewById( R.id.youtube_subtitle );
             refHolder.select = (ImageView) view.findViewById( R.id.youtube_select );
 
             view.setTag( refHolder );
@@ -177,17 +198,9 @@ public class YoutubeFragment extends ListFragment {
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            boolean isPreview = cursor.getInt( cursor.getColumnIndex( "preview" ) ) == 1 ? true : false;
+            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( Youtube.FIELD_YOUTUBE_TITLE ) ) );
 
-            String preview = "";
-            if( isPreview ) {
-                preview = " " + getActivity().getString( R.string.youtube_preview );
-            }
-
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) ) + " " + cursor.getString( cursor.getColumnIndex( Episode.FIELD_NUMBER ) ) );
-            mHolder.subTitle.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) + preview );
-
-            String thumbnail = cursor.getString( cursor.getColumnIndex( "thumbnail" ) );
+            String thumbnail = cursor.getString( cursor.getColumnIndex( Youtube.FIELD_YOUTUBE_THUMBNAIL ) );
             if( null != thumbnail && !"".equals( thumbnail ) ) {
 
                 mHolder.thumbnail.setVisibility( View.VISIBLE );
@@ -209,7 +222,6 @@ public class YoutubeFragment extends ListFragment {
 
         ImageView thumbnail;
         TextView title;
-        TextView subTitle;
         ImageView select;
 
         ViewHolder() { }

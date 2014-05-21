@@ -26,6 +26,7 @@ import com.keithandthegirl.app.db.model.Image;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.model.Youtube;
 
 import java.util.ArrayList;
 
@@ -71,6 +72,9 @@ public class KatgProvider extends ContentProvider {
 
         URI_MATCHER.addURI( AUTHORITY, EpisodeGuests.TABLE_NAME, EpisodeGuests.ALL );
         URI_MATCHER.addURI( AUTHORITY, EpisodeGuests.TABLE_NAME + "/#",  EpisodeGuests.SINGLE );
+
+        URI_MATCHER.addURI( AUTHORITY, Youtube.TABLE_NAME, Youtube.ALL );
+        URI_MATCHER.addURI( AUTHORITY, Youtube.TABLE_NAME + "/#",  Youtube.SINGLE );
 
         URI_MATCHER.addURI( AUTHORITY, WorkItem.TABLE_NAME, WorkItem.ALL );
         URI_MATCHER.addURI( AUTHORITY, WorkItem.TABLE_NAME + "/#",  WorkItem.SINGLE );
@@ -146,6 +150,12 @@ public class KatgProvider extends ContentProvider {
 
             case EpisodeGuests.SINGLE :
                 return EpisodeGuests.CONTENT_ITEM_TYPE;
+
+            case Youtube.ALL :
+                return Youtube.CONTENT_TYPE;
+
+            case Youtube.SINGLE :
+                return Youtube.CONTENT_ITEM_TYPE;
 
             case WorkItem.ALL :
                 return WorkItem.CONTENT_TYPE;
@@ -326,6 +336,23 @@ public class KatgProvider extends ContentProvider {
 
                 return cursor;
 
+            case Youtube.ALL :
+
+                cursor = db.query( Youtube.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+
+                cursor.setNotificationUri( getContext().getContentResolver(), uri );
+
+                return cursor;
+
+            case Youtube.SINGLE :
+                selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+                cursor = db.query( Youtube.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+
+                cursor.setNotificationUri( getContext().getContentResolver(), uri );
+
+                return cursor;
+
             case WorkItem.ALL :
 
                 cursor = db.query( WorkItem.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
@@ -418,6 +445,14 @@ public class KatgProvider extends ContentProvider {
             case EpisodeGuests.ALL:
 
                 newUri = ContentUris.withAppendedId( EpisodeGuests.CONTENT_URI, db.insertWithOnConflict( EpisodeGuests.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+
+                getContext().getContentResolver().notifyChange( newUri, null );
+
+                return newUri;
+
+            case Youtube.ALL:
+
+                newUri = ContentUris.withAppendedId( Youtube.CONTENT_URI, db.insertWithOnConflict( Youtube.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 
                 getContext().getContentResolver().notifyChange( newUri, null );
 
@@ -623,6 +658,26 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
+            case Youtube.ALL:
+
+                deleted = db.delete( Youtube.TABLE_NAME, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return deleted;
+
+            case Youtube.SINGLE:
+
+                deleted = db.delete( Youtube.TABLE_NAME, Youtube._ID
+                        + "="
+                        + Long.toString( ContentUris.parseId( uri ) )
+                        + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
+                        , selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return deleted;
+
             case WorkItem.ALL:
 
                 deleted = db.delete( WorkItem.TABLE_NAME, selection, selectionArgs );
@@ -633,7 +688,7 @@ public class KatgProvider extends ContentProvider {
 
             case WorkItem.SINGLE:
 
-                deleted = db.delete( WorkItem.TABLE_NAME, Image._ID
+                deleted = db.delete( WorkItem.TABLE_NAME, WorkItem._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -790,6 +845,23 @@ public class KatgProvider extends ContentProvider {
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
                 affected = db.update( EpisodeGuests.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
+
+            case Youtube.ALL:
+
+                affected = db.update( Youtube.TABLE_NAME, values, selection, selectionArgs );
+
+                getContext().getContentResolver().notifyChange( uri, null );
+
+                return affected;
+
+            case Youtube.SINGLE:
+
+                selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+                affected = db.update( Youtube.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 

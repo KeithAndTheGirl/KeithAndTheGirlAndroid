@@ -15,6 +15,7 @@ import com.keithandthegirl.app.db.model.Image;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.model.Youtube;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -63,6 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createTableEpisodeDetails( db );
         createTableEpisodeDetailImages( db );
         createTableEpisodeGuests( db );
+        createTableYoutube( db );
 
         Log.d(TAG, "onCreate : exit");
     }
@@ -143,6 +145,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         db.execSQL( dropShow );
 
+        String dropYoutube = Youtube.DROP_TABLE;
+        if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+            Log.v( TAG, "dropTable : dropYoutube=" + dropYoutube );
+        }
+        db.execSQL( dropYoutube );
+
         Log.v( TAG, "dropTables : exit" );
     }
 
@@ -162,6 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.RECENT.name(), Endpoint.RECENT, Endpoint.DownloadType.ARRAY.name(), "", now.getMillis() } );
         db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.OVERVIEW.name(), Endpoint.OVERVIEW, Endpoint.DownloadType.ARRAY.name(), "", now.getMillis() } );
         db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.LIST.name(), Endpoint.LIST, Endpoint.DownloadType.ARRAY.name(), "", now.getMillis() } );
+        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.YOUTUBE.name(), Endpoint.YOUTUBE, Endpoint.DownloadType.OBJECT.name(), "", now.getMillis() } );
 
         Log.v( TAG, "createTableEndpoints : exit" );
     }
@@ -180,6 +189,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Events", WorkItem.Frequency.DAILY, WorkItem.Download.JSON, Endpoint.Type.EVENTS.name(), Endpoint.EVENTS, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
         db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Broadcasting", WorkItem.Frequency.HOURLY, WorkItem.Download.JSON, Endpoint.Type.LIVE.name(), Endpoint.LIVE, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
         db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Recent Episodes", WorkItem.Frequency.HOURLY, WorkItem.Download.JSONARRAY, Endpoint.Type.RECENT.name(), Endpoint.RECENT, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Youtube Episodes", WorkItem.Frequency.HOURLY, WorkItem.Download.JSON, Endpoint.Type.YOUTUBE.name(), Endpoint.YOUTUBE, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
 
         Log.v( TAG, "createTableWorkItems : exit" );
     }
@@ -283,6 +293,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL( Live.INSERT_ROW, new Object[] { "1", "0", now.getMillis() } );
 
         Log.v(TAG, "createTableLive : exit");
+    }
+
+    private void createTableYoutube( SQLiteDatabase db ) {
+        Log.v( TAG, "createTableLive : enter" );
+
+        String sql = Youtube.CREATE_TABLE;
+        if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+            Log.v( TAG, "createTableYoutube : sql=" + sql );
+        }
+        db.execSQL( sql );
+
+        Log.v(TAG, "createTableYoutube : exit");
     }
 
 }

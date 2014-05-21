@@ -32,7 +32,7 @@ public class Endpoint extends AbstractBaseDatabase {
     public static final String FIELD_ETAG = "etag";
     public static final String FIELD_ETAG_DATA_TYPE = "TEXT";
 
-    public static enum Type { EVENTS, LIVE, DETAILS, RECENT, OVERVIEW, LIST, IMAGE };
+    public static enum Type { EVENTS, LIVE, DETAILS, RECENT, OVERVIEW, LIST, IMAGE, YOUTUBE };
     public static enum DownloadType { ARRAY, OBJECT };
 
     public static final String EVENTS = "http://app.keithandthegirl.com/api/v2/events/";
@@ -41,6 +41,7 @@ public class Endpoint extends AbstractBaseDatabase {
     public static final String RECENT = "http://app.keithandthegirl.com/api/v2/shows/recent/";
     public static final String OVERVIEW = "http://app.keithandthegirl.com/api/v2/shows/series-overview/";
     public static final String LIST = "http://app.keithandthegirl.com/api/v2/shows/list/";
+    public static final String YOUTUBE = "http://gdata.youtube.com/feeds/base/users/keithandthegirl/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile";
 
     public static final String[] COLUMN_MAP = { _ID,
             FIELD_TYPE, FIELD_URL, FIELD_FORMAT, FIELD_ETAG,
