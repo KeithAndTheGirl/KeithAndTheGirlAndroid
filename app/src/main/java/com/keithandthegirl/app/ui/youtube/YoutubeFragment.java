@@ -24,6 +24,7 @@ import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.Youtube;
 import com.keithandthegirl.app.ui.VideoPlayerActivity;
+import com.keithandthegirl.app.ui.YoutubeFragmentActivity;
 import com.keithandthegirl.app.utils.ImageCache;
 import com.keithandthegirl.app.utils.ImageFetcher;
 
@@ -116,7 +117,7 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
     @Override
     public void onResume() {
-        Log.v(TAG, "onResume : enter");
+        Log.v( TAG, "onResume : enter" );
 
         super.onResume();
         mImageFetcher.setExitTasksEarly( false );
@@ -154,12 +155,11 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         Cursor c = ( (YoutubeCursorAdapter) l.getAdapter() ).getCursor();
         c.moveToPosition( position );
 
-        String videoUrl = c.getString( c.getColumnIndex( "video_url" ) );
+        String youtubeId = c.getString( c.getColumnIndex( Youtube.FIELD_YOUTUBE_ID ) );
         c.close();
 
-        Intent intent = new Intent( getActivity(), VideoPlayerActivity.class );
-        intent.putExtra( VideoPlayerActivity.EPISODE_KEY, id );
-        intent.putExtra( VideoPlayerActivity.VIDEO_TYPE_KEY, videoUrl.endsWith( ".m3u8" ) ? "HLS" : "PREVIEW" );
+        Intent intent = new Intent( getActivity(), YoutubeFragmentActivity.class );
+        intent.putExtra( YoutubeFragmentActivity.YOUTUBE_VIDEO_KEY, youtubeId );
         startActivity( intent );
 
         Log.v( TAG, "onListItemClick : exit" );

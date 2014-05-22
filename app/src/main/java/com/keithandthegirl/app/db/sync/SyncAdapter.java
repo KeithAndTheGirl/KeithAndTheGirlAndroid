@@ -1603,6 +1603,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                 youtubeId = json.getJSONObject( "id" ).getString( "$t" );
                             } catch( JSONException e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : id is not valid" );
+                            } finally {
+
+                                if( !"".equals( youtubeId ) ) {
+
+                                    youtubeId = youtubeId.substring( youtubeId.lastIndexOf( ':' ) + 1 );
+
+                                }
+
                             }
 
                             DateTime published = new DateTime();

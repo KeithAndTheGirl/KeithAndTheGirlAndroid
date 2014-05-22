@@ -37,4 +37,7 @@
     <string name="title_activity_video_player">VideoPlayerActivity</string>
     <string name="hello_world">Hello world!</string>
 
+    <string name="playerfragment_text">This is a YouTubePlayerFragment!</string>
+    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
+
 </resources>
