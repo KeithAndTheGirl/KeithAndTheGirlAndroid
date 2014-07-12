@@ -3,6 +3,7 @@
 
     <string name="app_name">Keith and the Girl Comedy Podcast</string>
     <string name="app_short_name">KATG</string>
+    <string name="action_login">VIP</string>
     <string name="action_settings">Settings</string>
     <string name="action_broadcasting">Live</string>
     <string name="action_refresh">Refresh</string>

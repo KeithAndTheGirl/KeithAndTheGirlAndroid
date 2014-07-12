@@ -133,7 +133,7 @@ public class EpisodeFragment extends Fragment {
             episodeNumber = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_NUMBER ) );
             showNameId = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_SHOWNAMEID ) );
 
-            showDate.setText( mFormatter.print( instant ) );
+            showDate.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_POSTED ) ) );
             title.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
 
         }

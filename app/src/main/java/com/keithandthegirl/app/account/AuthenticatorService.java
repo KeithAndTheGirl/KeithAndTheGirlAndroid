@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.db.sync;
+package com.keithandthegirl.app.account;
 
 import android.app.Service;
 import android.content.Intent;

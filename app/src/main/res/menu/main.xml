@@ -15,14 +15,19 @@
         android:icon="@drawable/ic_action_refresh"
         katg:showAsAction="ifRoom" />
 
+    <item android:id="@+id/action_login"
+        android:title="@string/action_login"
+        android:orderInCategory="300"
+        katg:showAsAction="never" />
+
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
-        android:orderInCategory="300"
+        android:orderInCategory="400"
         katg:showAsAction="never" />
 
     <item android:id="@+id/action_work_items"
         android:title="@string/action_work_items"
-        android:orderInCategory="400"
+        android:orderInCategory="500"
         katg:showAsAction="never" />
 
 </menu>

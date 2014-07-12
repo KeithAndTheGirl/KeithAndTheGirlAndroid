@@ -65,9 +65,9 @@ public class EpisodeActivity extends AbstractBaseActivity {
     public static final String SHOW_COVER_IMAGE_URL_KEY = "show_cover_image_url";
     public static final String SHOW_FORUM_URL_KEY = "show_forum_url";
 
-    private long mEpisodeId, mEpisodePosted, mEpisodeLastPlayed;
+    private long mEpisodeId, mEpisodeLastPlayed;
     private int mEpisodeNumber, mEpisodeLength, mEpisodeFileSize, mEpisodeType, mEpisodePlayed, mShowNameId;
-    private String mEpisodeTitle, mEpisodePreviewUrl, mEpisodeFileUrl, mEpisodeFilename, mEpisodeDetailNotes, mEpisodeDetailForumUrl, mShowName, mShowPrefix, mShowCoverImageUrl, mShowForumUrl;
+    private String mEpisodeTitle, mEpisodePreviewUrl, mEpisodeFileUrl, mEpisodeFilename, mEpisodeDetailNotes, mEpisodeDetailForumUrl, mShowName, mShowPrefix, mShowCoverImageUrl, mShowForumUrl, mEpisodePosted;
     private boolean mEpisodePublic, mEpisodeDownloaded, mShowVip;
 
     private EpisodeHeaderFragment mEpisodeHeaderFragment;
@@ -114,7 +114,7 @@ public class EpisodeActivity extends AbstractBaseActivity {
             mEpisodeFileSize = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_FILESIZE ) );
             mEpisodeType = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_TYPE ) );
             mEpisodePublic = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_PUBLIC ) ) == 1 ? true : false;
-            mEpisodePosted = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_TIMESTAMP ) );
+            mEpisodePosted = cursor.getString( cursor.getColumnIndex( Episode.FIELD_POSTED ) );
             mEpisodeDownloaded = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_DOWNLOADED ) ) == 1 ? true : false;
             mEpisodePlayed = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_PLAYED ) );
             mEpisodeLastPlayed = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_LASTPLAYED ) );
@@ -162,7 +162,7 @@ public class EpisodeActivity extends AbstractBaseActivity {
             Bundle episodeHeaderArgs = new Bundle();
             episodeHeaderArgs.putInt( EPISODE_NUMBER_KEY, mEpisodeNumber );
             episodeHeaderArgs.putString( EPISODE_TITLE_KEY, mEpisodeTitle );
-            episodeHeaderArgs.putLong( EPISODE_POSTED_KEY, mEpisodePosted );
+            episodeHeaderArgs.putString( EPISODE_POSTED_KEY, mEpisodePosted );
             episodeHeaderArgs.putString( SHOW_NAME_KEY, mShowPrefix );
             episodeHeaderArgs.putString( SHOW_COVER_IMAGE_URL_KEY, mShowCoverImageUrl );
             mEpisodeHeaderFragment.setArguments( episodeHeaderArgs );

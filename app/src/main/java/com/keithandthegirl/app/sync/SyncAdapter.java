@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.db.sync;
+package com.keithandthegirl.app.sync;
 
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
@@ -18,9 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.TrafficStats;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -50,7 +48,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -70,8 +67,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final String TAG = SyncAdapter.class.getSimpleName();
 
-    public static final String START_ACTION = "com.keithandthegirl.app.db.sync.START_ACTION";
-    public static final String COMPLETE_ACTION = "com.keithandthegirl.app.db.sync.COMPLETE_ACTION";
+    public static final String START_ACTION = "com.keithandthegirl.app.sync.START_ACTION";
+    public static final String COMPLETE_ACTION = "com.keithandthegirl.app.sync.COMPLETE_ACTION";
 
     private static final DateTimeFormatter format = DateTimeFormat.forPattern( "MM/dd/yyyy HH:mm" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
     private static final DateTimeFormatter formata = DateTimeFormat.forPattern( "M/d/yyyy hh:mm:ss a" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );

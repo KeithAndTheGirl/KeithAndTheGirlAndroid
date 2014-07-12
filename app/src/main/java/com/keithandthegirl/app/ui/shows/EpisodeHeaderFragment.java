@@ -48,8 +48,7 @@ public class EpisodeHeaderFragment extends Fragment {
     private ImageFetcher mImageFetcher;
 
     private int mEpisodeNumber;
-    private String mEpisodeTitle, mShowPrefix, mShowCoverImageUrl;
-    private long mEpisodePosted;
+    private String mEpisodeTitle, mShowPrefix, mShowCoverImageUrl, mEpisodePosted;
 
     /**
      * Use this factory method to create a new instance of
@@ -80,7 +79,7 @@ public class EpisodeHeaderFragment extends Fragment {
         if( null != getArguments() ) {
             mEpisodeNumber = getArguments().getInt( EpisodeActivity.EPISODE_NUMBER_KEY );
             mEpisodeTitle = getArguments().getString( EpisodeActivity.EPISODE_TITLE_KEY );
-            mEpisodePosted = getArguments().getLong( EpisodeActivity.EPISODE_POSTED_KEY );
+            mEpisodePosted = getArguments().getString( EpisodeActivity.EPISODE_POSTED_KEY );
             mShowPrefix = getArguments().getString( EpisodeActivity.SHOW_NAME_KEY );
             mShowCoverImageUrl = getArguments().getString( EpisodeActivity.SHOW_COVER_IMAGE_URL_KEY );
         }
@@ -123,7 +122,7 @@ public class EpisodeHeaderFragment extends Fragment {
         TextView showDate = (TextView) getActivity().findViewById( R.id.episode_date );
         TextView title = (TextView) getActivity().findViewById( R.id.episode_title );
 
-        showDate.setText( mFormatter.print( mEpisodePosted ) );
+        showDate.setText( mEpisodePosted );
         number.setText( mShowPrefix + " " + mEpisodeNumber );
         title.setText( mEpisodeTitle );
         mImageFetcher.loadImage( mShowCoverImageUrl, header );

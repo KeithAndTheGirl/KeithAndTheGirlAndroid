@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.WorkItem;
-import com.keithandthegirl.app.db.sync.SyncAdapter;
+import com.keithandthegirl.app.sync.SyncAdapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;

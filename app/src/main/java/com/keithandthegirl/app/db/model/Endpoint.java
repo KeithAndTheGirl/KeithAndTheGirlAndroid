@@ -35,12 +35,12 @@ public class Endpoint extends AbstractBaseDatabase {
     public static enum Type { EVENTS, LIVE, DETAILS, RECENT, OVERVIEW, LIST, IMAGE, YOUTUBE };
     public static enum DownloadType { ARRAY, OBJECT };
 
-    public static final String EVENTS = "http://app.keithandthegirl.com/api/v2/events/";
-    public static final String LIVE = "http://app.keithandthegirl.com/api/v2/feed/live/";
-    public static final String DETAILS = "http://app.keithandthegirl.com/api/v2/shows/details/";
-    public static final String RECENT = "http://app.keithandthegirl.com/api/v2/shows/recent/";
-    public static final String OVERVIEW = "http://app.keithandthegirl.com/api/v2/shows/series-overview/";
-    public static final String LIST = "http://app.keithandthegirl.com/api/v2/shows/list/";
+    public static final String EVENTS = "http://www.keithandthegirl.com/api/v2/events/";
+    public static final String LIVE = "http://www.keithandthegirl.com/api/v2/feed/live/";
+    public static final String DETAILS = "http://www.keithandthegirl.com/api/v2/shows/details/";
+    public static final String RECENT = "http://www.keithandthegirl.com/api/v2/shows/recent/";
+    public static final String OVERVIEW = "http://www.keithandthegirl.com/api/v2/shows/series-overview/";
+    public static final String LIST = "http://www.keithandthegirl.com/api/v2/shows/list/";
     public static final String YOUTUBE = "http://gdata.youtube.com/feeds/base/users/keithandthegirl/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile";
 
     public static final String[] COLUMN_MAP = { _ID,

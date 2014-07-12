@@ -15,8 +15,6 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,10 +27,11 @@ import android.widget.Toast;
 
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.account.Authenticator;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.WorkItem;
-import com.keithandthegirl.app.db.sync.SyncAdapter;
+import com.keithandthegirl.app.sync.SyncAdapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -204,6 +203,17 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         switch( id ) {
 
             case R.id.action_settings :
+
+                Intent preferencesIntent = new Intent( this, PreferencesActivity.class );
+                startActivity( preferencesIntent );
+
+                return true;
+
+            case R.id.action_login :
+
+                Intent vipIntent = new Intent( this, AuthenticatorActivity.class );
+                startActivity( vipIntent );
+
                 return true;
 
             case R.id.action_work_items :
