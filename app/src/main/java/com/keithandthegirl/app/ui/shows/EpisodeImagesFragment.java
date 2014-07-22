@@ -18,26 +18,17 @@ import android.widget.ImageView;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Image;
 import com.keithandthegirl.app.ui.EpisodeActivity;
-import com.keithandthegirl.app.ui.widgets.RecyclingImageView;
-import com.keithandthegirl.app.utils.ImageCache;
-import com.keithandthegirl.app.utils.ImageFetcher;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by dmfrey on 4/30/14.
  */
 public class EpisodeImagesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
     private static final String TAG = EpisodeImagesFragment.class.getSimpleName();
 
-    private static final String IMAGE_CACHE_DIR = "thumbs";
-
     private int mImageThumbSize;
-    private int mImageThumbSpacing;
-    private ImageFetcher mImageFetcher;
     private GridView mGridViewImages;
-
     private long mEpisodeId;
-
     EpisodeImageCursorAdapter mAdapter;
 
     @Override
@@ -69,7 +60,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
         Log.v( TAG, "onLoaderReset : enter" );
 
-        mAdapter.swapCursor( null );
+        mAdapter.swapCursor(null);
 
         Log.v( TAG, "onLoaderReset : exit" );
     }
@@ -98,23 +89,11 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
-        setRetainInstance( true );
+        setRetainInstance(true);
 
         if( null != getArguments() ) {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
         }
-
-        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_size );
-        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
-
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
-
-        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
-//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
-        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
 
         Log.v( TAG, "onCreate : exit" );
     }
@@ -125,16 +104,16 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
         final View rootView = inflater.inflate( R.layout.fragment_episode_images, container, false );
 
-        Log.v( TAG, "onCreateView : exit" );
+        Log.v(TAG, "onCreateView : exit");
         return rootView;
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
         Log.v( TAG, "onActivityCreated : enter" );
-        super.onActivityCreated( savedInstanceState );
+        super.onActivityCreated(savedInstanceState);
 
-        setRetainInstance( true );
+        setRetainInstance(true);
 
         getLoaderManager().initLoader( 0, getArguments(), this );
 
@@ -152,32 +131,9 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
         Log.v( TAG, "onResume : enter" );
 
         super.onResume();
-        mImageFetcher.setExitTasksEarly( false );
         mAdapter.notifyDataSetChanged();
 
         Log.v( TAG, "onResume : exit" );
-    }
-
-    @Override
-    public void onPause() {
-        Log.v( TAG, "onPause : enter" );
-
-        super.onPause();
-        mImageFetcher.setPauseWork( false );
-        mImageFetcher.setExitTasksEarly( true );
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : exit" );
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.v( TAG, "onDestroy : enter" );
-
-        super.onDestroy();
-        mImageFetcher.closeCache();
-
-        Log.v( TAG, "onDestroy : exit" );
     }
 
     private class EpisodeImageCursorAdapter extends CursorAdapter {
@@ -242,7 +198,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
             View view = mInflater.inflate( R.layout.episode_image_grid_item, parent, false );
 
             ViewHolder refHolder = new ViewHolder();
-            refHolder.mediaUrl = (RecyclingImageView) view.findViewById( R.id.episode_grid_item_image );
+            refHolder.mediaUrl = (ImageView) view.findViewById( R.id.episode_grid_item_image );
             refHolder.mediaUrl.setScaleType( ImageView.ScaleType.CENTER_CROP );
 
             view.setTag( refHolder );
@@ -259,8 +215,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
             String mediaUrl = cursor.getString( cursor.getColumnIndex( Image.FIELD_MEDIAURL ) );
             Log.d( TAG, "bindView : mediaUrl=" + mediaUrl );
-
-            mImageFetcher.loadImage( mediaUrl, mHolder.mediaUrl );
+            Picasso.with(getActivity()).load(mediaUrl).fit().centerCrop().into(mHolder.mediaUrl);
 
             Log.v( TAG, "bindView : exit" );
         }
@@ -269,7 +224,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
     private static class ViewHolder {
 
-        RecyclingImageView mediaUrl;
+        ImageView mediaUrl;
 
         ViewHolder() { }
 

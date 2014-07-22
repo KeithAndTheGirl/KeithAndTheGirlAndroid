@@ -1,15 +1,11 @@
 package com.keithandthegirl.app.ui.shows;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,13 +16,9 @@ import android.widget.ImageView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
-import com.keithandthegirl.app.db.model.Detail;
-import com.keithandthegirl.app.db.model.EpisodeGuests;
 import com.keithandthegirl.app.db.model.Guest;
 import com.keithandthegirl.app.ui.EpisodeActivity;
-import com.keithandthegirl.app.ui.widgets.RecyclingImageView;
-import com.keithandthegirl.app.utils.ImageCache;
-import com.keithandthegirl.app.utils.ImageFetcher;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by dmfrey on 4/26/14.
@@ -42,13 +34,6 @@ public class EpisodeGuestImagesFragment extends Fragment {
             "    guest g left join episode_guests eg on g._id = eg.showguestid " +
             "WHERE " +
             "    eg.showid = ?";
-
-
-    private static final String IMAGE_CACHE_DIR = "thumbs";
-
-    private int mImageThumbSize;
-    private int mImageThumbSpacing;
-    private ImageFetcher mImageFetcher;
 
     private GridView mGridView;
 
@@ -83,26 +68,12 @@ public class EpisodeGuestImagesFragment extends Fragment {
     public void onCreate( Bundle savedInstanceState ) {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
-
         setRetainInstance( true );
 
         if( null != getArguments() ) {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
             Log.v( TAG, "onCreate : mEpisodeId=" + mEpisodeId );
         }
-
-        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.list_image_thumbnail_size );
-        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
-
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
-
-        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
-//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
-        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
-
         getActivity().getContentResolver().registerContentObserver( Guest.CONTENT_URI, true, guestsObserver );
 
         Log.v( TAG, "onCreate : exit") ;
@@ -110,9 +81,7 @@ public class EpisodeGuestImagesFragment extends Fragment {
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-
         // Inflate the layout for this fragment
-
         return inflater.inflate( R.layout.fragment_episode_guest_images, container, false );
     }
 
@@ -141,34 +110,10 @@ public class EpisodeGuestImagesFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        Log.v( TAG, "onResume : enter" );
-        super.onResume();
-
-        mImageFetcher.setExitTasksEarly( false );
-//        mAdapter.notifyDataSetChanged();
-
-        Log.v( TAG, "onResume : exit" );
-    }
-
-    @Override
-    public void onPause() {
-        Log.v( TAG, "onPause : enter" );
-        super.onPause();
-
-        mImageFetcher.setPauseWork( false );
-        mImageFetcher.setExitTasksEarly( true );
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : exit" );
-    }
-
-    @Override
     public void onDestroy() {
         Log.v( TAG, "onDestroy : enter" );
         super.onDestroy();
 
-        mImageFetcher.closeCache();
         cursor.close();
         dbHelper.close();
 
@@ -180,8 +125,6 @@ public class EpisodeGuestImagesFragment extends Fragment {
     private class EpisodeGuestCursorAdapter extends CursorAdapter {
 
         private final String TAG = EpisodeGuestCursorAdapter.class.getSimpleName();
-
-        private final Context mContext;
         private LayoutInflater mInflater;
 
         public EpisodeGuestCursorAdapter( Context context, Cursor cursor ) {
@@ -189,7 +132,6 @@ public class EpisodeGuestImagesFragment extends Fragment {
 
             mContext = context;
             mInflater = LayoutInflater.from( context );
-
         }
 
         @Override
@@ -199,7 +141,7 @@ public class EpisodeGuestImagesFragment extends Fragment {
             View view = mInflater.inflate( R.layout.episode_guest_grid_item, parent, false );
 
             ViewHolder refHolder = new ViewHolder();
-            refHolder.guestImage = (RecyclingImageView) view.findViewById( R.id.episode_guest_grid_item_image );
+            refHolder.guestImage = (ImageView) view.findViewById( R.id.episode_guest_grid_item_image );
             refHolder.guestImage.setScaleType( ImageView.ScaleType.CENTER_CROP );
 
             view.setTag( refHolder );
@@ -215,21 +157,15 @@ public class EpisodeGuestImagesFragment extends Fragment {
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             String coverUrl = cursor.getString( cursor.getColumnIndex( Guest.FIELD_PICTUREURL ) );
-            Log.v( TAG, "bindView : coverUrl=" + coverUrl );
-
-            mImageFetcher.loadImage( coverUrl, mHolder.guestImage );
-
+            Log.v(TAG, "bindView : coverUrl=" + coverUrl);
+            Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mHolder.guestImage);
             Log.v( TAG, "bindView : exit" );
         }
-
     }
 
     private static class ViewHolder {
-
-        RecyclingImageView guestImage;
-
+        ImageView guestImage;
         ViewHolder() { }
-
     }
 
     private class GuestsObserver extends ContentObserver {

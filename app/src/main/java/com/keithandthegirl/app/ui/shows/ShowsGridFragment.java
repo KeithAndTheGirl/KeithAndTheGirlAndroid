@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.FileObserver;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -25,10 +24,8 @@ import android.widget.TextView;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.ui.ShowsActivity;
-import com.keithandthegirl.app.ui.widgets.RecyclingImageView;
-import com.keithandthegirl.app.utils.ImageCache;
-import com.keithandthegirl.app.utils.ImageFetcher;
 import com.keithandthegirl.app.utils.Utils;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by dmfrey on 3/21/14.
@@ -36,12 +33,6 @@ import com.keithandthegirl.app.utils.Utils;
 public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     private static final String TAG = ShowsGridFragment.class.getSimpleName();
-
-    private static final String IMAGE_CACHE_DIR = "thumbs";
-
-    private int mImageThumbSize;
-    private int mImageThumbSpacing;
-    private ImageFetcher mImageFetcher;
 
     ShowCursorAdapter mAdapter;
 
@@ -84,18 +75,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
-        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_size );
-        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
-
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
-
-        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
-//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
-        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
-
         Log.v( TAG, "onCreate : exit" );
     }
 
@@ -132,32 +111,9 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         Log.v( TAG, "onResume : enter" );
 
         super.onResume();
-        mImageFetcher.setExitTasksEarly( false );
         mAdapter.notifyDataSetChanged();
 
         Log.v( TAG, "onResume : exit" );
-    }
-
-    @Override
-    public void onPause() {
-        Log.v( TAG, "onPause : enter" );
-
-        super.onPause();
-        mImageFetcher.setPauseWork( false );
-        mImageFetcher.setExitTasksEarly( true );
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : exit" );
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.v( TAG, "onDestroy : enter" );
-
-        super.onDestroy();
-        mImageFetcher.closeCache();
-
-        Log.v( TAG, "onDestroy : exit" );
     }
 
     @TargetApi( Build.VERSION_CODES.JELLY_BEAN )
@@ -181,18 +137,13 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     private class ShowCursorAdapter extends CursorAdapter {
-
         private final String TAG = ShowCursorAdapter.class.getSimpleName();
 
-        private final Context mContext;
         private LayoutInflater mInflater;
 
         public ShowCursorAdapter( Context context ) {
             super( context, null, false );
-
-            mContext = context;
             mInflater = LayoutInflater.from( context );
-
         }
 
         @Override
@@ -202,7 +153,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             View view = mInflater.inflate( R.layout.show_grid_item, parent, false );
 
             ViewHolder refHolder = new ViewHolder();
-            refHolder.coverImage = (RecyclingImageView) view.findViewById( R.id.show_grid_item_coverimage );
+            refHolder.coverImage = (ImageView) view.findViewById( R.id.show_grid_item_coverimage );
             refHolder.coverImage.setScaleType( ImageView.ScaleType.CENTER_CROP );
 
             refHolder.vip = (TextView) view.findViewById( R.id.show_grid_item_vip );
@@ -233,16 +184,15 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
                 mHolder.vip.setVisibility( View.GONE );
             }
 
-            mImageFetcher.loadImage( coverUrl, mHolder.coverImage );
+            Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mHolder.coverImage);
 
             Log.v( TAG, "bindView : exit" );
         }
-
     }
 
     private static class ViewHolder {
 
-        RecyclingImageView coverImage;
+        ImageView coverImage;
         TextView vip;
         TextView name;
 

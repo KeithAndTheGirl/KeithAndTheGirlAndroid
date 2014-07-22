@@ -1,8 +1,5 @@
 package com.keithandthegirl.app.account;
 
-import static com.keithandthegirl.app.account.AccountGeneral.*;
-import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
-
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
@@ -16,6 +13,13 @@ import android.util.Log;
 
 import com.keithandthegirl.app.ui.AuthenticatorActivity;
 
+import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
+import static com.keithandthegirl.app.account.AccountGeneral.AUTHTOKEN_TYPE_FULL_ACCESS;
+import static com.keithandthegirl.app.account.AccountGeneral.AUTHTOKEN_TYPE_FULL_ACCESS_LABEL;
+import static com.keithandthegirl.app.account.AccountGeneral.AUTHTOKEN_TYPE_READ_ONLY;
+import static com.keithandthegirl.app.account.AccountGeneral.AUTHTOKEN_TYPE_READ_ONLY_LABEL;
+import static com.keithandthegirl.app.account.AccountGeneral.sServerAuthenticate;
+
 /**
  * Implement AbstractAccountAuthenticator and stub out all
  * of its methods
@@ -23,7 +27,6 @@ import com.keithandthegirl.app.ui.AuthenticatorActivity;
  * Created by dmfrey on 3/10/14.
  */
 public class Authenticator extends AbstractAccountAuthenticator {
-
     private static final String TAG = Authenticator.class.getSimpleName();
 
     private Context mContext;
@@ -31,7 +34,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
     // Simple constructor
     public Authenticator( Context context ) {
         super( context );
-
         mContext = context;
     }
 
@@ -124,7 +126,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     @Override
     public String getAuthTokenLabel( String authTokenType ) {
-        Log.i( TAG, "getAuthTokenLabel : enter" );
+        Log.i( TAG, "" +
+                "" +
+                "getAuthTokenLabel : enter" );
 
         if( AUTHTOKEN_TYPE_FULL_ACCESS.equals( authTokenType ) ) {
 

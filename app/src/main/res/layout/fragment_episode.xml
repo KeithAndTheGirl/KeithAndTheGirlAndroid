@@ -12,7 +12,7 @@
         android:layout_height="125dp"
         android:gravity="center">
 
-        <com.keithandthegirl.app.ui.widgets.RecyclingImageView
+        <ImageView
             android:id="@+id/episode_heading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

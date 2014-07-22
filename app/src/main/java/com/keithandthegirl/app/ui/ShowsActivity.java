@@ -1,18 +1,19 @@
 package com.keithandthegirl.app.ui;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.ActionBar;
-import android.content.Context;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.ui.shows.ShowFragment;

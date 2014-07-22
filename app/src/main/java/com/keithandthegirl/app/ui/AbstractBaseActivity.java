@@ -27,7 +27,6 @@ import android.widget.Toast;
 
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.account.Authenticator;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.WorkItem;

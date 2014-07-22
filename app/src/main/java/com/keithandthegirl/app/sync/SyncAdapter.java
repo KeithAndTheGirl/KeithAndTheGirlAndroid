@@ -102,9 +102,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          */
         mContentResolver = context.getContentResolver();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
-
     }
-
 
     /**
      * Set up the sync adapter. This form of the
@@ -124,13 +122,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          */
         mContentResolver = context.getContentResolver();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
-
     }
 
     // Checks the network connection and sets the wifiConnected and mobileConnected
     // variables accordingly.
     private void updateConnectedFlags( Context context ) {
-
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService( Context.CONNECTIVITY_SERVICE );
 
         NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
@@ -159,7 +155,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          */
         SyncResult result = new SyncResult();
         try {
-
             Intent startIntent = new Intent();
             startIntent.setAction( START_ACTION );
             mContext.sendBroadcast( startIntent );
@@ -169,7 +164,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             List<Job> jobs = new ArrayList<Job>();
             Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, null, null, null );
             while( cursor.moveToNext() ) {
-
                 Job job = new Job();
 
                 Long id = cursor.getLong( cursor.getColumnIndex( WorkItem._ID ) );
@@ -204,94 +198,63 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.i( TAG, "onPerformSync : job=" + job.toString() );
 
                 switch( wtype ) {
-
                     case ON_DEMAND:
-
                         if( !status.equals( WorkItem.Status.OK ) ) {
                             Log.v( TAG, "onPerformSync : adding On Demand job" );
 
                             jobs.add( job );
                         }
-
                         break;
-
                     case ONCE:
-
                         if( !status.equals( WorkItem.Status.OK ) ) {
                             Log.v( TAG, "onPerformSync : adding One Time job" );
 
                             jobs.add( job );
                         }
-
                         break;
-
                     case HOURLY:
-
                         if( status.equals( WorkItem.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Hourly job, never run" );
 
                             jobs.add( job );
-
                         } else {
-
                             if( Minutes.minutesBetween( lastRun, now ).getMinutes() >= 60 ) {
                                 Log.v( TAG, "onPerformSync : adding Hourly job" );
 
                                 jobs.add( job );
-
                             }
-
                         }
-
                         break;
-
                     case DAILY:
-
                         if( status.equals( WorkItem.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Daily job, never run" );
 
                             jobs.add( job );
                         } else {
-
                             if( Days.daysBetween( lastRun, now ).getDays() >= 1 ) {
                                 Log.v( TAG, "onPerformSync : adding Daily job" );
 
                                 jobs.add( job );
-
                             }
-
                         }
-
                         break;
-
                     case WEEKLY:
-
                         if( status.equals( WorkItem.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Weekly job, never run" );
 
                             jobs.add( job );
                         } else {
-
                             if( Days.daysBetween( lastRun, now ).getDays() >= 7 ) {
                                 Log.v( TAG, "onPerformSync : adding Weekly job" );
-
                                 jobs.add( job );
-
                             }
-
                         }
-
                         break;
                 }
-
-
-
-            };
+            }
             cursor.close();
-
             Log.i( TAG, "onPerformSync : " + jobs.size() + " scheduled to run" );
             executeJobs( provider, jobs );
-
         } catch( RemoteException e ) {
             Log.e( TAG, "onPerformSync : error, RemoteException", e );
 
@@ -301,11 +264,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             result.hasHardError();
         } finally {
-
             Intent completeIntent = new Intent();
             completeIntent.setAction( COMPLETE_ACTION );
             mContext.sendBroadcast( completeIntent );
-
         }
 
         Log.i( TAG, "onPerformSync : exit" );
@@ -315,37 +276,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "executeJobs : enter" );
 
         if( !jobs.isEmpty() ) {
-
             for( Job job : jobs ) {
-
                 switch( job.getType() ) {
-
                     case OVERVIEW:
                         Log.v( TAG, "executeJobs : refreshing shows" );
 
                         getShows( provider, job );
-
                         break;
-
                     case EVENTS:
                         Log.v( TAG, "executeJobs : refreshing events" );
 
                         getEvents( provider, job );
-
                         break;
-
                     case LIVE:
                         Log.v( TAG, "executeJobs : refreshing live status" );
 
                         getLives( provider, job );
-
                         break;
-
                     case LIST:
                         Log.v( TAG, "executeJobs : refreshing episode list" );
 
                         getEpisodes( provider, job );
-
                         break;
 
                     case RECENT:
@@ -555,10 +506,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         String address = "";
         Cursor cursor = provider.query( Endpoint.CONTENT_URI, null, Endpoint.FIELD_TYPE + "=?", new String[] { Endpoint.Type.DETAILS.name() }, null );
+
         while( cursor.moveToNext() ) {
-
             address = cursor.getString( cursor.getColumnIndex( Endpoint.FIELD_URL ) );
-
         }
         cursor.close();
 
@@ -631,9 +581,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             BufferedReader reader = new BufferedReader( new InputStreamReader( stream, "UTF-8" ), 8 );
             StringBuilder sb = new StringBuilder();
 
-            String line = null;
+            String line;
             while( ( line = reader.readLine() ) != null ) {
-                sb.append( line + "\n" );
+                sb.append(line).append("\n");
             }
             json = new JSONObject( sb.toString() );
 
@@ -671,9 +621,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             BufferedReader reader = new BufferedReader( new InputStreamReader( stream, "UTF-8" ), 8 );
             StringBuilder sb = new StringBuilder();
 
-            String line = null;
+            String line;
             while( ( line = reader.readLine() ) != null ) {
-                sb.append( line + "\n" );
+                sb.append(line).append("\n");
             }
             jsonArray = new JSONArray( sb.toString() );
 
@@ -726,7 +676,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private InputStream downloadUrl( Job job ) throws IOException {
         Log.v( TAG, "downloadUrl : enter, url=" + job.getUrl() );
 
-        long currentTime = System.currentTimeMillis();
+//        long currentTime = System.currentTimeMillis();
         InputStream stream = null;
 
 //        TrafficStats.setThreadStatsTag( 0xF00D );
@@ -886,7 +836,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                         .withYieldAllowed( true )
                                         .build()
                         );
-
                     } else {
                         Log.v( TAG, "processShows : adding daily show" );
 
@@ -901,7 +850,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         );
                     }
                     count++;
-
                 }
 
                 if( showNameId >  1 ) {
@@ -930,7 +878,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                         .withYieldAllowed( true )
                                         .build()
                         );
-
                     } else {
                         Log.v( TAG, "processShows : adding daily spinoff show" );
 
@@ -945,7 +892,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         );
                     }
                     count++;
-
                 }
 
                 if( count > 100 ) {
@@ -981,7 +927,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             update.put( WorkItem.FIELD_ETAG, job.getEtag() );
             update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
             update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
-
         } catch( Exception e ) {
             Log.e( TAG, "processShows : error", e );
 
@@ -1053,7 +998,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .withYieldAllowed( true )
                                     .build()
                     );
-
                 } else {
                     Log.v( TAG, "processEvents : show iteration, adding new entry" );
 
@@ -1063,7 +1007,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .withYieldAllowed( true )
                                     .build()
                     );
-
                 }
                 cursor.close();
                 count++;
@@ -1121,7 +1064,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         update.put( WorkItem._ID, job.getId() );
         update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
 
-        int broadcasting = 0;
+        int broadcasting;
         try {
             broadcasting = jsonObject.getBoolean( "broadcasting" ) ? 1 : 0;
 
@@ -1335,7 +1278,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                             .withYieldAllowed( true )
                                             .build()
                             );
-
                         }
                         cursor.close();
 
@@ -1365,15 +1307,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                             .withYieldAllowed( true )
                                             .build()
                             );
-
                         }
                         cursor.close();
-
                     }
                 }
 
                 if( !ops.isEmpty() ) {
-
                     ContentProviderResult[] results = provider.applyBatch( ops );
                     loaded += results.length;
 
@@ -1381,7 +1320,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         ops.clear();
                     }
                 }
-
             }
 
             if( !ops.isEmpty() ) {
@@ -1440,7 +1378,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                 .withYieldAllowed( true )
                                 .build()
                 );
-
             } else {
                 Log.v( TAG, "processEpisodeDetails : detail iteration, adding new entry" );
 
@@ -1450,7 +1387,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                 .withYieldAllowed( true )
                                 .build()
                 );
-
             }
             cursor.close();
 
@@ -1488,7 +1424,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .withYieldAllowed( true )
                                     .build()
                     );
-
                 } else {
                     Log.v( TAG, "processEpisodeDetails : image iteration, adding new entry" );
 
@@ -1498,7 +1433,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .withYieldAllowed( true )
                                     .build()
                     );
-
                 }
                 cursor.close();
                 count++;
@@ -1564,7 +1498,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 if( null != feed.getJSONArray( "entry" ) && feed.getJSONArray( "entry" ).length() > 0 ) {
 
-                    JSONObject json = null;
+                    JSONObject json;
 
                     for( int i = 0; i < feed.getJSONArray( "entry" ).length(); i++ ) {
 
@@ -1583,9 +1517,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                 String img = content.substring( content.indexOf( "<img" ) );
                                 img = img.substring( 0, img.indexOf( "</a>" ) - 2 );
 
-                                String src = img.substring( img.indexOf( "src=" ) + 5 );
-
-                                thumbnail = src;
+                                thumbnail = img.substring( img.indexOf( "src=" ) + 5 );
                             }
 
                             String etag = "";
@@ -1601,13 +1533,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             } catch( JSONException e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : id is not valid" );
                             } finally {
-
                                 if( !"".equals( youtubeId ) ) {
-
                                     youtubeId = youtubeId.substring( youtubeId.lastIndexOf( ':' ) + 1 );
-
                                 }
-
                             }
 
                             DateTime published = new DateTime();
@@ -1646,9 +1574,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     if( "alternate".equals(aLink.getString("rel")) ) {
                                         link = aLink.getString( "href" );
                                     }
-
                                 }
-
                             }
 
                             values = new ContentValues();
@@ -1672,7 +1598,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                                 .withYieldAllowed( true )
                                                 .build()
                                 );
-
                             } else {
                                 Log.v( TAG, "processYoutubeEpisodes : adding new entry" );
 
@@ -1682,7 +1607,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                                 .withYieldAllowed( true )
                                                 .build()
                                 );
-
                             }
                             cursor.close();
                             count++;
@@ -1699,15 +1623,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                         ops.clear();
                                     }
                                 }
-
                                 count = 0;
                             }
                         }
-
                     }
-
                 }
-
             }
 
             if( !ops.isEmpty() ) {

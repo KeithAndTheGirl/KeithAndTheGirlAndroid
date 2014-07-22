@@ -1,7 +1,5 @@
 package com.keithandthegirl.app.db;
 
-import static android.provider.BaseColumns._ID;
-
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -29,6 +27,8 @@ import com.keithandthegirl.app.db.model.WorkItem;
 import com.keithandthegirl.app.db.model.Youtube;
 
 import java.util.ArrayList;
+
+import static android.provider.BaseColumns._ID;
 
 /**
  * Created by dmfrey on 3/19/14.

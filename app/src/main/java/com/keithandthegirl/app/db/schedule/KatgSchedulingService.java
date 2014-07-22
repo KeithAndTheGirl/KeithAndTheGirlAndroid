@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.db.KatgProvider;
-import com.keithandthegirl.app.db.model.WorkItem;
 
 /**
  * Created by dmfrey on 3/24/14.

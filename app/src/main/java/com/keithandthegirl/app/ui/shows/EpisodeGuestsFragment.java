@@ -1,6 +1,5 @@
 package com.keithandthegirl.app.ui.shows;
 
-import android.content.ContentUris;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
-import com.keithandthegirl.app.db.model.EpisodeGuests;
 import com.keithandthegirl.app.db.model.Guest;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 
@@ -25,7 +23,6 @@ import java.util.List;
  * Created by dmfrey on 4/26/14.
  */
 public class EpisodeGuestsFragment extends Fragment {
-
     private static final String TAG = EpisodeGuestsFragment.class.getSimpleName();
 
     private static final String RAW_GUESTS_QUERY =

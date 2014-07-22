@@ -7,6 +7,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.keithandthegirl.app.account.AccountGeneral;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by dmfrey on 3/19/14.
@@ -25,7 +26,9 @@ public class MainApplication extends Application {
     public void onCreate() {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate();
-
+        if (BuildConfig.DEBUG) {
+            Picasso.with(this).setIndicatorsEnabled(true);
+        }
         Log.v( TAG, "onCreate : exit" );
     }
 

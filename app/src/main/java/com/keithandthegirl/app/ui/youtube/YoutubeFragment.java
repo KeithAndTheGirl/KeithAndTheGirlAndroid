@@ -3,7 +3,6 @@ package com.keithandthegirl.app.ui.youtube;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -19,32 +18,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.DatabaseHelper;
-import com.keithandthegirl.app.db.model.Episode;
-import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.Youtube;
-import com.keithandthegirl.app.ui.VideoPlayerActivity;
 import com.keithandthegirl.app.ui.YoutubeFragmentActivity;
-import com.keithandthegirl.app.utils.ImageCache;
-import com.keithandthegirl.app.utils.ImageFetcher;
-
-import org.joda.time.DateTime;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by dmfrey on 4/17/14.
  */
 public class YoutubeFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
     private static final String TAG = YoutubeFragment.class.getSimpleName();
 
-    private static final String IMAGE_CACHE_DIR = "thumbs";
-
-    private int mImageThumbSize;
-    private int mImageThumbSpacing;
-    private ImageFetcher mImageFetcher;
-
-    DatabaseHelper dbHelper;
-    Cursor cursor;
     YoutubeCursorAdapter mAdapter;
 
     @Override
@@ -86,19 +69,6 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
-
-        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.list_image_thumbnail_size );
-        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
-
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
-
-        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
-//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
-        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
-
     }
 
     @Override
@@ -120,32 +90,9 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         Log.v( TAG, "onResume : enter" );
 
         super.onResume();
-        mImageFetcher.setExitTasksEarly( false );
         mAdapter.notifyDataSetChanged();
 
         Log.v( TAG, "onResume : exit" );
-    }
-
-    @Override
-    public void onPause() {
-        Log.v( TAG, "onPause : enter" );
-
-        super.onPause();
-        mImageFetcher.setPauseWork( false );
-        mImageFetcher.setExitTasksEarly( true );
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : exit" );
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.v( TAG, "onDestroy : enter" );
-
-        super.onDestroy();
-        mImageFetcher.closeCache();
-
-        Log.v( TAG, "onDestroy : exit" );
     }
 
     @Override
@@ -168,13 +115,10 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
     private class YoutubeCursorAdapter extends CursorAdapter {
 
-        private Context mContext;
         private LayoutInflater mInflater;
 
         public YoutubeCursorAdapter( Context context ) {
             super( context, null, false );
-
-            mContext = context;
             mInflater = LayoutInflater.from( context );
         }
 
@@ -202,20 +146,12 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
             String thumbnail = cursor.getString( cursor.getColumnIndex( Youtube.FIELD_YOUTUBE_THUMBNAIL ) );
             if( null != thumbnail && !"".equals( thumbnail ) ) {
-
-                mHolder.thumbnail.setVisibility( View.VISIBLE );
-
-                mImageFetcher.loadImage( thumbnail, mHolder.thumbnail );
-
+                mHolder.thumbnail.setVisibility(View.VISIBLE);
+                Picasso.with(getActivity()).load(thumbnail).fit().centerCrop().into(mHolder.thumbnail);
             } else {
-
                 mHolder.thumbnail.setVisibility( View.GONE );
-
             }
-
-
         }
-
     }
 
     private static class ViewHolder {

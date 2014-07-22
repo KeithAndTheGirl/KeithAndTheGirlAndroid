@@ -9,7 +9,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,8 +94,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     }
 
     private class EventCursorAdapter extends CursorAdapter {
-
-        private Context mContext;
         private LayoutInflater mInflater;
 
         DateTimeFormatter mFormatter = DateTimeFormat.forPattern( "MMM d, yyyy hh:mm aa" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
@@ -104,7 +101,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
         public EventCursorAdapter( Context context ) {
             super( context, null, false );
 
-            mContext = context;
             mInflater = LayoutInflater.from( context );
         }
 

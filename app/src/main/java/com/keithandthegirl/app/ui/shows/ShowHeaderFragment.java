@@ -15,8 +15,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Show;
-import com.keithandthegirl.app.utils.ImageCache;
-import com.keithandthegirl.app.utils.ImageFetcher;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by dmfrey on 3/30/14.
@@ -29,29 +28,10 @@ public class ShowHeaderFragment extends Fragment {
     ImageView mCoverImageView;
     TextView mTitleTextView, mDescriptionTextView;
 
-    private static final String IMAGE_CACHE_DIR = "thumbs";
-
-    private int mImageThumbSize;
-    private int mImageThumbSpacing;
-    private ImageFetcher mImageFetcher;
-
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
-
-        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_size );
-        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
-
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
-
-        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
-//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
-        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
-
         Log.v( TAG, "onCreate : exit" );
     }
 
@@ -68,7 +48,7 @@ public class ShowHeaderFragment extends Fragment {
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
         Log.v( TAG, "onActivityCreated : enter" );
-        super.onActivityCreated( savedInstanceState );
+        super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity();
 
@@ -88,39 +68,6 @@ public class ShowHeaderFragment extends Fragment {
         Log.v( TAG, "onActivityCreated : enter" );
     }
 
-    @Override
-    public void onResume() {
-        Log.v( TAG, "onResume : enter" );
-
-        super.onResume();
-        mImageFetcher.setExitTasksEarly( false );
-//        mAdapter.notifyDataSetChanged();
-
-        Log.v( TAG, "onResume : exit" );
-    }
-
-    @Override
-    public void onPause() {
-        Log.v( TAG, "onPause : enter" );
-
-        super.onPause();
-        mImageFetcher.setPauseWork( false );
-        mImageFetcher.setExitTasksEarly( true );
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : exit" );
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.v( TAG, "onDestroy : enter" );
-
-        super.onDestroy();
-        mImageFetcher.closeCache();
-
-        Log.v( TAG, "onDestroy : exit" );
-    }
-
     public void updateHeader( long showNameId ) {
         Log.v( TAG, "updateHeader : enter" );
 
@@ -135,9 +82,7 @@ public class ShowHeaderFragment extends Fragment {
 
             mTitleTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) ) );
             mDescriptionTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_DESCRIPTION ) ) );
-
-            mImageFetcher.loadImage( coverUrl, mCoverImageView );
-
+            Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mCoverImageView);
         }
         cursor.close();
 

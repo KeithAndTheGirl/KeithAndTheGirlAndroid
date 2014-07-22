@@ -8,7 +8,7 @@
     android:background="@android:color/black"
     tools:context="com.keithandthegirl.app.ui.shows.EpisodeHeaderFragment">
 
-    <com.keithandthegirl.app.ui.widgets.RecyclingImageView
+    <ImageView
         android:id="@+id/episode_heading"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"

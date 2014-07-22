@@ -7,13 +7,11 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.Detail;
@@ -23,13 +21,11 @@ import com.keithandthegirl.app.ui.EpisodeActivity;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.w3c.dom.Text;
 
 /**
  * Created by dmfrey on 4/29/14.
  */
 public class EpisodeDetailsFragment extends Fragment {
-
     private static final String TAG = EpisodeDetailsFragment.class.getSimpleName();
 
     private long mEpisodeId;

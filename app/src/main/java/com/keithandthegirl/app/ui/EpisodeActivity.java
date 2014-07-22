@@ -1,34 +1,23 @@
 package com.keithandthegirl.app.ui;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Detail;
 import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.Show;
-import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 import com.keithandthegirl.app.ui.shows.EpisodeDetailsFragment;
-import com.keithandthegirl.app.ui.shows.EpisodeFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestImagesFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestsFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeHeaderFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeImagesFragment;
-
-import org.joda.time.DateTime;
 
 public class EpisodeActivity extends AbstractBaseActivity {
 

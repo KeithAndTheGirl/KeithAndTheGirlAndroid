@@ -16,11 +16,9 @@ import android.widget.TextView;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.Guest;
-import com.keithandthegirl.app.utils.ImageCache;
-import com.keithandthegirl.app.utils.ImageFetcher;
+import com.squareup.picasso.Picasso;
 
 public class GuestsFragment extends ListFragment {
-
     private static final String TAG = GuestsFragment.class.getSimpleName();
 
     private static final String RAW_GUESTS_QUERY =
@@ -33,12 +31,6 @@ public class GuestsFragment extends ListFragment {
             "order by " +
             "    eg.showid desc";
 
-    private static final String IMAGE_CACHE_DIR = "thumbs";
-
-    private int mImageThumbSize;
-    private int mImageThumbSpacing;
-    private ImageFetcher mImageFetcher;
-
     DatabaseHelper dbHelper;
     Cursor cursor;
     GuestCursorAdapter mAdapter;
@@ -49,18 +41,6 @@ public class GuestsFragment extends ListFragment {
     public void onCreate( Bundle savedInstanceState ) {
         Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
-
-        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.list_image_thumbnail_size );
-        mImageThumbSpacing = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_spacing );
-
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( getActivity(), IMAGE_CACHE_DIR );
-
-        cacheParams.setMemCacheSizePercent( 0.25f ); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher( getActivity(), mImageThumbSize );
-//        mImageFetcher.setLoadingImage( R.drawable.empty_photo );
-        mImageFetcher.addImageCache( getActivity().getSupportFragmentManager(), cacheParams );
 
         Log.v( TAG, "onCreate : exit" );
     }
@@ -86,55 +66,27 @@ public class GuestsFragment extends ListFragment {
         Log.v( TAG, "onResume : enter" );
 
         super.onResume();
-        mImageFetcher.setExitTasksEarly( false );
         mAdapter.notifyDataSetChanged();
 
         Log.v( TAG, "onResume : exit" );
     }
 
     @Override
-    public void onPause() {
-        Log.v( TAG, "onPause : enter" );
-
-        super.onPause();
-        mImageFetcher.setPauseWork( false );
-        mImageFetcher.setExitTasksEarly( true );
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : exit" );
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.v( TAG, "onDestroy : enter" );
-
-        super.onDestroy();
-        mImageFetcher.closeCache();
-
-        Log.v( TAG, "onDestroy : exit" );
-    }
-
-    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-
     }
 
     private class GuestCursorAdapter extends CursorAdapter {
-
-        private Context mContext;
         private LayoutInflater mInflater;
 
         public GuestCursorAdapter( Context context, Cursor cursor ) {
             super( context, cursor, false );
 
-            mContext = context;
             mInflater = LayoutInflater.from( context );
         }
 
         @Override
         public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-
             View view = mInflater.inflate( R.layout.guest_row, parent, false );
 
             ViewHolder refHolder = new ViewHolder();
@@ -149,50 +101,26 @@ public class GuestsFragment extends ListFragment {
 
         @Override
         public void bindView( View view, Context context, Cursor cursor ) {
-
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             String pictureUrl = cursor.getString( cursor.getColumnIndex( Guest.FIELD_PICTUREURL ) );
             if( null != pictureUrl && !"".equals( pictureUrl ) ) {
-
-//                Uri pictureUri = Uri.parse(pictureUrl);
-//                if( mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).exists() ) {
-//
-//                    String path = mContext.getFileStreamPath( pictureUri.getLastPathSegment() ).getAbsolutePath();
-//                    mHolder.image.setImageBitmap( ImageUtils.decodeSampledBitmapFromFile( path, 75, 75 ) );
-//
-//                } else {
-//
-//                    mHolder.image.setImageBitmap( null );
-//                    mHolder.image.setVisibility( View.GONE );
-//
-//                }
-
                 mHolder.image.setVisibility( View.VISIBLE );
-
-                mImageFetcher.loadImage( pictureUrl, mHolder.image );
-
+                Picasso.with(getActivity()).load(pictureUrl).fit().centerCrop().into(mHolder.image);
             } else {
-
                 mHolder.image.setVisibility( View.GONE );
-
             }
 
             mHolder.realName.setText( cursor.getString( cursor.getColumnIndex( Guest.FIELD_REALNAME ) ) );
             mHolder.episodes.setText( "Episodes: " + cursor.getString( cursor.getColumnIndex( "count" ) ) );
-
         }
-
     }
 
     private static class ViewHolder {
-
         ImageView image;
         TextView realName;
         TextView episodes;
 
         ViewHolder() { }
-
     }
-
 }

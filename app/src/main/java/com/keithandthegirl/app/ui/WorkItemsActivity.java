@@ -2,12 +2,10 @@ package com.keithandthegirl.app.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.ui.shows.EpisodeHeaderFragment;
 import com.keithandthegirl.app.ui.utils.WorkFragment;
 
 /**
