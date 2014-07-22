@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.keithandthegirl.app.ui.widgets.RecyclingImageView xmlns:android="http://schemas.android.com/apk/res/android"
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/episode_guest_grid_item_image"
     android:layout_width="75dp"
     android:layout_height="75dp" />
