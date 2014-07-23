@@ -31,7 +31,7 @@ public class ShowNextEventWidget extends AppWidgetProvider {
             int appWidgetId) {
 
         // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.show_next_live_event_widget);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_show_next_live_event);
 
         String[] projection = new String[] { Event.FIELD_TITLE, Event.FIELD_STARTDATE};
         String selectionClause = Event.FIELD_STARTDATE + " > ?";
@@ -57,8 +57,9 @@ public class ShowNextEventWidget extends AppWidgetProvider {
             views.setTextViewText(R.id.eventTimeTextView, "");
             views.setTextViewText(R.id.eventTitleTextView, "No upcoming Events");
         }
-
         cursor.close();
+
+//        cursor = context.getContentResolver().query()
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);

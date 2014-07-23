@@ -125,7 +125,7 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/show_next_live_event_widget_info" />
+                android:resource="@xml/widget_info_show_next_live_event" />
         </receiver>
 
     </application>

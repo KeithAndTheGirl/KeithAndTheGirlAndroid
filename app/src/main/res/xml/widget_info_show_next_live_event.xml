@@ -4,7 +4,7 @@
     android:minHeight="40dp"
     android:updatePeriodMillis="86400000"
     android:previewImage="@drawable/show_next_event_widget_preview"
-    android:initialLayout="@layout/show_next_live_event_widget"
+    android:initialLayout="@layout/widget_show_next_live_event"
     android:widgetCategory="home_screen|keyguard"
-    android:initialKeyguardLayout="@layout/show_next_live_event_widget">
+    android:initialKeyguardLayout="@layout/widget_show_next_live_event">
 </appwidget-provider>
