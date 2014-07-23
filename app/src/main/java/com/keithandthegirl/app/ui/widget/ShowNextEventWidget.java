@@ -7,35 +7,24 @@ import android.database.Cursor;
 import android.widget.RemoteViews;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.Event;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Implementation of App Widget functionality.
+ * ShowNextEventWidget created by Jeff Alexander 7/22/2014
+ * Copyright Keith and the Girl, 2014
  */
 public class ShowNextEventWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
-        final int N = appWidgetIds.length;
-        for (int i=0; i<N; i++) {
-            updateAppWidget(context, appWidgetManager, appWidgetIds[i]);
+        for (int appWidgetId : appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, appWidgetId);
         }
-    }
-
-
-    @Override
-    public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
-    }
-
-    @Override
-    public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
     }
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
@@ -44,10 +33,17 @@ public class ShowNextEventWidget extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.show_next_live_event_widget);
 
-        // get the next event
-        DatabaseHelper databaseHelper = new DatabaseHelper(context);
-        Cursor cursor = databaseHelper.getNextEvent();
-        if (cursor != null && cursor.moveToFirst()) {
+        String selectionClause = Event.FIELD_STARTDATE + " > ?";
+        String sortOrder = Event.FIELD_STARTDATE + " ASC LIMIT 1";
+
+        Cursor cursor = context.getContentResolver().query(Event.CONTENT_URI,
+                null,
+                selectionClause,
+                new String[] { String.valueOf(Calendar.getInstance().getTimeInMillis()) },
+                sortOrder);
+
+        // if we have an event update the widget UI
+        if (cursor.moveToFirst()) {
             String title = cursor.getString(cursor.getColumnIndex(Event.FIELD_TITLE));
             views.setTextViewText(R.id.eventTitleTextView, title);
 
@@ -61,13 +57,9 @@ public class ShowNextEventWidget extends AppWidgetProvider {
             views.setTextViewText(R.id.eventTitleTextView, "No upcoming Events");
         }
 
-        if (cursor != null) {
-            cursor.close();
-        }
+        cursor.close();
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 }
-
-
