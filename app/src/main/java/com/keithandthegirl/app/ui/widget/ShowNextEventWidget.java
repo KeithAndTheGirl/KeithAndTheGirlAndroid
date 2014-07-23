@@ -33,11 +33,12 @@ public class ShowNextEventWidget extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.show_next_live_event_widget);
 
+        String[] projection = new String[] { Event.FIELD_TITLE, Event.FIELD_STARTDATE};
         String selectionClause = Event.FIELD_STARTDATE + " > ?";
         String sortOrder = Event.FIELD_STARTDATE + " ASC LIMIT 1";
 
         Cursor cursor = context.getContentResolver().query(Event.CONTENT_URI,
-                null,
+                projection,
                 selectionClause,
                 new String[] { String.valueOf(Calendar.getInstance().getTimeInMillis()) },
                 sortOrder);
