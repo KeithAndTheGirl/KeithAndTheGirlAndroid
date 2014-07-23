@@ -23,7 +23,7 @@
         android:label="@string/app_short_name"
         android:theme="@style/Theme.Katg" >
         <activity
-            android:name="com.keithandthegirl.app.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,55 +32,55 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.keithandthegirl.app.ui.ShowsActivity"
+            android:name=".ui.ShowsActivity"
             android:label="@string/title_activity_shows"
-            android:parentActivityName="com.keithandthegirl.app.ui.MainActivity" >
+            android:parentActivityName=".ui.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
         <activity
-            android:name="com.keithandthegirl.app.ui.EpisodeActivity"
+            android:name=".ui.EpisodeActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.keithandthegirl.app.ui.WorkItemsActivity"
+            android:name=".ui.WorkItemsActivity"
             android:label="@string/title_activity_workitems"
-            android:parentActivityName="com.keithandthegirl.app.ui.MainActivity" >
+            android:parentActivityName=".ui.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
         <activity
-            android:name="com.keithandthegirl.app.ui.VideoPlayerActivity"
+            android:name=".ui.VideoPlayerActivity"
             android:label="@string/title_activity_video_player"
-            android:parentActivityName="com.keithandthegirl.app.ui.MainActivity" >
+            android:parentActivityName=".ui.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
         <activity
-            android:name="com.keithandthegirl.app.ui.YoutubeFragmentActivity"
+            android:name=".ui.YoutubeFragmentActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.keithandthegirl.app.ui.PreferencesActivity"
+            android:name=".ui.PreferencesActivity"
             android:label="@string/title_activity_preferences"
-            android:parentActivityName="com.keithandthegirl.app.ui.MainActivity" >
+            android:parentActivityName=".ui.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithandthegirl.app.ui.MainActivity" />
         </activity>
         <activity
-            android:name="com.keithandthegirl.app.ui.AuthenticatorActivity"
+            android:name=".ui.AuthenticatorActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
 
         <!-- KATG Receivers -->
-        <receiver android:name="com.keithandthegirl.app.db.schedule.KatgAlarmReceiver" />
+        <receiver android:name=".db.schedule.KatgAlarmReceiver" />
         <receiver
-            android:name="com.keithandthegirl.app.db.schedule.KatgBootReceiver"
+            android:name=".db.schedule.KatgBootReceiver"
             android:enabled="false" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -109,14 +109,24 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-        <service android:name="com.keithandthegirl.app.db.schedule.KatgSchedulingService" />
+        <service android:name=".db.schedule.KatgSchedulingService" />
 
         <!-- KATG Providers -->
         <provider
-            android:name="com.keithandthegirl.app.db.KatgProvider"
+            android:name=".db.KatgProvider"
             android:authorities="com.keithandthegirl.provider"
             android:exported="true"
             android:syncable="true" />
+
+        <receiver android:name=".ui.widget.ShowNextEventWidget" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/show_next_live_event_widget_info" />
+        </receiver>
 
     </application>
 

@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="@dimen/widget_margin"
+                android:background="@drawable/show_next_event_widget_background"
+                android:minHeight="40dp"
+                android:minWidth="240dp"
+                tools:layout_width="350dp"
+                tools:layout_height="80dp">
+
+    <ImageView
+        android:id="@+id/stickImageView"
+        android:layout_width="110dp"
+        android:layout_height="80dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/widget_stick"/>
+
+    <TextView
+        android:id="@+id/nextEventLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/stickImageView"
+        android:text="Coming up next"
+        android:textColor="@color/Black"
+        android:textSize="12sp"
+        android:shadowRadius="10"
+        android:shadowColor="@color/AntiqueWhite"
+        android:paddingTop="4dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/eventTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/stickImageView"
+        android:layout_below="@id/nextEventLabel"
+        android:textColor="@color/Black"
+        android:textSize="14sp"
+        android:shadowRadius="10"
+        android:shadowColor="@color/AntiqueWhite"
+        android:maxLines="2"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="4dp"
+        tools:text="Live Show with Liz Miele &amp; Carmen Lynch"/>
+
+    <TextView
+        android:id="@+id/eventTimeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/eventTitleTextView"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/stickImageView"
+        android:gravity="bottom"
+        android:layout_marginBottom="4dp"
+        android:textColor="@color/Black"
+        android:textSize="12sp"
+        android:shadowRadius="10"
+        android:shadowColor="@color/AntiqueWhite"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        tools:text="Tues. July 7th, 2:00 PM"/>
+
+</RelativeLayout>

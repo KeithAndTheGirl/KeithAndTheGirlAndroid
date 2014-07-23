@@ -1,6 +1,7 @@
 package com.keithandthegirl.app.db;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -19,6 +20,8 @@ import com.keithandthegirl.app.db.model.Youtube;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import java.util.Calendar;
 
 /**
  * Created by dmfrey on 3/18/14.
@@ -80,6 +83,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
         Log.d( TAG, "onCreate : exit" );
+    }
+
+    public Cursor getNextEvent() {
+        Cursor resCursor = null;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        if (db != null) {
+            String query = "SELECT * FROM " + Event.TABLE_NAME +
+                           " WHERE " + Event.FIELD_STARTDATE + " > " + Calendar.getInstance().getTimeInMillis() +
+                           " ORDER BY " + Event.FIELD_STARTDATE +
+                           " ASC LIMIT 1";
+            resCursor = db.rawQuery(query, null);
+        }
+
+        return resCursor;
     }
 
     private void dropTables( SQLiteDatabase db ) {
