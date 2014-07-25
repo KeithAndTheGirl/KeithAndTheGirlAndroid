@@ -94,7 +94,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
         if( null != getArguments() ) {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
         }
-
+        mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_size );
         Log.v( TAG, "onCreate : exit" );
     }
 
