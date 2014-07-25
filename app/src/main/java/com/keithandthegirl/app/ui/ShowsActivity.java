@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.shows.ShowFragment;
 
 public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnNavigationListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -37,13 +37,13 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v( TAG, "onCreateLoader : enter" );
 
-        String[] projection = { Show._ID, Show.FIELD_NAME };
+        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME };
 
         String selection = null;
 
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader( this, Show.CONTENT_URI, projection, selection, selectionArgs, Show.FIELD_SORTORDER );
+        CursorLoader cursorLoader = new CursorLoader( this, ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -178,7 +178,7 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            String name = cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) );
+            String name = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_NAME ) );
             mHolder.name.setText( name );
 
         }

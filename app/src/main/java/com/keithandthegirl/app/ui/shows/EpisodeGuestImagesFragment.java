@@ -16,7 +16,7 @@ import android.widget.ImageView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
-import com.keithandthegirl.app.db.model.Guest;
+import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 import com.squareup.picasso.Picasso;
 
@@ -74,7 +74,7 @@ public class EpisodeGuestImagesFragment extends Fragment {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
             Log.v( TAG, "onCreate : mEpisodeId=" + mEpisodeId );
         }
-        getActivity().getContentResolver().registerContentObserver( Guest.CONTENT_URI, true, guestsObserver );
+        getActivity().getContentResolver().registerContentObserver( GuestConstants.CONTENT_URI, true, guestsObserver );
 
         Log.v( TAG, "onCreate : exit") ;
     }
@@ -156,7 +156,7 @@ public class EpisodeGuestImagesFragment extends Fragment {
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            String coverUrl = cursor.getString( cursor.getColumnIndex( Guest.FIELD_PICTUREURL ) );
+            String coverUrl = cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_PICTUREURL ) );
             Log.v(TAG, "bindView : coverUrl=" + coverUrl);
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mHolder.guestImage);
             Log.v( TAG, "bindView : exit" );

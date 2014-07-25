@@ -24,17 +24,17 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.keithandthegirl.app.db.model.Detail;
-import com.keithandthegirl.app.db.model.Endpoint;
-import com.keithandthegirl.app.db.model.Episode;
-import com.keithandthegirl.app.db.model.EpisodeGuests;
-import com.keithandthegirl.app.db.model.Event;
-import com.keithandthegirl.app.db.model.Guest;
-import com.keithandthegirl.app.db.model.Image;
-import com.keithandthegirl.app.db.model.Live;
-import com.keithandthegirl.app.db.model.Show;
-import com.keithandthegirl.app.db.model.WorkItem;
-import com.keithandthegirl.app.db.model.Youtube;
+import com.keithandthegirl.app.db.model.DetailConstants;
+import com.keithandthegirl.app.db.model.EndpointConstants;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeGuestConstants;
+import com.keithandthegirl.app.db.model.EventConstants;
+import com.keithandthegirl.app.db.model.GuestConstants;
+import com.keithandthegirl.app.db.model.ImageConstants;
+import com.keithandthegirl.app.db.model.LiveConstants;
+import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
+import com.keithandthegirl.app.db.model.YoutubeConstants;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -162,35 +162,35 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             DateTime now = new DateTime( DateTimeZone.UTC );
 
             List<Job> jobs = new ArrayList<Job>();
-            Cursor cursor = provider.query( WorkItem.CONTENT_URI, null, null, null, null );
+            Cursor cursor = provider.query( WorkItemConstants.CONTENT_URI, null, null, null, null );
             while( cursor.moveToNext() ) {
                 Job job = new Job();
 
-                Long id = cursor.getLong( cursor.getColumnIndex( WorkItem._ID ) );
+                Long id = cursor.getLong( cursor.getColumnIndex( WorkItemConstants._ID ) );
                 job.setId( id );
 
-                WorkItem.Frequency wtype = WorkItem.Frequency.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_FREQUENCY ) ) );
+                WorkItemConstants.Frequency wtype = WorkItemConstants.Frequency.valueOf( cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_FREQUENCY ) ) );
 
-                WorkItem.Download dtype = WorkItem.Download.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_DOWNLOAD ) ) );
+                WorkItemConstants.Download dtype = WorkItemConstants.Download.valueOf( cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_DOWNLOAD ) ) );
                 job.setDownload( dtype );
 
-                Endpoint.Type type = Endpoint.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ENDPOINT ) ) );
+                EndpointConstants.Type type = EndpointConstants.Type.valueOf( cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_ENDPOINT ) ) );
                 job.setType( type );
 
-                String address = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_ADDRESS ) );
-                String parameters = cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_PARAMETERS ) );
-                if( dtype.equals( WorkItem.Download.JPG ) ) {
+                String address = cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_ADDRESS ) );
+                String parameters = cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_PARAMETERS ) );
+                if( dtype.equals( WorkItemConstants.Download.JPG ) ) {
                     job.setUrl( address );
                     job.setFilename( parameters );
                 } else {
                     job.setUrl( address + parameters );
                 }
 
-                WorkItem.Status status = WorkItem.Status.valueOf( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
+                WorkItemConstants.Status status = WorkItemConstants.Status.valueOf( cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_STATUS ) ) );
                 job.setStatus( status );
 
                 DateTime lastRun = new DateTime( DateTimeZone.UTC );
-                long lastRunMs = cursor.getLong( cursor.getColumnIndex( WorkItem.FIELD_LAST_RUN ) );
+                long lastRunMs = cursor.getLong( cursor.getColumnIndex( WorkItemConstants.FIELD_LAST_RUN ) );
                 if( lastRunMs > 0 ) {
                     lastRun = new DateTime( lastRunMs );
                 }
@@ -199,21 +199,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 switch( wtype ) {
                     case ON_DEMAND:
-                        if( !status.equals( WorkItem.Status.OK ) ) {
+                        if( !status.equals( WorkItemConstants.Status.OK ) ) {
                             Log.v( TAG, "onPerformSync : adding On Demand job" );
 
                             jobs.add( job );
                         }
                         break;
                     case ONCE:
-                        if( !status.equals( WorkItem.Status.OK ) ) {
+                        if( !status.equals( WorkItemConstants.Status.OK ) ) {
                             Log.v( TAG, "onPerformSync : adding One Time job" );
 
                             jobs.add( job );
                         }
                         break;
                     case HOURLY:
-                        if( status.equals( WorkItem.Status.NEVER ) ) {
+                        if( status.equals( WorkItemConstants.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Hourly job, never run" );
 
                             jobs.add( job );
@@ -226,7 +226,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         }
                         break;
                     case DAILY:
-                        if( status.equals( WorkItem.Status.NEVER ) ) {
+                        if( status.equals( WorkItemConstants.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Daily job, never run" );
 
                             jobs.add( job );
@@ -239,7 +239,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         }
                         break;
                     case WEEKLY:
-                        if( status.equals( WorkItem.Status.NEVER ) ) {
+                        if( status.equals( WorkItemConstants.Status.NEVER ) ) {
                             Log.v( TAG, "onPerformSync : adding Weekly job, never run" );
 
                             jobs.add( job );
@@ -402,8 +402,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
 
@@ -415,16 +415,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 processEpisodes(jsonArray, provider, job.getType());
             }
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getEpisodes : error", e);
 
-            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+            update.put(WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name());
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "getEpisodes : exit" );
@@ -435,8 +435,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
 
@@ -453,16 +453,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getEpisodeDetails : error", e);
 
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "getEpisodeDetails : exit" );
@@ -473,8 +473,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
 
@@ -486,16 +486,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 processEpisodes(jsonArray, provider, job.getType());
             }
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getRecentEpisodes : error", e);
 
-            update.put(WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name());
+            update.put(WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name());
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "getRecentEpisodes : exit" );
@@ -505,10 +505,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "getShowDetails : enter" );
 
         String address = "";
-        Cursor cursor = provider.query( Endpoint.CONTENT_URI, null, Endpoint.FIELD_TYPE + "=?", new String[] { Endpoint.Type.DETAILS.name() }, null );
+        Cursor cursor = provider.query( EndpointConstants.CONTENT_URI, null, EndpointConstants.FIELD_TYPE + "=?", new String[] { EndpointConstants.Type.DETAILS.name() }, null );
 
         while( cursor.moveToNext() ) {
-            address = cursor.getString( cursor.getColumnIndex( Endpoint.FIELD_URL ) );
+            address = cursor.getString( cursor.getColumnIndex( EndpointConstants.FIELD_URL ) );
         }
         cursor.close();
 
@@ -537,8 +537,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
 
@@ -552,16 +552,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "getYoutubeEpisodes : error", e );
 
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "getYoutubeEpisodes : exit" );
@@ -587,12 +587,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
             json = new JSONObject( sb.toString() );
 
-            job.setStatus( WorkItem.Status.OK );
+            job.setStatus( WorkItemConstants.Status.OK );
 
         } catch( NullPointerException e ) {
             Log.e( TAG, "loadJsonFromNetwork : error", e );
 
-            job.setStatus( WorkItem.Status.FAILED );
+            job.setStatus( WorkItemConstants.Status.FAILED );
         } finally {
 
             // Makes sure that the InputStream is closed after the app is
@@ -627,7 +627,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
             jsonArray = new JSONArray( sb.toString() );
 
-            job.setStatus( WorkItem.Status.OK );
+            job.setStatus( WorkItemConstants.Status.OK );
 
         } finally {
 
@@ -655,7 +655,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             bitmap = BitmapFactory.decodeStream( stream );
 
-            job.setStatus( WorkItem.Status.OK );
+            job.setStatus( WorkItemConstants.Status.OK );
 
         } finally {
 
@@ -706,7 +706,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             } else if( conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED ) {
                 Log.v( TAG, "downloadUrl : HTTP NOT MODIFIED" );
 
-                job.setStatus( WorkItem.Status.NOT_MODIFIED );
+                job.setStatus( WorkItemConstants.Status.NOT_MODIFIED );
             }
 //        } finally {
 //            TrafficStats.clearThreadStatsTag();
@@ -733,14 +733,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
             int count = 0, loaded = 0;
 
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            String[] projection = new String[] { Show._ID };
+            String[] projection = new String[] { ShowConstants._ID };
 
             ContentValues values;
 
@@ -769,29 +769,29 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 String coverImageUrl = json.getString( "CoverImageUrl" );
 
                 values = new ContentValues();
-                values.put( Show._ID, showNameId );
-                values.put( Show.FIELD_NAME, name );
-                values.put( Show.FIELD_PREFIX, prefix );
-                values.put( Show.FIELD_VIP, vip );
-                values.put( Show.FIELD_SORTORDER, sortOrder );
-                values.put( Show.FIELD_DESCRIPTION, json.getString( "Description" ) );
-                values.put( Show.FIELD_COVERIMAGEURL, coverImageUrl );
-                values.put( Show.FIELD_COVERIMAGEURL_SQUARED, coverImageUrl );
-                values.put( Show.FIELD_COVERIMAGEURL_100, coverImageUrl );
-                values.put( Show.FIELD_COVERIMAGEURL_200, coverImageUrl );
-                values.put( Show.FIELD_FORUMURL, json.getString( "ForumUrl" ) );
-                values.put( Show.FIELD_PREVIEWURL, json.getString( "PreviewUrl" ) );
-                values.put( Show.FIELD_EPISODE_COUNT, json.getInt( "EpisodeCount" ) );
-                values.put( Show.FIELD_EPISODE_COUNT_MAX, json.getInt( "EpisodeNumberMax" ) );
-                values.put( Show.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                values.put( ShowConstants._ID, showNameId );
+                values.put( ShowConstants.FIELD_NAME, name );
+                values.put( ShowConstants.FIELD_PREFIX, prefix );
+                values.put( ShowConstants.FIELD_VIP, vip );
+                values.put( ShowConstants.FIELD_SORTORDER, sortOrder );
+                values.put( ShowConstants.FIELD_DESCRIPTION, json.getString( "Description" ) );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL, coverImageUrl );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL_SQUARED, coverImageUrl );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL_100, coverImageUrl );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL_200, coverImageUrl );
+                values.put( ShowConstants.FIELD_FORUMURL, json.getString( "ForumUrl" ) );
+                values.put( ShowConstants.FIELD_PREVIEWURL, json.getString( "PreviewUrl" ) );
+                values.put( ShowConstants.FIELD_EPISODE_COUNT, json.getInt( "EpisodeCount" ) );
+                values.put( ShowConstants.FIELD_EPISODE_COUNT_MAX, json.getInt( "EpisodeNumberMax" ) );
+                values.put( ShowConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                Cursor cursor = provider.query( ContentUris.withAppendedId( Show.CONTENT_URI, showNameId ), projection, null, null, null );
+                Cursor cursor = provider.query( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, showNameId ), projection, null, null, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processShows : show iteration, updating existing entry" );
 
-                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( Show._ID ) );
+                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ShowConstants._ID ) );
                     ops.add(
-                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Show.CONTENT_URI, id ) )
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, id ) )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -801,7 +801,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.v( TAG, "processShows : show iteration, adding new entry" );
 
                     ops.add(
-                            ContentProviderOperation.newInsert( Show.CONTENT_URI )
+                            ContentProviderOperation.newInsert( ShowConstants.CONTENT_URI )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -815,23 +815,23 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.v( TAG, "processShows : adding one time update for katg main show" );
 
                     values = new ContentValues();
-                    values.put( WorkItem.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
-                    values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.ONCE.name() );
-                    values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JSONARRAY.name() );
-                    values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.LIST.name() );
-                    values.put( WorkItem.FIELD_ADDRESS, Endpoint.LIST );
-                    values.put( WorkItem.FIELD_PARAMETERS, "?shownameid=" + showNameId );
-                    values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
+                    values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ONCE.name() );
+                    values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name() );
+                    values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name() );
+                    values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST );
+                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + showNameId );
+                    values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ENDPOINT + " = ? and " + WorkItem.FIELD_PARAMETERS + " = ?", new String[] { Endpoint.LIST, "?shownameid=" + showNameId }, null );
+                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ENDPOINT + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + showNameId }, null );
                     if( cursor.moveToNext() ) {
                         Log.v( TAG, "processShows : updating daily show" );
 
-                        values.put( WorkItem.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
+                        values.put( WorkItemConstants.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItemConstants._ID ) );
                         ops.add(
-                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, id ) )
                                         .withValues( values )
                                         .withYieldAllowed( true )
                                         .build()
@@ -839,11 +839,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     } else {
                         Log.v( TAG, "processShows : adding daily show" );
 
-                        values.put( WorkItem.FIELD_LAST_RUN, -1 );
-                        values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+                        values.put( WorkItemConstants.FIELD_LAST_RUN, -1 );
+                        values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
 
                         ops.add(
-                                ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+                                ContentProviderOperation.newInsert( WorkItemConstants.CONTENT_URI )
                                         .withValues( values )
                                         .withYieldAllowed( true )
                                         .build()
@@ -856,24 +856,24 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
 
                     values = new ContentValues();
-                    values.put( WorkItem.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
-                    values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.DAILY.name() );
-                    values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JSONARRAY.name() );
-                    values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.LIST.name() );
-                    values.put( WorkItem.FIELD_ADDRESS, Endpoint.LIST );
-                    values.put( WorkItem.FIELD_PARAMETERS, "?shownameid=" + showNameId );
-                    values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-                    values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
+                    values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.DAILY.name() );
+                    values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name() );
+                    values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name() );
+                    values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST );
+                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + showNameId );
+                    values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
+                    values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                    cursor = provider.query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ADDRESS + " = ? and " + WorkItem.FIELD_PARAMETERS + " = ?", new String[] { Endpoint.LIST, "?shownameid=" + showNameId }, null );
+                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ADDRESS + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + showNameId }, null );
                     if( cursor.moveToNext() ) {
                         Log.v( TAG, "processShows : updating daily spinoff show" );
 
-                        values.put( WorkItem.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
+                        values.put( WorkItemConstants.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItem._ID ) );
+                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItemConstants._ID ) );
                         ops.add(
-                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItem.CONTENT_URI, id ) )
+                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, id ) )
                                         .withValues( values )
                                         .withYieldAllowed( true )
                                         .build()
@@ -881,11 +881,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     } else {
                         Log.v( TAG, "processShows : adding daily spinoff show" );
 
-                        values.put( WorkItem.FIELD_LAST_RUN, -1 );
-                        values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
+                        values.put( WorkItemConstants.FIELD_LAST_RUN, -1 );
+                        values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
 
                         ops.add(
-                                ContentProviderOperation.newInsert( WorkItem.CONTENT_URI )
+                                ContentProviderOperation.newInsert( WorkItemConstants.CONTENT_URI )
                                         .withValues( values )
                                         .withYieldAllowed( true )
                                         .build()
@@ -924,15 +924,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Log.i( TAG, "processShows : shows loaded '" + loaded + "'" );
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
         } catch( Exception e ) {
             Log.e( TAG, "processShows : error", e );
 
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "processShows : exit" );
@@ -943,14 +943,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         try {
             int count = 0, loaded = 0;
 
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            String[] projection = new String[] { Event._ID };
+            String[] projection = new String[] { EventConstants._ID };
 
             ContentValues values;
 
@@ -979,21 +979,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.v(TAG, "processEvents : startDate=" + startDate.toString() + ", endDate=" + endDate.toString());
 
                 values = new ContentValues();
-                values.put( Event.FIELD_EVENTID, eventId );
-                values.put( Event.FIELD_TITLE, json.getString( "title" ) );
-                values.put( Event.FIELD_LOCATION, json.getString( "location" ) );
-                values.put( Event.FIELD_STARTDATE, startDate.getMillis() );
-                values.put( Event.FIELD_ENDDATE, endDate.getMillis() );
-                values.put( Event.FIELD_DETAILS, json.getString( "details" ) );
-                values.put( Event.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                values.put( EventConstants.FIELD_EVENTID, eventId );
+                values.put( EventConstants.FIELD_TITLE, json.getString( "title" ) );
+                values.put( EventConstants.FIELD_LOCATION, json.getString( "location" ) );
+                values.put( EventConstants.FIELD_STARTDATE, startDate.getMillis() );
+                values.put( EventConstants.FIELD_ENDDATE, endDate.getMillis() );
+                values.put( EventConstants.FIELD_DETAILS, json.getString( "details" ) );
+                values.put( EventConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                Cursor cursor = provider.query( Event.CONTENT_URI, projection, Event.FIELD_EVENTID + "=?", new String[] { eventId }, null );
+                Cursor cursor = provider.query( EventConstants.CONTENT_URI, projection, EventConstants.FIELD_EVENTID + "=?", new String[] { eventId }, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processEvents : show iteration, updating existing entry" );
 
-                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( Event._ID ) );
+                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EventConstants._ID ) );
                     ops.add(
-                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Event.CONTENT_URI, id ) )
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( EventConstants.CONTENT_URI, id ) )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -1002,7 +1002,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.v( TAG, "processEvents : show iteration, adding new entry" );
 
                     ops.add(
-                            ContentProviderOperation.newInsert( Event.CONTENT_URI )
+                            ContentProviderOperation.newInsert( EventConstants.CONTENT_URI )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -1041,16 +1041,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Log.i( TAG, "processEvents : events loaded '" + loaded + "'" );
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "processEvents : error", e );
 
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v(TAG, "processEvents : exit");
@@ -1061,35 +1061,35 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put(WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put(WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
 
         int broadcasting;
         try {
             broadcasting = jsonObject.getBoolean( "broadcasting" ) ? 1 : 0;
 
             ContentValues values = new ContentValues();
-            values.put( Live.FIELD_BROADCASTING, broadcasting );
-            values.put( Live.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+            values.put( LiveConstants.FIELD_BROADCASTING, broadcasting );
+            values.put( LiveConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-            provider.update( ContentUris.withAppendedId( Live.CONTENT_URI, 1 ), values, null, null );
+            provider.update( ContentUris.withAppendedId( LiveConstants.CONTENT_URI, 1 ), values, null, null );
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.v( TAG, "processLives : broadcasting format is not valid" );
 
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v( TAG, "processLives : exit" );
     }
 
-    private void processEpisodes( JSONArray jsonArray, ContentProviderClient provider, Endpoint.Type type ) {
+    private void processEpisodes( JSONArray jsonArray, ContentProviderClient provider, EndpointConstants.Type type ) {
         Log.v( TAG, "processEpisodes : enter" );
 
         try {
@@ -1097,7 +1097,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             List<Integer> detailsQueue = new ArrayList<Integer>();
 
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            String[] projection = new String[] { Episode._ID, Episode.FIELD_DOWNLOADED, Episode.FIELD_PLAYED, Episode.FIELD_LASTPLAYED };
+            String[] projection = new String[] { EpisodeConstants._ID, EpisodeConstants.FIELD_DOWNLOADED, EpisodeConstants.FIELD_PLAYED, EpisodeConstants.FIELD_LASTPLAYED };
 
             ContentValues values;
 
@@ -1178,38 +1178,38 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
 
                 values = new ContentValues();
-                values.put( Episode._ID, showId );
-                values.put( Episode.FIELD_NUMBER, json.getInt( "Number" ) );
-                values.put( Episode.FIELD_TITLE, json.getString( "Title" ) );
-                values.put( Episode.FIELD_VIDEOFILEURL, videoFileUrl );
-                values.put( Episode.FIELD_VIDEOTHUMBNAILURL, videoThumbnailUrl );
-                values.put( Episode.FIELD_PREVIEWURL, previewUrl );
-                values.put( Episode.FIELD_FILEURL, fileUrl );
-                values.put( Episode.FIELD_FILENAME, fileName );
-                values.put( Episode.FIELD_LENGTH, length );
-                values.put( Episode.FIELD_FILESIZE, fileSize );
-                values.put( Episode.FIELD_TYPE, episodeType );
-                values.put( Episode.FIELD_PUBLIC, vip );
-                values.put( Episode.FIELD_POSTED, json.getString( "PostedDate" ) );
-                values.put( Episode.FIELD_TIMESTAMP, json.getLong( "Timestamp") );
-                values.put( Episode.FIELD_SHOWNAMEID, showNameId );
-                values.put( Episode.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                values.put( EpisodeConstants._ID, showId );
+                values.put( EpisodeConstants.FIELD_NUMBER, json.getInt( "Number" ) );
+                values.put( EpisodeConstants.FIELD_TITLE, json.getString( "Title" ) );
+                values.put( EpisodeConstants.FIELD_VIDEOFILEURL, videoFileUrl );
+                values.put( EpisodeConstants.FIELD_VIDEOTHUMBNAILURL, videoThumbnailUrl );
+                values.put( EpisodeConstants.FIELD_PREVIEWURL, previewUrl );
+                values.put( EpisodeConstants.FIELD_FILEURL, fileUrl );
+                values.put( EpisodeConstants.FIELD_FILENAME, fileName );
+                values.put( EpisodeConstants.FIELD_LENGTH, length );
+                values.put( EpisodeConstants.FIELD_FILESIZE, fileSize );
+                values.put( EpisodeConstants.FIELD_TYPE, episodeType );
+                values.put( EpisodeConstants.FIELD_PUBLIC, vip );
+                values.put( EpisodeConstants.FIELD_POSTED, json.getString( "PostedDate" ) );
+                values.put( EpisodeConstants.FIELD_TIMESTAMP, json.getLong( "Timestamp") );
+                values.put( EpisodeConstants.FIELD_SHOWNAMEID, showNameId );
+                values.put( EpisodeConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                Cursor cursor = provider.query( ContentUris.withAppendedId( Episode.CONTENT_URI, showId ), projection, null, null, null );
+                Cursor cursor = provider.query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, showId ), projection, null, null, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processEpisodes : episode iteration, updating existing entry" );
 
-                    long downloaded = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_DOWNLOADED ) );
-                    long played = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_PLAYED ) );
-                    long lastplayed = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_LASTPLAYED ) );
+                    long downloaded = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_DOWNLOADED ) );
+                    long played = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_PLAYED ) );
+                    long lastplayed = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_LASTPLAYED ) );
 
-                    values.put( Episode.FIELD_DOWNLOADED, downloaded );
-                    values.put( Episode.FIELD_PLAYED, played );
-                    values.put( Episode.FIELD_LASTPLAYED, lastplayed );
+                    values.put( EpisodeConstants.FIELD_DOWNLOADED, downloaded );
+                    values.put( EpisodeConstants.FIELD_PLAYED, played );
+                    values.put( EpisodeConstants.FIELD_LASTPLAYED, lastplayed );
 
-                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( Episode._ID ) );
+                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EpisodeConstants._ID ) );
                     ops.add(
-                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Episode.CONTENT_URI, id ) )
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, id ) )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -1218,12 +1218,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 } else {
                     Log.v( TAG, "processEpisodes : episode iteration, adding new entry" );
 
-                    values.put( Episode.FIELD_DOWNLOADED, -1 );
-                    values.put( Episode.FIELD_PLAYED, -1 );
-                    values.put( Episode.FIELD_LASTPLAYED, -1 );
+                    values.put( EpisodeConstants.FIELD_DOWNLOADED, -1 );
+                    values.put( EpisodeConstants.FIELD_PLAYED, -1 );
+                    values.put( EpisodeConstants.FIELD_LASTPLAYED, -1 );
 
                     ops.add(
-                            ContentProviderOperation.newInsert( Episode.CONTENT_URI )
+                            ContentProviderOperation.newInsert( EpisodeConstants.CONTENT_URI )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -1247,23 +1247,23 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         String pictureUrlLarge = guest.getString( "PictureUrlLarge" );
 
                         values = new ContentValues();
-                        values.put( Guest._ID, showGuestId );
-                        values.put( Guest.FIELD_REALNAME, name );
-                        values.put( Guest.FIELD_DESCRIPTION, guest.getString( "Description" ) );
-                        values.put( Guest.FIELD_PICTUREFILENAME, guest.getString( "PictureFilename" ) );
-                        values.put( Guest.FIELD_URL1, guest.getString( "Url1" ) );
-                        values.put( Guest.FIELD_URL2, guest.getString( "Url2" ) );
-                        values.put( Guest.FIELD_PICTUREURL, pictureUrl );
-                        values.put( Guest.FIELD_PICTUREURLLARGE, pictureUrlLarge );
-                        values.put( Guest.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                        values.put( GuestConstants._ID, showGuestId );
+                        values.put( GuestConstants.FIELD_REALNAME, name );
+                        values.put( GuestConstants.FIELD_DESCRIPTION, guest.getString( "Description" ) );
+                        values.put( GuestConstants.FIELD_PICTUREFILENAME, guest.getString( "PictureFilename" ) );
+                        values.put( GuestConstants.FIELD_URL1, guest.getString( "Url1" ) );
+                        values.put( GuestConstants.FIELD_URL2, guest.getString( "Url2" ) );
+                        values.put( GuestConstants.FIELD_PICTUREURL, pictureUrl );
+                        values.put( GuestConstants.FIELD_PICTUREURLLARGE, pictureUrlLarge );
+                        values.put( GuestConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                        cursor = provider.query( ContentUris.withAppendedId( Guest.CONTENT_URI, showGuestId ), null, null, null, null );
+                        cursor = provider.query( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, showGuestId ), null, null, null, null );
                         if( cursor.moveToFirst() ) {
                             Log.v( TAG, "processEpisodes : guest iteration, updating existing entry" );
 
-                            Long id = cursor.getLong(cursor.getColumnIndexOrThrow( Guest._ID ) );
+                            Long id = cursor.getLong(cursor.getColumnIndexOrThrow( GuestConstants._ID ) );
                             ops.add(
-                                    ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Guest.CONTENT_URI, id ) )
+                                    ContentProviderOperation.newUpdate( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, id ) )
                                             .withValues( values )
                                             .withYieldAllowed( true )
                                             .build()
@@ -1273,7 +1273,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             Log.v( TAG, "processEpisodes : guest iteration, adding new entry" );
 
                             ops.add(
-                                    ContentProviderOperation.newInsert( Guest.CONTENT_URI )
+                                    ContentProviderOperation.newInsert( GuestConstants.CONTENT_URI )
                                             .withValues( values )
                                             .withYieldAllowed( true )
                                             .build()
@@ -1282,17 +1282,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         cursor.close();
 
                         values = new ContentValues();
-                        values.put( EpisodeGuests.FIELD_SHOWID, showId );
-                        values.put( EpisodeGuests.FIELD_SHOWGUESTID, showGuestId );
-                        values.put( Guest.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                        values.put( EpisodeGuestConstants.FIELD_SHOWID, showId );
+                        values.put( EpisodeGuestConstants.FIELD_SHOWGUESTID, showGuestId );
+                        values.put( GuestConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                        cursor = provider.query( EpisodeGuests.CONTENT_URI, null, EpisodeGuests.FIELD_SHOWID + "=? and " + EpisodeGuests.FIELD_SHOWGUESTID + "=?", new String[] { String.valueOf( showId ), String.valueOf( showGuestId ) }, null );
+                        cursor = provider.query( EpisodeGuestConstants.CONTENT_URI, null, EpisodeGuestConstants.FIELD_SHOWID + "=? and " + EpisodeGuestConstants.FIELD_SHOWGUESTID + "=?", new String[] { String.valueOf( showId ), String.valueOf( showGuestId ) }, null );
                         if( cursor.moveToFirst() ) {
                             Log.v( TAG, "processEpisodes : episodeGuest iteration, updating existing entry" );
 
-                            Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EpisodeGuests._ID ) );
+                            Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EpisodeGuestConstants._ID ) );
                             ops.add(
-                                    ContentProviderOperation.newUpdate( ContentUris.withAppendedId( EpisodeGuests.CONTENT_URI, id ) )
+                                    ContentProviderOperation.newUpdate( ContentUris.withAppendedId( EpisodeGuestConstants.CONTENT_URI, id ) )
                                             .withValues( values )
                                             .withYieldAllowed( true )
                                             .build()
@@ -1302,7 +1302,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             Log.v( TAG, "processEpisodes : episodeGuest iteration, adding new entry" );
 
                             ops.add(
-                                    ContentProviderOperation.newInsert( EpisodeGuests.CONTENT_URI )
+                                    ContentProviderOperation.newInsert( EpisodeGuestConstants.CONTENT_URI )
                                             .withValues( values )
                                             .withYieldAllowed( true )
                                             .build()
@@ -1333,7 +1333,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            if( Endpoint.Type.RECENT.equals( type ) ) {
+            if( EndpointConstants.Type.RECENT.equals( type ) ) {
                 if( !detailsQueue.isEmpty() ) {
                     Log.v( TAG, "processEpisodes : processing show details" );
 
@@ -1359,21 +1359,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             int count = 0, loaded = 0;
 
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            String[] projection = new String[] { Detail._ID };
+            String[] projection = new String[] { DetailConstants._ID };
 
             ContentValues values = new ContentValues();
-            values.put( Detail.FIELD_NOTES, jsonObject.getString( "notes" ) );
-            values.put( Detail.FIELD_FORUMURL, jsonObject.getString( "forum_url" ) );
-            values.put( Detail.FIELD_SHOWID, showId );
-            values.put( Detail.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+            values.put( DetailConstants.FIELD_NOTES, jsonObject.getString( "notes" ) );
+            values.put( DetailConstants.FIELD_FORUMURL, jsonObject.getString( "forum_url" ) );
+            values.put( DetailConstants.FIELD_SHOWID, showId );
+            values.put( DetailConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-            Cursor cursor = provider.query( Detail.CONTENT_URI, projection, Detail.FIELD_SHOWID + "=?", new String[] { String.valueOf( showId ) }, null );
+            Cursor cursor = provider.query( DetailConstants.CONTENT_URI, projection, DetailConstants.FIELD_SHOWID + "=?", new String[] { String.valueOf( showId ) }, null );
             if( cursor.moveToFirst() ) {
                 Log.v( TAG, "processEpisodeDetails : detail iteration, updating existing entry" );
 
-                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( Detail._ID ) );
+                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( DetailConstants._ID ) );
                 ops.add(
-                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Detail.CONTENT_URI, id ) )
+                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( DetailConstants.CONTENT_URI, id ) )
                                 .withValues( values )
                                 .withYieldAllowed( true )
                                 .build()
@@ -1382,7 +1382,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.v( TAG, "processEpisodeDetails : detail iteration, adding new entry" );
 
                 ops.add(
-                        ContentProviderOperation.newInsert( Detail.CONTENT_URI )
+                        ContentProviderOperation.newInsert( DetailConstants.CONTENT_URI )
                                 .withValues( values )
                                 .withYieldAllowed( true )
                                 .build()
@@ -1404,22 +1404,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
 
                 values = new ContentValues();
-                values.put( Image._ID, pictureid );
-                values.put( Image.FIELD_TITLE, json.getString( "title" ) );
-                values.put( Image.FIELD_DESCRIPTION, json.getString( "description" ) );
-                values.put( Image.FIELD_EXPLICIT, explicit ? 1 : 0 );
-                values.put( Image.FIELD_DISPLAY_ORDER, json.getInt( "displayorder" ) );
-                values.put( Image.FIELD_MEDIAURL, json.getString( "media_url" ) );
-                values.put( Image.FIELD_SHOWID, showId );
-                values.put( Image.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                values.put( ImageConstants._ID, pictureid );
+                values.put( ImageConstants.FIELD_TITLE, json.getString( "title" ) );
+                values.put( ImageConstants.FIELD_DESCRIPTION, json.getString( "description" ) );
+                values.put( ImageConstants.FIELD_EXPLICIT, explicit ? 1 : 0 );
+                values.put( ImageConstants.FIELD_DISPLAY_ORDER, json.getInt( "displayorder" ) );
+                values.put( ImageConstants.FIELD_MEDIAURL, json.getString( "media_url" ) );
+                values.put( ImageConstants.FIELD_SHOWID, showId );
+                values.put( ImageConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                cursor = provider.query( ContentUris.withAppendedId( Image.CONTENT_URI, pictureid ), null, null, null, null );
+                cursor = provider.query( ContentUris.withAppendedId( ImageConstants.CONTENT_URI, pictureid ), null, null, null, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processEpisodeDetails : image iteration, updating existing entry" );
 
-                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( Image._ID ) );
+                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ImageConstants._ID ) );
                     ops.add(
-                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Image.CONTENT_URI, id ) )
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ImageConstants.CONTENT_URI, id ) )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -1428,7 +1428,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.v( TAG, "processEpisodeDetails : image iteration, adding new entry" );
 
                     ops.add(
-                            ContentProviderOperation.newInsert( Image.CONTENT_URI )
+                            ContentProviderOperation.newInsert( ImageConstants.CONTENT_URI )
                                     .withValues( values )
                                     .withYieldAllowed( true )
                                     .build()
@@ -1479,8 +1479,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
-        update.put( WorkItem._ID, job.getId() );
-        update.put( WorkItem.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
+        update.put( WorkItemConstants._ID, job.getId() );
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
         DateTime now = new DateTime( DateTimeZone.UTC );
 
@@ -1488,7 +1488,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             int count = 0, loaded = 0;
 
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            String[] projection = new String[] { Youtube._ID };
+            String[] projection = new String[] { YoutubeConstants._ID };
 
             ContentValues values;
 
@@ -1578,22 +1578,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             }
 
                             values = new ContentValues();
-                            values.put( Youtube.FIELD_YOUTUBE_ID, youtubeId );
-                            values.put( Youtube.FIELD_YOUTUBE_ETAG, etag );
-                            values.put( Youtube.FIELD_YOUTUBE_TITLE, title );
-                            values.put( Youtube.FIELD_YOUTUBE_LINK, link );
-                            values.put( Youtube.FIELD_YOUTUBE_THUMBNAIL, thumbnail );
-                            values.put( Youtube.FIELD_YOUTUBE_PUBLISHED, published.getMillis() );
-                            values.put( Youtube.FIELD_YOUTUBE_UPDATED, updated.getMillis() );
-                            values.put( Youtube.FIELD_LAST_MODIFIED_DATE, now.getMillis() );
+                            values.put( YoutubeConstants.FIELD_YOUTUBE_ID, youtubeId );
+                            values.put( YoutubeConstants.FIELD_YOUTUBE_ETAG, etag );
+                            values.put( YoutubeConstants.FIELD_YOUTUBE_TITLE, title );
+                            values.put( YoutubeConstants.FIELD_YOUTUBE_LINK, link );
+                            values.put( YoutubeConstants.FIELD_YOUTUBE_THUMBNAIL, thumbnail );
+                            values.put( YoutubeConstants.FIELD_YOUTUBE_PUBLISHED, published.getMillis() );
+                            values.put( YoutubeConstants.FIELD_YOUTUBE_UPDATED, updated.getMillis() );
+                            values.put( YoutubeConstants.FIELD_LAST_MODIFIED_DATE, now.getMillis() );
 
-                            Cursor cursor = provider.query( Youtube.CONTENT_URI, projection, Youtube.FIELD_YOUTUBE_ID + " = ?", new String[] { youtubeId }, null );
+                            Cursor cursor = provider.query( YoutubeConstants.CONTENT_URI, projection, YoutubeConstants.FIELD_YOUTUBE_ID + " = ?", new String[] { youtubeId }, null );
                             if( cursor.moveToFirst() ) {
                                 Log.v( TAG, "processYoutubeEpisodes : updating existing entry" );
 
-                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( Youtube._ID ) );
+                                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( YoutubeConstants._ID ) );
                                 ops.add(
-                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( Youtube.CONTENT_URI, id ) )
+                                        ContentProviderOperation.newUpdate( ContentUris.withAppendedId( YoutubeConstants.CONTENT_URI, id ) )
                                                 .withValues( values )
                                                 .withYieldAllowed( true )
                                                 .build()
@@ -1602,7 +1602,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                 Log.v( TAG, "processYoutubeEpisodes : adding new entry" );
 
                                 ops.add(
-                                        ContentProviderOperation.newInsert( Youtube.CONTENT_URI )
+                                        ContentProviderOperation.newInsert( YoutubeConstants.CONTENT_URI )
                                                 .withValues( values )
                                                 .withYieldAllowed( true )
                                                 .build()
@@ -1641,20 +1641,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            mContext.getContentResolver().delete( Youtube.CONTENT_URI, Youtube.FIELD_LAST_MODIFIED_DATE + " != ?", new String[] { String.valueOf( now.getMillis() ) } );
+            mContext.getContentResolver().delete( YoutubeConstants.CONTENT_URI, YoutubeConstants.FIELD_LAST_MODIFIED_DATE + " != ?", new String[] { String.valueOf( now.getMillis() ) } );
 
             Log.i( TAG, "processYoutubeEpisodes : events loaded '" + loaded + "'" );
 
-            update.put( WorkItem.FIELD_ETAG, job.getEtag() );
-            update.put( WorkItem.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItem.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
+            update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
+            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "processYoutubeEpisodes : error", e );
 
-            update.put( WorkItem.FIELD_STATUS, WorkItem.Status.FAILED.name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
-            provider.update( ContentUris.withAppendedId( WorkItem.CONTENT_URI, job.getId() ), update, null, null );
+            provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
         Log.v(TAG, "processYoutubeEpisodes : exit");
@@ -1663,26 +1663,26 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private class Job {
 
         private Long id;
-        private Endpoint.Type type;
-        private WorkItem.Download download;
+        private EndpointConstants.Type type;
+        private WorkItemConstants.Download download;
         private String url;
         private String filename;
         private String etag;
-        private WorkItem.Status status;
+        private WorkItemConstants.Status status;
 
         public Long getId() { return id; }
 
         public void setId( Long id ) { this.id = id; }
 
-        public WorkItem.Download getDownload() { return download; }
+        public WorkItemConstants.Download getDownload() { return download; }
 
-        public void setDownload( WorkItem.Download download ) { this.download = download; }
+        public void setDownload( WorkItemConstants.Download download ) { this.download = download; }
 
-        public Endpoint.Type getType() {
+        public EndpointConstants.Type getType() {
             return type;
         }
 
-        public void setType( Endpoint.Type type ) {
+        public void setType( EndpointConstants.Type type ) {
             this.type = type;
         }
 
@@ -1698,11 +1698,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         public void setFilename( String filename ) { this.filename = filename; }
 
-        public WorkItem.Status getStatus() {
+        public WorkItemConstants.Status getStatus() {
             return status;
         }
 
-        public void setStatus( WorkItem.Status status ) {
+        public void setStatus( WorkItemConstants.Status status ) {
             this.status = status;
         }
 

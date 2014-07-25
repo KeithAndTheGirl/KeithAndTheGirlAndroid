@@ -7,7 +7,7 @@ import com.keithandthegirl.app.db.KatgProvider;
 /**
  * Created by dmfrey on 3/18/14.
  */
-public class Event extends AbstractBaseDatabase {
+public class EventConstants extends AbstractBaseDatabase {
 
     public static final String TABLE_NAME = "event";
 

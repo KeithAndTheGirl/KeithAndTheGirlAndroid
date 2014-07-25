@@ -17,7 +17,7 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Event;
+import com.keithandthegirl.app.db.model.EventConstants;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -41,12 +41,12 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
         String[] projection = null;
 
-        String selection = Event.FIELD_ENDDATE + " > ?";
+        String selection = EventConstants.FIELD_ENDDATE + " > ?";
 
         DateTime now = new DateTime( DateTimeZone.UTC );
         String[] selectionArgs = new String[] { String.valueOf( now.getMillis() ) };
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Event.CONTENT_URI, projection, selection, selectionArgs, Event.FIELD_ENDDATE );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), EventConstants.CONTENT_URI, projection, selection, selectionArgs, EventConstants.FIELD_ENDDATE );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -126,11 +126,11 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            long start = cursor.getLong( cursor.getColumnIndex( Event.FIELD_STARTDATE ) );
-            long end = cursor.getLong( cursor.getColumnIndex( Event.FIELD_ENDDATE ) );
-            String details = cursor.getString(cursor.getColumnIndex(Event.FIELD_DETAILS));
+            long start = cursor.getLong( cursor.getColumnIndex( EventConstants.FIELD_STARTDATE ) );
+            long end = cursor.getLong( cursor.getColumnIndex( EventConstants.FIELD_ENDDATE ) );
+            String details = cursor.getString(cursor.getColumnIndex(EventConstants.FIELD_DETAILS));
 
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( Event.FIELD_TITLE ) ) );
+            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( EventConstants.FIELD_TITLE ) ) );
 
             if( start > 0 ) {
                 mHolder.startDate.setText( mFormatter.print(start) );
@@ -140,7 +140,7 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
                 mHolder.endDate.setText( mFormatter.print(end) );
             }
 
-            mHolder.location.setText( cursor.getString( cursor.getColumnIndex( Event.FIELD_LOCATION ) ) );
+            mHolder.location.setText( cursor.getString( cursor.getColumnIndex( EventConstants.FIELD_LOCATION ) ) );
 
             if( null != details && !"null".equals( details ) && !"".equals( details ) ) {
 

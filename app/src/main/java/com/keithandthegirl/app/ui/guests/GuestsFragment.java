@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
-import com.keithandthegirl.app.db.model.Guest;
+import com.keithandthegirl.app.db.model.GuestConstants;
 import com.squareup.picasso.Picasso;
 
 public class GuestsFragment extends ListFragment {
@@ -103,7 +103,7 @@ public class GuestsFragment extends ListFragment {
         public void bindView( View view, Context context, Cursor cursor ) {
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            String pictureUrl = cursor.getString( cursor.getColumnIndex( Guest.FIELD_PICTUREURL ) );
+            String pictureUrl = cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_PICTUREURL ) );
             if( null != pictureUrl && !"".equals( pictureUrl ) ) {
                 mHolder.image.setVisibility( View.VISIBLE );
                 Picasso.with(getActivity()).load(pictureUrl).fit().centerCrop().into(mHolder.image);
@@ -111,7 +111,7 @@ public class GuestsFragment extends ListFragment {
                 mHolder.image.setVisibility( View.GONE );
             }
 
-            mHolder.realName.setText( cursor.getString( cursor.getColumnIndex( Guest.FIELD_REALNAME ) ) );
+            mHolder.realName.setText( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_REALNAME ) ) );
             mHolder.episodes.setText( "Episodes: " + cursor.getString( cursor.getColumnIndex( "count" ) ) );
         }
     }

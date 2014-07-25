@@ -7,7 +7,7 @@ import com.keithandthegirl.app.db.KatgProvider;
 /**
  * Created by dmfrey on 3/19/14.
  */
-public class Endpoint extends AbstractBaseDatabase {
+public class EndpointConstants extends AbstractBaseDatabase {
 
     public static final String TABLE_NAME = "endpoint";
 

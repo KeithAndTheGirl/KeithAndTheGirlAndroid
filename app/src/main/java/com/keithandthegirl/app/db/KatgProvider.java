@@ -14,17 +14,17 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.keithandthegirl.app.db.model.Detail;
-import com.keithandthegirl.app.db.model.Endpoint;
-import com.keithandthegirl.app.db.model.Episode;
-import com.keithandthegirl.app.db.model.EpisodeGuests;
-import com.keithandthegirl.app.db.model.Event;
-import com.keithandthegirl.app.db.model.Guest;
-import com.keithandthegirl.app.db.model.Image;
-import com.keithandthegirl.app.db.model.Live;
-import com.keithandthegirl.app.db.model.Show;
-import com.keithandthegirl.app.db.model.WorkItem;
-import com.keithandthegirl.app.db.model.Youtube;
+import com.keithandthegirl.app.db.model.DetailConstants;
+import com.keithandthegirl.app.db.model.EndpointConstants;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeGuestConstants;
+import com.keithandthegirl.app.db.model.EventConstants;
+import com.keithandthegirl.app.db.model.GuestConstants;
+import com.keithandthegirl.app.db.model.ImageConstants;
+import com.keithandthegirl.app.db.model.LiveConstants;
+import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
+import com.keithandthegirl.app.db.model.YoutubeConstants;
 
 import java.util.ArrayList;
 
@@ -46,38 +46,38 @@ public class KatgProvider extends ContentProvider {
 
         URI_MATCHER = new UriMatcher( UriMatcher.NO_MATCH );
 
-        URI_MATCHER.addURI( AUTHORITY, Endpoint.TABLE_NAME, Endpoint.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Endpoint.TABLE_NAME + "/#",  Endpoint.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, EndpointConstants.TABLE_NAME, EndpointConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, EndpointConstants.TABLE_NAME + "/#",  EndpointConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Show.TABLE_NAME, Show.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Show.TABLE_NAME + "/#",  Show.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, ShowConstants.TABLE_NAME, ShowConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, ShowConstants.TABLE_NAME + "/#",  ShowConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Event.TABLE_NAME, Event.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Event.TABLE_NAME + "/#",  Event.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, EventConstants.TABLE_NAME, EventConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, EventConstants.TABLE_NAME + "/#",  EventConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Live.TABLE_NAME, Live.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Live.TABLE_NAME + "/#",  Live.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, LiveConstants.TABLE_NAME, LiveConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, LiveConstants.TABLE_NAME + "/#",  LiveConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Guest.TABLE_NAME, Guest.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Guest.TABLE_NAME + "/#",  Guest.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, GuestConstants.TABLE_NAME, GuestConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, GuestConstants.TABLE_NAME + "/#",  GuestConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Episode.TABLE_NAME, Episode.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Episode.TABLE_NAME + "/#",  Episode.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, EpisodeConstants.TABLE_NAME, EpisodeConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, EpisodeConstants.TABLE_NAME + "/#",  EpisodeConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Detail.TABLE_NAME, Detail.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Detail.TABLE_NAME + "/#",  Detail.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, DetailConstants.TABLE_NAME, DetailConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, DetailConstants.TABLE_NAME + "/#",  DetailConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Image.TABLE_NAME, Image.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Image.TABLE_NAME + "/#",  Image.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, ImageConstants.TABLE_NAME, ImageConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, ImageConstants.TABLE_NAME + "/#",  ImageConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, EpisodeGuests.TABLE_NAME, EpisodeGuests.ALL );
-        URI_MATCHER.addURI( AUTHORITY, EpisodeGuests.TABLE_NAME + "/#",  EpisodeGuests.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, EpisodeGuestConstants.TABLE_NAME, EpisodeGuestConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, EpisodeGuestConstants.TABLE_NAME + "/#",  EpisodeGuestConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, Youtube.TABLE_NAME, Youtube.ALL );
-        URI_MATCHER.addURI( AUTHORITY, Youtube.TABLE_NAME + "/#",  Youtube.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, YoutubeConstants.TABLE_NAME, YoutubeConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, YoutubeConstants.TABLE_NAME + "/#",  YoutubeConstants.SINGLE );
 
-        URI_MATCHER.addURI( AUTHORITY, WorkItem.TABLE_NAME, WorkItem.ALL );
-        URI_MATCHER.addURI( AUTHORITY, WorkItem.TABLE_NAME + "/#",  WorkItem.SINGLE );
+        URI_MATCHER.addURI( AUTHORITY, WorkItemConstants.TABLE_NAME, WorkItemConstants.ALL );
+        URI_MATCHER.addURI( AUTHORITY, WorkItemConstants.TABLE_NAME + "/#",  WorkItemConstants.SINGLE );
 
     }
 
@@ -97,71 +97,71 @@ public class KatgProvider extends ContentProvider {
 
         switch( URI_MATCHER.match( uri ) ) {
 
-            case Endpoint.ALL :
-                return Endpoint.CONTENT_TYPE;
+            case EndpointConstants.ALL :
+                return EndpointConstants.CONTENT_TYPE;
 
-            case Endpoint.SINGLE :
-                return Endpoint.CONTENT_ITEM_TYPE;
+            case EndpointConstants.SINGLE :
+                return EndpointConstants.CONTENT_ITEM_TYPE;
 
-            case Show.ALL :
-                return Show.CONTENT_TYPE;
+            case ShowConstants.ALL :
+                return ShowConstants.CONTENT_TYPE;
 
-            case Show.SINGLE :
-                return Show.CONTENT_ITEM_TYPE;
+            case ShowConstants.SINGLE :
+                return ShowConstants.CONTENT_ITEM_TYPE;
 
-            case Event.ALL :
-                return Event.CONTENT_TYPE;
+            case EventConstants.ALL :
+                return EventConstants.CONTENT_TYPE;
 
-            case Event.SINGLE :
-                return Event.CONTENT_ITEM_TYPE;
+            case EventConstants.SINGLE :
+                return EventConstants.CONTENT_ITEM_TYPE;
 
-            case Live.ALL :
-                return Live.CONTENT_TYPE;
+            case LiveConstants.ALL :
+                return LiveConstants.CONTENT_TYPE;
 
-            case Live.SINGLE :
-                return Live.CONTENT_ITEM_TYPE;
+            case LiveConstants.SINGLE :
+                return LiveConstants.CONTENT_ITEM_TYPE;
 
-            case Guest.ALL :
-                return Guest.CONTENT_TYPE;
+            case GuestConstants.ALL :
+                return GuestConstants.CONTENT_TYPE;
 
-            case Guest.SINGLE :
-                return Guest.CONTENT_ITEM_TYPE;
+            case GuestConstants.SINGLE :
+                return GuestConstants.CONTENT_ITEM_TYPE;
 
-            case Episode.ALL :
-                return Episode.CONTENT_TYPE;
+            case EpisodeConstants.ALL :
+                return EpisodeConstants.CONTENT_TYPE;
 
-            case Episode.SINGLE :
-                return Episode.CONTENT_ITEM_TYPE;
+            case EpisodeConstants.SINGLE :
+                return EpisodeConstants.CONTENT_ITEM_TYPE;
 
-            case Detail.ALL :
-                return Detail.CONTENT_TYPE;
+            case DetailConstants.ALL :
+                return DetailConstants.CONTENT_TYPE;
 
-            case Detail.SINGLE :
-                return Detail.CONTENT_ITEM_TYPE;
+            case DetailConstants.SINGLE :
+                return DetailConstants.CONTENT_ITEM_TYPE;
 
-            case Image.ALL :
-                return Image.CONTENT_TYPE;
+            case ImageConstants.ALL :
+                return ImageConstants.CONTENT_TYPE;
 
-            case Image.SINGLE :
-                return Image.CONTENT_ITEM_TYPE;
+            case ImageConstants.SINGLE :
+                return ImageConstants.CONTENT_ITEM_TYPE;
 
-            case EpisodeGuests.ALL :
-                return EpisodeGuests.CONTENT_TYPE;
+            case EpisodeGuestConstants.ALL :
+                return EpisodeGuestConstants.CONTENT_TYPE;
 
-            case EpisodeGuests.SINGLE :
-                return EpisodeGuests.CONTENT_ITEM_TYPE;
+            case EpisodeGuestConstants.SINGLE :
+                return EpisodeGuestConstants.CONTENT_ITEM_TYPE;
 
-            case Youtube.ALL :
-                return Youtube.CONTENT_TYPE;
+            case YoutubeConstants.ALL :
+                return YoutubeConstants.CONTENT_TYPE;
 
-            case Youtube.SINGLE :
-                return Youtube.CONTENT_ITEM_TYPE;
+            case YoutubeConstants.SINGLE :
+                return YoutubeConstants.CONTENT_ITEM_TYPE;
 
-            case WorkItem.ALL :
-                return WorkItem.CONTENT_TYPE;
+            case WorkItemConstants.ALL :
+                return WorkItemConstants.CONTENT_TYPE;
 
-            case WorkItem.SINGLE :
-                return WorkItem.CONTENT_ITEM_TYPE;
+            case WorkItemConstants.SINGLE :
+                return WorkItemConstants.CONTENT_ITEM_TYPE;
 
             default:
                 throw new IllegalArgumentException( "Unknown URI " + uri );
@@ -183,188 +183,188 @@ public class KatgProvider extends ContentProvider {
 
         switch( URI_MATCHER.match( uri ) ) {
 
-            case Endpoint.ALL :
+            case EndpointConstants.ALL :
 
-                cursor = db.query( Endpoint.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EndpointConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Endpoint.SINGLE :
+            case EndpointConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Endpoint.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EndpointConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Show.ALL :
+            case ShowConstants.ALL :
 
-                cursor = db.query( Show.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( ShowConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Show.SINGLE :
+            case ShowConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Show.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( ShowConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Event.ALL :
+            case EventConstants.ALL :
 
-                cursor = db.query( Event.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EventConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Event.SINGLE :
+            case EventConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Event.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EventConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Live.ALL :
+            case LiveConstants.ALL :
 
-                cursor = db.query( Live.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( LiveConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Live.SINGLE :
+            case LiveConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Live.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( LiveConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Guest.ALL :
+            case GuestConstants.ALL :
 
-                cursor = db.query( Guest.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( GuestConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Guest.SINGLE :
+            case GuestConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Guest.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( GuestConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Episode.ALL :
+            case EpisodeConstants.ALL :
 
-                cursor = db.query( Episode.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EpisodeConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Episode.SINGLE :
+            case EpisodeConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Episode.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EpisodeConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Detail.ALL :
+            case DetailConstants.ALL :
 
-                cursor = db.query( Detail.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( DetailConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Detail.SINGLE :
+            case DetailConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Detail.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( DetailConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Image.ALL :
+            case ImageConstants.ALL :
 
-                cursor = db.query( Image.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( ImageConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Image.SINGLE :
+            case ImageConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Image.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( ImageConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case EpisodeGuests.ALL :
+            case EpisodeGuestConstants.ALL :
 
-                cursor = db.query( EpisodeGuests.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EpisodeGuestConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case EpisodeGuests.SINGLE :
+            case EpisodeGuestConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( EpisodeGuests.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( EpisodeGuestConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Youtube.ALL :
+            case YoutubeConstants.ALL :
 
-                cursor = db.query( Youtube.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( YoutubeConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case Youtube.SINGLE :
+            case YoutubeConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( Youtube.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( YoutubeConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case WorkItem.ALL :
+            case WorkItemConstants.ALL :
 
-                cursor = db.query( WorkItem.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( WorkItemConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
-            case WorkItem.SINGLE :
+            case WorkItemConstants.SINGLE :
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( WorkItem.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                cursor = db.query( WorkItemConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
@@ -386,81 +386,81 @@ public class KatgProvider extends ContentProvider {
 
         switch( URI_MATCHER.match( uri ) ) {
 
-            case Show.ALL:
+            case ShowConstants.ALL:
 
-                newUri = ContentUris.withAppendedId( Show.CONTENT_URI, db.insertWithOnConflict( Show.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
-
-                getContext().getContentResolver().notifyChange( newUri, null );
-
-                return newUri;
-
-            case Event.ALL:
-
-                newUri = ContentUris.withAppendedId( Event.CONTENT_URI, db.insertWithOnConflict( Event.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+                newUri = ContentUris.withAppendedId( ShowConstants.CONTENT_URI, db.insertWithOnConflict( ShowConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 
                 getContext().getContentResolver().notifyChange( newUri, null );
 
                 return newUri;
 
-            case Live.ALL:
+            case EventConstants.ALL:
 
-                newUri = ContentUris.withAppendedId( Live.CONTENT_URI, db.insertWithOnConflict( Live.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
-
-                getContext().getContentResolver().notifyChange( newUri, null );
-
-                return newUri;
-
-            case Guest.ALL:
-
-                newUri = ContentUris.withAppendedId( Guest.CONTENT_URI, db.insertWithOnConflict( Guest.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+                newUri = ContentUris.withAppendedId( EventConstants.CONTENT_URI, db.insertWithOnConflict( EventConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 
                 getContext().getContentResolver().notifyChange( newUri, null );
 
                 return newUri;
 
-            case Episode.ALL:
+            case LiveConstants.ALL:
 
-                newUri = ContentUris.withAppendedId( Episode.CONTENT_URI, db.insertWithOnConflict( Episode.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
-
-                getContext().getContentResolver().notifyChange( newUri, null );
-
-                return newUri;
-
-            case Detail.ALL:
-
-                newUri = ContentUris.withAppendedId( Detail.CONTENT_URI, db.insertWithOnConflict( Detail.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+                newUri = ContentUris.withAppendedId( LiveConstants.CONTENT_URI, db.insertWithOnConflict( LiveConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 
                 getContext().getContentResolver().notifyChange( newUri, null );
 
                 return newUri;
 
-            case Image.ALL:
+            case GuestConstants.ALL:
 
-                newUri = ContentUris.withAppendedId( Image.CONTENT_URI, db.insertWithOnConflict( Image.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
-
-                getContext().getContentResolver().notifyChange( newUri, null );
-
-                return newUri;
-
-            case EpisodeGuests.ALL:
-
-                newUri = ContentUris.withAppendedId( EpisodeGuests.CONTENT_URI, db.insertWithOnConflict( EpisodeGuests.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+                newUri = ContentUris.withAppendedId( GuestConstants.CONTENT_URI, db.insertWithOnConflict( GuestConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 
                 getContext().getContentResolver().notifyChange( newUri, null );
 
                 return newUri;
 
-            case Youtube.ALL:
+            case EpisodeConstants.ALL:
 
-                newUri = ContentUris.withAppendedId( Youtube.CONTENT_URI, db.insertWithOnConflict( Youtube.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+                newUri = ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, db.insertWithOnConflict( EpisodeConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 
                 getContext().getContentResolver().notifyChange( newUri, null );
 
                 return newUri;
 
-            case WorkItem.ALL:
+            case DetailConstants.ALL:
 
-                newUri = ContentUris.withAppendedId( WorkItem.CONTENT_URI, db.insertWithOnConflict( WorkItem.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+                newUri = ContentUris.withAppendedId( DetailConstants.CONTENT_URI, db.insertWithOnConflict( DetailConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+
+                getContext().getContentResolver().notifyChange( newUri, null );
+
+                return newUri;
+
+            case ImageConstants.ALL:
+
+                newUri = ContentUris.withAppendedId( ImageConstants.CONTENT_URI, db.insertWithOnConflict( ImageConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+
+                getContext().getContentResolver().notifyChange( newUri, null );
+
+                return newUri;
+
+            case EpisodeGuestConstants.ALL:
+
+                newUri = ContentUris.withAppendedId( EpisodeGuestConstants.CONTENT_URI, db.insertWithOnConflict( EpisodeGuestConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+
+                getContext().getContentResolver().notifyChange( newUri, null );
+
+                return newUri;
+
+            case YoutubeConstants.ALL:
+
+                newUri = ContentUris.withAppendedId( YoutubeConstants.CONTENT_URI, db.insertWithOnConflict( YoutubeConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
+
+                getContext().getContentResolver().notifyChange( newUri, null );
+
+                return newUri;
+
+            case WorkItemConstants.ALL:
+
+                newUri = ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, db.insertWithOnConflict( WorkItemConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 
                 getContext().getContentResolver().notifyChange( newUri, null );
 
@@ -482,17 +482,17 @@ public class KatgProvider extends ContentProvider {
 
         switch( URI_MATCHER.match( uri ) ) {
 
-            case Show.ALL:
+            case ShowConstants.ALL:
 
-                deleted = db.delete( Show.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( ShowConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Show.SINGLE:
+            case ShowConstants.SINGLE:
 
-                deleted = db.delete( Show.TABLE_NAME, Show._ID
+                deleted = db.delete( ShowConstants.TABLE_NAME, ShowConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -502,17 +502,17 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case Event.ALL:
+            case EventConstants.ALL:
 
-                deleted = db.delete( Event.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( EventConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Event.SINGLE:
+            case EventConstants.SINGLE:
 
-                deleted = db.delete( Event.TABLE_NAME, Event._ID
+                deleted = db.delete( EventConstants.TABLE_NAME, EventConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -522,17 +522,17 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case Live.ALL:
+            case LiveConstants.ALL:
 
-                deleted = db.delete( Live.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( LiveConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Live.SINGLE:
+            case LiveConstants.SINGLE:
 
-                deleted = db.delete( Live.TABLE_NAME, Live._ID
+                deleted = db.delete( LiveConstants.TABLE_NAME, LiveConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -542,35 +542,35 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case Guest.ALL:
+            case GuestConstants.ALL:
 
-                deleted = db.delete( Guest.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( GuestConstants.TABLE_NAME, selection, selectionArgs );
 
-                //TODO: Need to delete all from Episode Guests table
+                //TODO: Need to delete all from EpisodeConstants Guests table
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Guest.SINGLE:
+            case GuestConstants.SINGLE:
 
-                deleted = db.delete( Guest.TABLE_NAME, Guest._ID
+                deleted = db.delete( GuestConstants.TABLE_NAME, GuestConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
                         , selectionArgs );
 
-                //TODO: Need to delete select entries from Episode Guests table
+                //TODO: Need to delete select entries from EpisodeConstants Guests table
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Episode.ALL:
+            case EpisodeConstants.ALL:
 
                 //TODO: Need to delete all images on the filesystem
 
-                deleted = db.delete( Episode.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( EpisodeConstants.TABLE_NAME, selection, selectionArgs );
 
                 //TODO: Need to delete all from Details table
 
@@ -580,11 +580,11 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case Episode.SINGLE:
+            case EpisodeConstants.SINGLE:
 
                 //TODO: Need to delete select images on the filesystem
 
-                deleted = db.delete( Episode.TABLE_NAME, Live._ID
+                deleted = db.delete( EpisodeConstants.TABLE_NAME, LiveConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -598,17 +598,17 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case Detail.ALL:
+            case DetailConstants.ALL:
 
-                deleted = db.delete( Detail.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( DetailConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Detail.SINGLE:
+            case DetailConstants.SINGLE:
 
-                deleted = db.delete( Detail.TABLE_NAME, Detail._ID
+                deleted = db.delete( DetailConstants.TABLE_NAME, DetailConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -618,17 +618,17 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case Image.ALL:
+            case ImageConstants.ALL:
 
-                deleted = db.delete( Image.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( ImageConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Image.SINGLE:
+            case ImageConstants.SINGLE:
 
-                deleted = db.delete( Image.TABLE_NAME, Image._ID
+                deleted = db.delete( ImageConstants.TABLE_NAME, ImageConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -638,17 +638,17 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case EpisodeGuests.ALL:
+            case EpisodeGuestConstants.ALL:
 
-                deleted = db.delete( EpisodeGuests.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( EpisodeGuestConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case EpisodeGuests.SINGLE:
+            case EpisodeGuestConstants.SINGLE:
 
-                deleted = db.delete( EpisodeGuests.TABLE_NAME, Live._ID
+                deleted = db.delete( EpisodeGuestConstants.TABLE_NAME, LiveConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -658,17 +658,17 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case Youtube.ALL:
+            case YoutubeConstants.ALL:
 
-                deleted = db.delete( Youtube.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( YoutubeConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case Youtube.SINGLE:
+            case YoutubeConstants.SINGLE:
 
-                deleted = db.delete( Youtube.TABLE_NAME, Youtube._ID
+                deleted = db.delete( YoutubeConstants.TABLE_NAME, YoutubeConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -678,17 +678,17 @@ public class KatgProvider extends ContentProvider {
 
                 return deleted;
 
-            case WorkItem.ALL:
+            case WorkItemConstants.ALL:
 
-                deleted = db.delete( WorkItem.TABLE_NAME, selection, selectionArgs );
+                deleted = db.delete( WorkItemConstants.TABLE_NAME, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return deleted;
 
-            case WorkItem.SINGLE:
+            case WorkItemConstants.SINGLE:
 
-                deleted = db.delete( WorkItem.TABLE_NAME, WorkItem._ID
+                deleted = db.delete( WorkItemConstants.TABLE_NAME, WorkItemConstants._ID
                         + "="
                         + Long.toString( ContentUris.parseId( uri ) )
                         + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" )
@@ -714,171 +714,171 @@ public class KatgProvider extends ContentProvider {
 
         switch( URI_MATCHER.match( uri ) ) {
 
-            case Show.ALL:
+            case ShowConstants.ALL:
 
-                affected = db.update( Show.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( ShowConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Show.SINGLE:
+            case ShowConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Show.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( ShowConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Event.ALL:
+            case EventConstants.ALL:
 
-                affected = db.update( Event.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( EventConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Event.SINGLE:
+            case EventConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Event.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( EventConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Live.ALL:
+            case LiveConstants.ALL:
 
-                affected = db.update( Live.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( LiveConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Live.SINGLE:
+            case LiveConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Live.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( LiveConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Guest.ALL:
+            case GuestConstants.ALL:
 
-                affected = db.update( Guest.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( GuestConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Guest.SINGLE:
+            case GuestConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Guest.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( GuestConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Episode.ALL:
+            case EpisodeConstants.ALL:
 
-                affected = db.update( Episode.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( EpisodeConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Episode.SINGLE:
+            case EpisodeConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Episode.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( EpisodeConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Detail.ALL:
+            case DetailConstants.ALL:
 
-                affected = db.update( Detail.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( DetailConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Detail.SINGLE:
+            case DetailConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Detail.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( DetailConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Image.ALL:
+            case ImageConstants.ALL:
 
-                affected = db.update( Image.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( ImageConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Image.SINGLE:
+            case ImageConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Image.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( ImageConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case EpisodeGuests.ALL:
+            case EpisodeGuestConstants.ALL:
 
-                affected = db.update( EpisodeGuests.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( EpisodeGuestConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case EpisodeGuests.SINGLE:
+            case EpisodeGuestConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( EpisodeGuests.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( EpisodeGuestConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Youtube.ALL:
+            case YoutubeConstants.ALL:
 
-                affected = db.update( Youtube.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( YoutubeConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case Youtube.SINGLE:
+            case YoutubeConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( Youtube.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( YoutubeConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case WorkItem.ALL:
+            case WorkItemConstants.ALL:
 
-                affected = db.update( WorkItem.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( WorkItemConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 
                 return affected;
 
-            case WorkItem.SINGLE:
+            case WorkItemConstants.SINGLE:
 
                 selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-                affected = db.update( WorkItem.TABLE_NAME, values, selection, selectionArgs );
+                affected = db.update( WorkItemConstants.TABLE_NAME, values, selection, selectionArgs );
 
                 getContext().getContentResolver().notifyChange( uri, null );
 

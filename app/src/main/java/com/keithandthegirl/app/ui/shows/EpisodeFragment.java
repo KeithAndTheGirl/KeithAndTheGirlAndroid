@@ -13,10 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Episode;
-import com.keithandthegirl.app.db.model.EpisodeGuests;
-import com.keithandthegirl.app.db.model.Guest;
-import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeGuestConstants;
+import com.keithandthegirl.app.db.model.GuestConstants;
+import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 import com.squareup.picasso.Picasso;
 
@@ -38,7 +38,7 @@ public class EpisodeFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param episodeId Episode ID.
+     * @param episodeId EpisodeConstants ID.
      * @return A new instance of fragment EpisodeFragment.
      */
     public static EpisodeFragment newInstance( long episodeId ) {
@@ -91,34 +91,34 @@ public class EpisodeFragment extends Fragment {
         int episodeNumber = -1, showNameId = -1;
         String prefix = "", coverImageUrl = "";
 
-        Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( Episode.CONTENT_URI, mEpisodeId ), null, null, null, null );
+        Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, mEpisodeId ), null, null, null, null );
         if( cursor.moveToNext() ) {
 
-            long instant = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_TIMESTAMP ) );
+            long instant = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_TIMESTAMP ) );
 
-            episodeNumber = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_NUMBER ) );
-            showNameId = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_SHOWNAMEID ) );
+            episodeNumber = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_NUMBER ) );
+            showNameId = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_SHOWNAMEID ) );
 
-            showDate.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_POSTED ) ) );
-            title.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
+            showDate.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_POSTED ) ) );
+            title.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_TITLE ) ) );
 
         }
         cursor.close();
 
-        cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( Show.CONTENT_URI, showNameId ), null, null, null, null );
+        cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, showNameId ), null, null, null, null );
         if( cursor.moveToNext() ) {
 
-            prefix = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) );
-            coverImageUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL ) );
+            prefix = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_PREFIX ) );
+            coverImageUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_COVERIMAGEURL ) );
 
         }
         cursor.close();
 
         List<Long> guestIds = new ArrayList<Long>();
-        cursor = getActivity().getContentResolver().query( EpisodeGuests.CONTENT_URI, null, EpisodeGuests.FIELD_SHOWID + " = ?", new String[] { String.valueOf( mEpisodeId ) }, null );
+        cursor = getActivity().getContentResolver().query( EpisodeGuestConstants.CONTENT_URI, null, EpisodeGuestConstants.FIELD_SHOWID + " = ?", new String[] { String.valueOf( mEpisodeId ) }, null );
         while( cursor.moveToNext() ) {
 
-            guestIds.add( cursor.getLong( cursor.getColumnIndex( EpisodeGuests.FIELD_SHOWGUESTID ) ) );
+            guestIds.add( cursor.getLong( cursor.getColumnIndex( EpisodeGuestConstants.FIELD_SHOWGUESTID ) ) );
 
         }
         cursor.close();
@@ -129,11 +129,11 @@ public class EpisodeFragment extends Fragment {
             List<String> guestImages = new ArrayList<String>();
             for( Long guestId : guestIds ) {
 
-                cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( Guest.CONTENT_URI, guestId ), null, null, null, null );
+                cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, guestId ), null, null, null, null );
                 if( cursor.moveToNext() ) {
 
-                    guestNames.add( cursor.getString( cursor.getColumnIndex( Guest.FIELD_REALNAME ) ) );
-                    guestImages.add( cursor.getString( cursor.getColumnIndex( Guest.FIELD_PICTUREFILENAME ) ) );
+                    guestNames.add( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_REALNAME ) ) );
+                    guestImages.add( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_PICTUREFILENAME ) ) );
 
                 }
                 cursor.close();

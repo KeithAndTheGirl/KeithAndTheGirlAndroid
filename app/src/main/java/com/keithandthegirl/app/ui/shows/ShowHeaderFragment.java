@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.ShowConstants;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -73,15 +73,15 @@ public class ShowHeaderFragment extends Fragment {
 
         Log.v( TAG, "updateHeader : showNameId=" + showNameId );
 
-        String[] projection = new String[] { Show._ID, Show.FIELD_NAME, Show.FIELD_DESCRIPTION, Show.FIELD_COVERIMAGEURL_200 };
+        String[] projection = new String[] { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_DESCRIPTION, ShowConstants.FIELD_COVERIMAGEURL_200 };
 
-        Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( Show.CONTENT_URI, showNameId ), projection, null, null, null );
+        Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, showNameId ), projection, null, null, null );
         if( cursor.moveToNext() ) {
 
-            String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL_200 ) );
+            String coverUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_COVERIMAGEURL_200 ) );
 
-            mTitleTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) ) );
-            mDescriptionTextView.setText( cursor.getString( cursor.getColumnIndex( Show.FIELD_DESCRIPTION ) ) );
+            mTitleTextView.setText( cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_NAME ) ) );
+            mDescriptionTextView.setText( cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_DESCRIPTION ) ) );
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mCoverImageView);
         }
         cursor.close();

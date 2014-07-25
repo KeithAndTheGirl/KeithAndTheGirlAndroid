@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Episode;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 
 import org.joda.time.DateTimeZone;
@@ -60,12 +60,12 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
 
         String[] projection = null;
 
-        String selection = Episode.FIELD_SHOWNAMEID + "=?";
+        String selection = EpisodeConstants.FIELD_SHOWNAMEID + "=?";
 
         mShowNameId = args.getLong( SHOW_NAME_ID_KEY );
         String[] selectionArgs = new String[] { String.valueOf( mShowNameId ) };
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Episode.CONTENT_URI, projection, selection, selectionArgs, Episode.FIELD_NUMBER + " DESC" );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), EpisodeConstants.CONTENT_URI, projection, selection, selectionArgs, EpisodeConstants.FIELD_NUMBER + " DESC" );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -210,12 +210,12 @@ public class ShowFragment extends ListFragment implements LoaderManager.LoaderCa
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            long id = cursor.getLong( cursor.getColumnIndex( Episode._ID ) );
-            long instant = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_TIMESTAMP ) );
+            long id = cursor.getLong( cursor.getColumnIndex( EpisodeConstants._ID ) );
+            long instant = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_TIMESTAMP ) );
 
-            mHolder.number.setText( mEpisodesLabel + " " + cursor.getInt( cursor.getColumnIndex( Episode.FIELD_NUMBER ) ) );
-            mHolder.showDate.setText(  cursor.getString( cursor.getColumnIndex( Episode.FIELD_POSTED ) ) );
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
+            mHolder.number.setText( mEpisodesLabel + " " + cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_NUMBER ) ) );
+            mHolder.showDate.setText(  cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_POSTED ) ) );
+            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_TITLE ) ) );
 
         }
 

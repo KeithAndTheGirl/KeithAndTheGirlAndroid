@@ -18,7 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Youtube;
+import com.keithandthegirl.app.db.model.YoutubeConstants;
 import com.keithandthegirl.app.ui.YoutubeFragmentActivity;
 import com.squareup.picasso.Picasso;
 
@@ -40,7 +40,7 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Youtube.CONTENT_URI, projection, selection, selectionArgs, Youtube.FIELD_YOUTUBE_PUBLISHED + " DESC" );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), YoutubeConstants.CONTENT_URI, projection, selection, selectionArgs, YoutubeConstants.FIELD_YOUTUBE_PUBLISHED + " DESC" );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -102,7 +102,7 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         Cursor c = ( (YoutubeCursorAdapter) l.getAdapter() ).getCursor();
         c.moveToPosition( position );
 
-        String youtubeId = c.getString( c.getColumnIndex( Youtube.FIELD_YOUTUBE_ID ) );
+        String youtubeId = c.getString( c.getColumnIndex( YoutubeConstants.FIELD_YOUTUBE_ID ) );
         c.close();
 
         Intent intent = new Intent( getActivity(), YoutubeFragmentActivity.class );
@@ -142,9 +142,9 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( Youtube.FIELD_YOUTUBE_TITLE ) ) );
+            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( YoutubeConstants.FIELD_YOUTUBE_TITLE ) ) );
 
-            String thumbnail = cursor.getString( cursor.getColumnIndex( Youtube.FIELD_YOUTUBE_THUMBNAIL ) );
+            String thumbnail = cursor.getString( cursor.getColumnIndex( YoutubeConstants.FIELD_YOUTUBE_THUMBNAIL ) );
             if( null != thumbnail && !"".equals( thumbnail ) ) {
                 mHolder.thumbnail.setVisibility(View.VISIBLE);
                 Picasso.with(getActivity()).load(thumbnail).fit().centerCrop().into(mHolder.thumbnail);

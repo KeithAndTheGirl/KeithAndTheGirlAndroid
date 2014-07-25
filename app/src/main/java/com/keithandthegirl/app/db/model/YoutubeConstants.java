@@ -7,7 +7,7 @@ import com.keithandthegirl.app.db.KatgProvider;
 /**
  * Created by dmfrey on 5/21/14.
  */
-public class Youtube extends AbstractBaseDatabase {
+public class YoutubeConstants extends AbstractBaseDatabase {
 
     public static final String TABLE_NAME = "youtube";
 

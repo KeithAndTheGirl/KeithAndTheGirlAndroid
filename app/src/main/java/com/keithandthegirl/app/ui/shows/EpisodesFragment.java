@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import com.keithandthegirl.app.db.model.Episode;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
 
 /**
  * Created by dmfrey on 3/21/14.
@@ -31,13 +31,13 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v(TAG, "onCreateLoader : enter");
 
-        String[] projection = { Episode._ID, Episode.FIELD_TITLE };
+        String[] projection = { EpisodeConstants._ID, EpisodeConstants.FIELD_TITLE };
 
-        String selection = Episode.FIELD_SHOWNAMEID + "=?";
+        String selection = EpisodeConstants.FIELD_SHOWNAMEID + "=?";
 
         String[] selectionArgs = new String[] { String.valueOf( args.getLong( SHOW_NAME_ID_KEY ) ) };
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Episode.CONTENT_URI, projection, selection, selectionArgs, Episode.FIELD_NUMBER + " DESC" );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), EpisodeConstants.CONTENT_URI, projection, selection, selectionArgs, EpisodeConstants.FIELD_NUMBER + " DESC" );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -115,7 +115,7 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            mHolder.name.setText( cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) ) );
+            mHolder.name.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_TITLE ) ) );
         }
 
     }

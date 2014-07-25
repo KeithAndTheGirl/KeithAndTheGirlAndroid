@@ -5,17 +5,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.keithandthegirl.app.db.model.Detail;
-import com.keithandthegirl.app.db.model.Endpoint;
-import com.keithandthegirl.app.db.model.Episode;
-import com.keithandthegirl.app.db.model.EpisodeGuests;
-import com.keithandthegirl.app.db.model.Event;
-import com.keithandthegirl.app.db.model.Guest;
-import com.keithandthegirl.app.db.model.Image;
-import com.keithandthegirl.app.db.model.Live;
-import com.keithandthegirl.app.db.model.Show;
-import com.keithandthegirl.app.db.model.WorkItem;
-import com.keithandthegirl.app.db.model.Youtube;
+import com.keithandthegirl.app.db.model.DetailConstants;
+import com.keithandthegirl.app.db.model.EndpointConstants;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeGuestConstants;
+import com.keithandthegirl.app.db.model.EventConstants;
+import com.keithandthegirl.app.db.model.GuestConstants;
+import com.keithandthegirl.app.db.model.ImageConstants;
+import com.keithandthegirl.app.db.model.LiveConstants;
+import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
+import com.keithandthegirl.app.db.model.YoutubeConstants;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -85,67 +85,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void dropTables( SQLiteDatabase db ) {
         Log.v( TAG, "dropTables : enter" );
 
-        String dropWorkItem = WorkItem.DROP_TABLE;
+        String dropWorkItem = WorkItemConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropWorkItem=" + dropWorkItem );
         }
         db.execSQL( dropWorkItem );
 
-        String dropEndpoint = Endpoint.DROP_TABLE;
+        String dropEndpoint = EndpointConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropEndpoint=" + dropEndpoint );
         }
         db.execSQL( dropEndpoint );
 
-        String dropLive = Live.DROP_TABLE;
+        String dropLive = LiveConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropLive=" + dropLive );
         }
         db.execSQL( dropLive );
 
-        String dropEvent = Event.DROP_TABLE;
+        String dropEvent = EventConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropEvent=" + dropEvent );
         }
         db.execSQL( dropEvent );
 
-        String dropEpisodeGuests = EpisodeGuests.DROP_TABLE;
+        String dropEpisodeGuests = EpisodeGuestConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropEpisodeGuests=" + dropEpisodeGuests );
         }
         db.execSQL( dropEpisodeGuests );
 
-        String dropGuest = Guest.DROP_TABLE;
+        String dropGuest = GuestConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropGuest=" + dropGuest );
         }
         db.execSQL( dropGuest );
 
-        String dropEpisodeDetailImage = Image.DROP_TABLE;
+        String dropEpisodeDetailImage = ImageConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropEpisodeDetailImage=" + dropEpisodeDetailImage );
         }
         db.execSQL( dropEpisodeDetailImage );
 
-        String dropEpisodeDetail = Detail.DROP_TABLE;
+        String dropEpisodeDetail = DetailConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropEpisodeDetail=" + dropEpisodeDetail );
         }
         db.execSQL( dropEpisodeDetail );
 
-        String dropEpisode = Episode.DROP_TABLE;
+        String dropEpisode = EpisodeConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropEpisode=" + dropEpisode );
         }
         db.execSQL( dropEpisode );
 
-        String dropShow = Show.DROP_TABLE;
+        String dropShow = ShowConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropShow=" + dropShow );
         }
         db.execSQL( dropShow );
 
-        String dropYoutube = Youtube.DROP_TABLE;
+        String dropYoutube = YoutubeConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropYoutube=" + dropYoutube );
         }
@@ -157,20 +157,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableEndpoints( SQLiteDatabase db ) {
         Log.v( TAG, "createTableEndpoints : enter" );
 
-        String sql = Endpoint.CREATE_TABLE;
+        String sql = EndpointConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEndpoints : sql=" + sql );
         }
         db.execSQL( sql );
 
         DateTime now = new DateTime( DateTimeZone.UTC );
-        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.EVENTS.name(), Endpoint.EVENTS, Endpoint.DownloadType.ARRAY.name(), "", now.getMillis() } );
-        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.LIVE.name(), Endpoint.LIVE, Endpoint.DownloadType.OBJECT.name(), "", now.getMillis() } );
-        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.DETAILS.name(), Endpoint.DETAILS, Endpoint.DownloadType.OBJECT.name(), "", now.getMillis() } );
-        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.RECENT.name(), Endpoint.RECENT, Endpoint.DownloadType.ARRAY.name(), "", now.getMillis() } );
-        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.OVERVIEW.name(), Endpoint.OVERVIEW, Endpoint.DownloadType.ARRAY.name(), "", now.getMillis() } );
-        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.LIST.name(), Endpoint.LIST, Endpoint.DownloadType.ARRAY.name(), "", now.getMillis() } );
-        db.execSQL( Endpoint.INSERT_ROW, new Object[] { Endpoint.Type.YOUTUBE.name(), Endpoint.YOUTUBE, Endpoint.DownloadType.OBJECT.name(), "", now.getMillis() } );
+        db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.EVENTS.name(), EndpointConstants.EVENTS, EndpointConstants.DownloadType.ARRAY.name(), "", now.getMillis() } );
+        db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.LIVE.name(), EndpointConstants.LIVE, EndpointConstants.DownloadType.OBJECT.name(), "", now.getMillis() } );
+        db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.DETAILS.name(), EndpointConstants.DETAILS, EndpointConstants.DownloadType.OBJECT.name(), "", now.getMillis() } );
+        db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.RECENT.name(), EndpointConstants.RECENT, EndpointConstants.DownloadType.ARRAY.name(), "", now.getMillis() } );
+        db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.OVERVIEW.name(), EndpointConstants.OVERVIEW, EndpointConstants.DownloadType.ARRAY.name(), "", now.getMillis() } );
+        db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.LIST.name(), EndpointConstants.LIST, EndpointConstants.DownloadType.ARRAY.name(), "", now.getMillis() } );
+        db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.YOUTUBE.name(), EndpointConstants.YOUTUBE, EndpointConstants.DownloadType.OBJECT.name(), "", now.getMillis() } );
 
         Log.v( TAG, "createTableEndpoints : exit" );
     }
@@ -178,18 +178,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableWorkItems( SQLiteDatabase db ) {
         Log.v( TAG, "createTableWorkItems : enter" );
 
-        String sql = WorkItem.CREATE_TABLE;
+        String sql = WorkItemConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableWorkItems : sql=" + sql );
         }
         db.execSQL(sql);
 
         DateTime now = new DateTime( DateTimeZone.UTC );
-        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Shows", WorkItem.Frequency.WEEKLY, WorkItem.Download.JSONARRAY, Endpoint.Type.OVERVIEW.name(), Endpoint.OVERVIEW, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
-        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Events", WorkItem.Frequency.DAILY, WorkItem.Download.JSON, Endpoint.Type.EVENTS.name(), Endpoint.EVENTS, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
-        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Broadcasting", WorkItem.Frequency.HOURLY, WorkItem.Download.JSON, Endpoint.Type.LIVE.name(), Endpoint.LIVE, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
-        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Recent Episodes", WorkItem.Frequency.HOURLY, WorkItem.Download.JSONARRAY, Endpoint.Type.RECENT.name(), Endpoint.RECENT, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
-        db.execSQL( WorkItem.INSERT_ROW, new Object[] { "Refresh Youtube Episodes", WorkItem.Frequency.HOURLY, WorkItem.Download.JSON, Endpoint.Type.YOUTUBE.name(), Endpoint.YOUTUBE, "", "", -1, WorkItem.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Shows", WorkItemConstants.Frequency.WEEKLY, WorkItemConstants.Download.JSONARRAY, EndpointConstants.Type.OVERVIEW.name(), EndpointConstants.OVERVIEW, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Events", WorkItemConstants.Frequency.DAILY, WorkItemConstants.Download.JSON, EndpointConstants.Type.EVENTS.name(), EndpointConstants.EVENTS, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Broadcasting", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSON, EndpointConstants.Type.LIVE.name(), EndpointConstants.LIVE, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Recent Episodes", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSONARRAY, EndpointConstants.Type.RECENT.name(), EndpointConstants.RECENT, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Youtube Episodes", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSON, EndpointConstants.Type.YOUTUBE.name(), EndpointConstants.YOUTUBE, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
 
         Log.v( TAG, "createTableWorkItems : exit" );
     }
@@ -197,7 +197,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableShows( SQLiteDatabase db ) {
         Log.v( TAG, "createTableShows : enter" );
 
-        String sql = Show.CREATE_TABLE;
+        String sql = ShowConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableShows : sql=" + sql );
         }
@@ -209,7 +209,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableEpisodes( SQLiteDatabase db ) {
         Log.v( TAG, "createTableEpisodes : enter" );
 
-        String sql = Episode.CREATE_TABLE;
+        String sql = EpisodeConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodes : sql=" + sql );
         }
@@ -221,7 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableEpisodeDetails( SQLiteDatabase db ) {
         Log.v( TAG, "createTableEpisodeDetails : enter" );
 
-        String sql = Detail.CREATE_TABLE;
+        String sql = DetailConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodeDetails : sql=" + sql );
         }
@@ -233,7 +233,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableEpisodeDetailImages( SQLiteDatabase db ) {
         Log.v( TAG, "createTableEpisodeDetailImages : enter" );
 
-        String sql = Image.CREATE_TABLE;
+        String sql = ImageConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodeDetailImages : sql=" + sql );
         }
@@ -245,7 +245,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableGuests( SQLiteDatabase db ) {
         Log.v( TAG, "createTableGuests : enter" );
 
-        String sql = Guest.CREATE_TABLE;
+        String sql = GuestConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableGuests : sql=" + sql );
         }
@@ -258,7 +258,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableEpisodeGuests( SQLiteDatabase db ) {
         Log.v( TAG, "createTableEpisodeGuests : enter" );
 
-        String sql = EpisodeGuests.CREATE_TABLE;
+        String sql = EpisodeGuestConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodeGuests : sql=" + sql );
         }
@@ -271,7 +271,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableEvents( SQLiteDatabase db ) {
         Log.v( TAG, "createTableEvents : enter" );
 
-        String sql = Event.CREATE_TABLE;
+        String sql = EventConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEvents : sql=" + sql );
         }
@@ -283,14 +283,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableLive( SQLiteDatabase db ) {
         Log.v( TAG, "createTableLive : enter" );
 
-        String sql = Live.CREATE_TABLE;
+        String sql = LiveConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableLive : sql=" + sql );
         }
         db.execSQL( sql );
 
         DateTime now = new DateTime( DateTimeZone.UTC );
-        db.execSQL( Live.INSERT_ROW, new Object[] { "1", "0", now.getMillis() } );
+        db.execSQL( LiveConstants.INSERT_ROW, new Object[] { "1", "0", now.getMillis() } );
 
         Log.v(TAG, "createTableLive : exit");
     }
@@ -298,7 +298,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createTableYoutube( SQLiteDatabase db ) {
         Log.v( TAG, "createTableLive : enter" );
 
-        String sql = Youtube.CREATE_TABLE;
+        String sql = YoutubeConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableYoutube : sql=" + sql );
         }

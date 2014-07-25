@@ -10,9 +10,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Detail;
-import com.keithandthegirl.app.db.model.Episode;
-import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.DetailConstants;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.shows.EpisodeDetailsFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestImagesFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestsFragment;
@@ -78,7 +78,7 @@ public class EpisodeActivity extends AbstractBaseActivity {
 
             updateView();
         } else {
-            Toast.makeText( this, "Episode not found!", Toast.LENGTH_LONG ).show();
+            Toast.makeText( this, "EpisodeConstants not found!", Toast.LENGTH_LONG ).show();
 
             finish();
         }
@@ -91,47 +91,47 @@ public class EpisodeActivity extends AbstractBaseActivity {
 
         ActionBar actionBar = getSupportActionBar();
 
-        Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( Episode.CONTENT_URI, mEpisodeId ), null, null, null, null );
+        Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, mEpisodeId ), null, null, null, null );
         if( cursor.moveToNext() ) {
 
-            mEpisodeNumber = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_NUMBER ) );
-            mEpisodeTitle = cursor.getString( cursor.getColumnIndex( Episode.FIELD_TITLE ) );
-            mEpisodePreviewUrl = cursor.getString( cursor.getColumnIndex( Episode.FIELD_PREVIEWURL ) );
-            mEpisodeFileUrl = cursor.getString( cursor.getColumnIndex( Episode.FIELD_FILEURL ) );
-            mEpisodeFilename = cursor.getString( cursor.getColumnIndex( Episode.FIELD_FILENAME ) );
-            mEpisodeLength = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_LENGTH ) );
-            mEpisodeFileSize = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_FILESIZE ) );
-            mEpisodeType = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_TYPE ) );
-            mEpisodePublic = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_PUBLIC ) ) == 1 ? true : false;
-            mEpisodePosted = cursor.getString( cursor.getColumnIndex( Episode.FIELD_POSTED ) );
-            mEpisodeDownloaded = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_DOWNLOADED ) ) == 1 ? true : false;
-            mEpisodePlayed = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_PLAYED ) );
-            mEpisodeLastPlayed = cursor.getLong( cursor.getColumnIndex( Episode.FIELD_LASTPLAYED ) );
+            mEpisodeNumber = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_NUMBER ) );
+            mEpisodeTitle = cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_TITLE ) );
+            mEpisodePreviewUrl = cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_PREVIEWURL ) );
+            mEpisodeFileUrl = cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_FILEURL ) );
+            mEpisodeFilename = cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_FILENAME ) );
+            mEpisodeLength = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_LENGTH ) );
+            mEpisodeFileSize = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_FILESIZE ) );
+            mEpisodeType = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_TYPE ) );
+            mEpisodePublic = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_PUBLIC ) ) == 1 ? true : false;
+            mEpisodePosted = cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_POSTED ) );
+            mEpisodeDownloaded = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_DOWNLOADED ) ) == 1 ? true : false;
+            mEpisodePlayed = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_PLAYED ) );
+            mEpisodeLastPlayed = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_LASTPLAYED ) );
 
-            mShowNameId = cursor.getInt( cursor.getColumnIndex( Episode.FIELD_SHOWNAMEID ) );
+            mShowNameId = cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_SHOWNAMEID ) );
 
         }
         cursor.close();
 
-        cursor = getContentResolver().query( Detail.CONTENT_URI, null, Detail.FIELD_SHOWID + " = ?", new String[] { String.valueOf( mEpisodeId ) }, null );
+        cursor = getContentResolver().query( DetailConstants.CONTENT_URI, null, DetailConstants.FIELD_SHOWID + " = ?", new String[] { String.valueOf( mEpisodeId ) }, null );
         if( cursor.moveToNext() ) {
 
-            mEpisodeDetailNotes = cursor.getString( cursor.getColumnIndex( Detail.FIELD_NOTES ) );
-            mEpisodeDetailForumUrl = cursor.getString( cursor.getColumnIndex( Detail.FIELD_FORUMURL ) );
+            mEpisodeDetailNotes = cursor.getString( cursor.getColumnIndex( DetailConstants.FIELD_NOTES ) );
+            mEpisodeDetailForumUrl = cursor.getString( cursor.getColumnIndex( DetailConstants.FIELD_FORUMURL ) );
 
         }
         cursor.close();
 
         if( mShowNameId > 0 ) {
 
-            cursor = getContentResolver().query( ContentUris.withAppendedId( Show.CONTENT_URI, mShowNameId ), null, null, null, null );
+            cursor = getContentResolver().query( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, mShowNameId ), null, null, null, null );
             if( cursor.moveToNext() ) {
 
-                mShowName = cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) );
-                mShowPrefix = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) );
-                mShowVip = cursor.getInt( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 1 ? true : false;
-                mShowCoverImageUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL_200 ) );
-                mShowForumUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_FORUMURL ) );
+                mShowName = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_NAME ) );
+                mShowPrefix = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_PREFIX ) );
+                mShowVip = cursor.getInt( cursor.getColumnIndex( ShowConstants.FIELD_VIP ) ) == 1 ? true : false;
+                mShowCoverImageUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_COVERIMAGEURL_200 ) );
+                mShowForumUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_FORUMURL ) );
 
             }
             cursor.close();

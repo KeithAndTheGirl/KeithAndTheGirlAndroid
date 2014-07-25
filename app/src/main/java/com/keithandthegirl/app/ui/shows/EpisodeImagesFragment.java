@@ -16,7 +16,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Image;
+import com.keithandthegirl.app.db.model.ImageConstants;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 import com.squareup.picasso.Picasso;
 
@@ -35,13 +35,13 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v(TAG, "onCreateLoader : enter");
 
-        String[] projection = { Image._ID, Image.FIELD_MEDIAURL };
+        String[] projection = { ImageConstants._ID, ImageConstants.FIELD_MEDIAURL };
 
-        String selection = Image.FIELD_SHOWID + " = ?";
+        String selection = ImageConstants.FIELD_SHOWID + " = ?";
 
         String[] selectionArgs = new String[] { String.valueOf( mEpisodeId ) };
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Image.CONTENT_URI, projection, selection, selectionArgs, Image.FIELD_DISPLAY_ORDER );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), ImageConstants.CONTENT_URI, projection, selection, selectionArgs, ImageConstants.FIELD_DISPLAY_ORDER );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -213,7 +213,7 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            String mediaUrl = cursor.getString( cursor.getColumnIndex( Image.FIELD_MEDIAURL ) );
+            String mediaUrl = cursor.getString( cursor.getColumnIndex( ImageConstants.FIELD_MEDIAURL ) );
             Log.d( TAG, "bindView : mediaUrl=" + mediaUrl );
             Picasso.with(getActivity()).load(mediaUrl).fit().centerCrop().into(mHolder.mediaUrl);
 

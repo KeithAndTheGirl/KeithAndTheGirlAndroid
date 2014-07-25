@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.ShowsActivity;
 import com.keithandthegirl.app.utils.Utils;
 import com.squareup.picasso.Picasso;
@@ -40,13 +40,13 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v(TAG, "onCreateLoader : enter");
 
-        String[] projection = { Show._ID, Show.FIELD_NAME, Show.FIELD_PREFIX, Show.FIELD_COVERIMAGEURL_200, Show.FIELD_VIP };
+        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_PREFIX, ShowConstants.FIELD_COVERIMAGEURL_200, ShowConstants.FIELD_VIP };
 
         String selection = null;
 
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), Show.CONTENT_URI, projection, selection, selectionArgs, Show.FIELD_SORTORDER );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -171,10 +171,10 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            String name = cursor.getString( cursor.getColumnIndex( Show.FIELD_NAME ) );
-            String prefix = cursor.getString( cursor.getColumnIndex( Show.FIELD_PREFIX ) );
-            String coverUrl = cursor.getString( cursor.getColumnIndex( Show.FIELD_COVERIMAGEURL_200 ) );
-            boolean vip = cursor.getLong( cursor.getColumnIndex( Show.FIELD_VIP ) ) == 0 ? false : true;
+            String name = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_NAME ) );
+            String prefix = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_PREFIX ) );
+            String coverUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_COVERIMAGEURL_200 ) );
+            boolean vip = cursor.getLong( cursor.getColumnIndex( ShowConstants.FIELD_VIP ) ) == 0 ? false : true;
 
             mHolder.name.setText( name );
 

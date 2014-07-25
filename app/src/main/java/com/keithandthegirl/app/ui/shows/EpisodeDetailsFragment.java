@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Detail;
-import com.keithandthegirl.app.db.model.Endpoint;
-import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.model.DetailConstants;
+import com.keithandthegirl.app.db.model.EndpointConstants;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 
 import org.joda.time.DateTime;
@@ -68,7 +68,7 @@ public class EpisodeDetailsFragment extends Fragment {
             mShowName = getArguments().getString( EpisodeActivity.SHOW_PREFIX_KEY );
         }
 
-        getActivity().getContentResolver().registerContentObserver( Detail.CONTENT_URI, true, detailsObserver );
+        getActivity().getContentResolver().registerContentObserver( DetailConstants.CONTENT_URI, true, detailsObserver );
 
         Log.v( TAG, "onCreate : exit" );
     }
@@ -108,11 +108,11 @@ public class EpisodeDetailsFragment extends Fragment {
 
         boolean scheduleDownload = false;
 
-        Cursor cursor = getActivity().getContentResolver().query( Detail.CONTENT_URI, null, Detail.FIELD_SHOWID + " = ? AND NOT (" + Detail.FIELD_NOTES + " IS NULL OR " + Detail.FIELD_NOTES + " = ?)", new String[] { String.valueOf( mEpisodeId ), "" }, null );
+        Cursor cursor = getActivity().getContentResolver().query( DetailConstants.CONTENT_URI, null, DetailConstants.FIELD_SHOWID + " = ? AND NOT (" + DetailConstants.FIELD_NOTES + " IS NULL OR " + DetailConstants.FIELD_NOTES + " = ?)", new String[] { String.valueOf( mEpisodeId ), "" }, null );
         if( cursor.moveToNext() ) {
             Log.v( TAG, "updateView : display details" );
 
-            String notes = cursor.getString( cursor.getColumnIndex( Detail.FIELD_NOTES ) );
+            String notes = cursor.getString( cursor.getColumnIndex( DetailConstants.FIELD_NOTES ) );
             notes = "<ul><li>" + notes.replaceAll( "\r\n", "</li><li>" ) + "</li></ul>";
 
             mNotesWebView.loadData( notes, "text/html", "utf-8" );
@@ -137,23 +137,23 @@ public class EpisodeDetailsFragment extends Fragment {
         Log.v( TAG, "scheduleWorkItem : enter" );
 
         ContentValues values = new ContentValues();
-        values.put( WorkItem.FIELD_NAME, mShowName + " " + mEpisodeId + " details" );
-        values.put( WorkItem.FIELD_FREQUENCY, WorkItem.Frequency.ON_DEMAND.name() );
-        values.put( WorkItem.FIELD_DOWNLOAD, WorkItem.Download.JSON.name() );
-        values.put( WorkItem.FIELD_ENDPOINT, Endpoint.Type.DETAILS.name() );
-        values.put( WorkItem.FIELD_ADDRESS, Endpoint.DETAILS );
-        values.put( WorkItem.FIELD_PARAMETERS, "?showid=" + mEpisodeId );
-        values.put( WorkItem.FIELD_STATUS, WorkItem.Status.NEVER.name() );
-        values.put( WorkItem.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+        values.put( WorkItemConstants.FIELD_NAME, mShowName + " " + mEpisodeId + " details" );
+        values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ON_DEMAND.name() );
+        values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSON.name() );
+        values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.DETAILS.name() );
+        values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.DETAILS );
+        values.put( WorkItemConstants.FIELD_PARAMETERS, "?showid=" + mEpisodeId );
+        values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
+        values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-        Cursor cursor = getActivity().getContentResolver().query( WorkItem.CONTENT_URI, null, WorkItem.FIELD_ADDRESS + " = ? AND " + WorkItem.FIELD_PARAMETERS + " = ?", new String[] { Endpoint.DETAILS, "?showid=" + mEpisodeId }, null );
+        Cursor cursor = getActivity().getContentResolver().query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.DETAILS, "?showid=" + mEpisodeId }, null );
         if( cursor.moveToNext() ) {
             Log.v( TAG, "scheduleWorkItem : update already scheduled" );
 
         } else {
             Log.v( TAG, "scheduleWorkItem : scheduling update" );
 
-            getActivity().getContentResolver().insert( WorkItem.CONTENT_URI, values );
+            getActivity().getContentResolver().insert( WorkItemConstants.CONTENT_URI, values );
 
         }
         cursor.close();

@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
-import com.keithandthegirl.app.db.model.Show;
+import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 import com.keithandthegirl.app.ui.about.AboutFragment;
 import com.keithandthegirl.app.ui.events.EventsFragment;
@@ -43,7 +43,7 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
         setContentView( R.layout.activity_main );
 
         boolean neverRun = false;
-        Cursor cursor = getContentResolver().query( Show.CONTENT_URI, null, null, null, null );
+        Cursor cursor = getContentResolver().query( ShowConstants.CONTENT_URI, null, null, null, null );
         if( cursor.getCount() == 0 ) {
             neverRun = true;
         }

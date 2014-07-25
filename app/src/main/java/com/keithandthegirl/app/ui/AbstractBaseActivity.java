@@ -28,8 +28,8 @@ import android.widget.Toast;
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
-import com.keithandthegirl.app.db.model.Live;
-import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.model.LiveConstants;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.sync.SyncAdapter;
 
 import org.joda.time.DateTime;
@@ -66,7 +66,7 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         mUri = new Uri.Builder()
                 .scheme( "content://" )
                 .authority( KatgProvider.AUTHORITY )
-                .path( WorkItem.TABLE_NAME )
+                .path( WorkItemConstants.TABLE_NAME )
                 .build();
 
         TableObserver observer = new TableObserver();
@@ -121,7 +121,7 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
         getContentResolver().
             registerContentObserver(
-                    ContentUris.withAppendedId(Live.CONTENT_URI, 1),
+                    ContentUris.withAppendedId(LiveConstants.CONTENT_URI, 1),
                     true,
                     mBroadcastingObserver
             );
@@ -155,10 +155,10 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
         boolean broadcasting = false;
 
-        Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( Live.CONTENT_URI, 1 ), null, null, null, null );
+        Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( LiveConstants.CONTENT_URI, 1 ), null, null, null, null );
         if( cursor.moveToNext() ) {
 
-            broadcasting = cursor.getInt( cursor.getColumnIndex( Live.FIELD_BROADCASTING ) ) == 0 ? false : true;
+            broadcasting = cursor.getInt( cursor.getColumnIndex( LiveConstants.FIELD_BROADCASTING ) ) == 0 ? false : true;
 
         }
         cursor.close();
@@ -241,9 +241,9 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
                     now = now.minusDays( 1 );
 
                     ContentValues values = new ContentValues();
-                    values.put( WorkItem.FIELD_LAST_RUN, now.getMillis() );
+                    values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
 
-                    getContentResolver().update( WorkItem.CONTENT_URI, values, WorkItem.FIELD_FREQUENCY + " = ? OR " + WorkItem.FIELD_FREQUENCY + " = ?", new String[]{ WorkItem.Frequency.HOURLY.name(), WorkItem.Frequency.DAILY.name() } );
+                    getContentResolver().update( WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_FREQUENCY + " = ? OR " + WorkItemConstants.FIELD_FREQUENCY + " = ?", new String[]{ WorkItemConstants.Frequency.HOURLY.name(), WorkItemConstants.Frequency.DAILY.name() } );
 
                 }
 

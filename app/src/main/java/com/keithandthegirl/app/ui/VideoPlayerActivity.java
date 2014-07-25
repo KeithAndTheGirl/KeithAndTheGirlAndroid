@@ -11,7 +11,7 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Episode;
+import com.keithandthegirl.app.db.model.EpisodeConstants;
 
 public class VideoPlayerActivity extends ActionBarActivity {
 
@@ -38,15 +38,15 @@ public class VideoPlayerActivity extends ActionBarActivity {
         if( episodeId != -1 ) {
 
             String videoUrl = "";
-            Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( Episode.CONTENT_URI, episodeId ), null, null, null, null );
+            Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, episodeId ), null, null, null, null );
             if( cursor.moveToNext() ) {
 
                 if( videoType.equals( "PREVIEW" ) ) {
-                    videoUrl = cursor.getString( cursor.getColumnIndex( Episode.FIELD_PREVIEWURL ) );
+                    videoUrl = cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_PREVIEWURL ) );
                 }
 
                 if( videoType.equals( "HLS" ) ) {
-                    videoUrl = cursor.getString(( cursor.getColumnIndex( Episode.FIELD_VIDEOFILEURL ) ) );
+                    videoUrl = cursor.getString(( cursor.getColumnIndex( EpisodeConstants.FIELD_VIDEOFILEURL ) ) );
                 }
 
             }

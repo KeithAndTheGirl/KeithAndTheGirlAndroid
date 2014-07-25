@@ -7,7 +7,7 @@ import com.keithandthegirl.app.db.KatgProvider;
 /**
  * Created by dmfrey on 3/21/14.
  */
-public class WorkItem extends AbstractBaseDatabase {
+public class WorkItemConstants extends AbstractBaseDatabase {
 
     public static final String TABLE_NAME = "workitems";
 

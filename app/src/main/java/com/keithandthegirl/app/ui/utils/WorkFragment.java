@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.WorkItem;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.sync.SyncAdapter;
 
 import org.joda.time.DateTime;
@@ -46,7 +46,7 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), WorkItem.CONTENT_URI, projection, selection, selectionArgs, null );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), WorkItemConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -140,11 +140,11 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            mHolder.name.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_NAME ) ) );
-            mHolder.status.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_STATUS ) ) );
-            mHolder.frequency.setText( cursor.getString( cursor.getColumnIndex( WorkItem.FIELD_FREQUENCY ) ) );
+            mHolder.name.setText( cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_NAME ) ) );
+            mHolder.status.setText( cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_STATUS ) ) );
+            mHolder.frequency.setText( cursor.getString( cursor.getColumnIndex( WorkItemConstants.FIELD_FREQUENCY ) ) );
 
-            long instant = cursor.getLong( cursor.getColumnIndex( WorkItem.FIELD_LAST_RUN ) );
+            long instant = cursor.getLong( cursor.getColumnIndex( WorkItemConstants.FIELD_LAST_RUN ) );
             if( instant < 0 ) {
                 mHolder.lastRun.setText( "" );
             } else {

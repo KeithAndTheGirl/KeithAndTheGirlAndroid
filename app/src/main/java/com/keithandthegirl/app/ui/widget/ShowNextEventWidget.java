@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.widget.RemoteViews;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.Event;
+import com.keithandthegirl.app.db.model.EventConstants;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -33,11 +33,11 @@ public class ShowNextEventWidget extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_show_next_live_event);
 
-        String[] projection = new String[] { Event.FIELD_TITLE, Event.FIELD_STARTDATE};
-        String selectionClause = Event.FIELD_STARTDATE + " > ?";
-        String sortOrder = Event.FIELD_STARTDATE + " ASC LIMIT 1";
+        String[] projection = new String[] { EventConstants.FIELD_TITLE, EventConstants.FIELD_STARTDATE};
+        String selectionClause = EventConstants.FIELD_STARTDATE + " > ?";
+        String sortOrder = EventConstants.FIELD_STARTDATE + " ASC LIMIT 1";
 
-        Cursor cursor = context.getContentResolver().query(Event.CONTENT_URI,
+        Cursor cursor = context.getContentResolver().query(EventConstants.CONTENT_URI,
                 projection,
                 selectionClause,
                 new String[] { String.valueOf(Calendar.getInstance().getTimeInMillis()) },
@@ -45,10 +45,10 @@ public class ShowNextEventWidget extends AppWidgetProvider {
 
         // if we have an event update the widget UI
         if (cursor.moveToFirst()) {
-            String title = cursor.getString(cursor.getColumnIndex(Event.FIELD_TITLE));
+            String title = cursor.getString(cursor.getColumnIndex(EventConstants.FIELD_TITLE));
             views.setTextViewText(R.id.eventTitleTextView, title);
 
-            long start = cursor.getLong( cursor.getColumnIndex( Event.FIELD_STARTDATE ) );
+            long start = cursor.getLong( cursor.getColumnIndex( EventConstants.FIELD_STARTDATE ) );
             Date date = new Date(start);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM d, h:mm aaa");
             views.setTextViewText(R.id.eventTimeTextView, simpleDateFormat.format(date));

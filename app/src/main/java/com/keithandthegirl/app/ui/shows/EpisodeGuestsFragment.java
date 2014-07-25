@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
-import com.keithandthegirl.app.db.model.Guest;
+import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class EpisodeGuestsFragment extends Fragment {
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
         }
 
-        getActivity().getContentResolver().registerContentObserver( Guest.CONTENT_URI, true, guestsObserver );
+        getActivity().getContentResolver().registerContentObserver( GuestConstants.CONTENT_URI, true, guestsObserver );
 
         Log.v( TAG, "onCreate : exit") ;
     }
@@ -117,8 +117,8 @@ public class EpisodeGuestsFragment extends Fragment {
         List<String> guestNames = new ArrayList<String>();
         while( cursor.moveToNext() ) {
 
-            guestIds.add( cursor.getLong( cursor.getColumnIndex( Guest._ID ) ) );
-            guestNames.add( cursor.getString( cursor.getColumnIndex( Guest.FIELD_REALNAME ) ) );
+            guestIds.add( cursor.getLong( cursor.getColumnIndex( GuestConstants._ID ) ) );
+            guestNames.add( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_REALNAME ) ) );
 
         }
         cursor.close();
