@@ -37,8 +37,8 @@
     <string name="about_the_show_chemda_button">More on Chemda</string>
     <string name="title_activity_video_player">VideoPlayerActivity</string>
     <string name="hello_world">Hello world!</string>
-
     <string name="playerfragment_text">This is a YouTubePlayerFragment!</string>
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
+    <string name="add_widget">Add widget</string>
 
 </resources>
