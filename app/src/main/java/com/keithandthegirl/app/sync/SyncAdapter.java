@@ -14,8 +14,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -24,38 +22,43 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.keithandthegirl.app.db.model.Detail;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EndpointConstants;
+import com.keithandthegirl.app.db.model.Episode;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.EpisodeGuestConstants;
+import com.keithandthegirl.app.db.model.Event;
 import com.keithandthegirl.app.db.model.EventConstants;
+import com.keithandthegirl.app.db.model.Events;
+import com.keithandthegirl.app.db.model.Guest;
 import com.keithandthegirl.app.db.model.GuestConstants;
+import com.keithandthegirl.app.db.model.Image;
 import com.keithandthegirl.app.db.model.ImageConstants;
+import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.db.model.LiveConstants;
+import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
+import com.keithandthegirl.app.db.model.Youtube;
 import com.keithandthegirl.app.db.model.YoutubeConstants;
+import com.keithandthegirl.app.db.model.YoutubeEntry;
+import com.keithandthegirl.app.db.model.YoutubeLink;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.Minutes;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
+
+import retrofit.RestAdapter;
+import retrofit.converter.GsonConverter;
 
 /**
  * Handle the transfer of data between a server and an
@@ -70,10 +73,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String START_ACTION = "com.keithandthegirl.app.sync.START_ACTION";
     public static final String COMPLETE_ACTION = "com.keithandthegirl.app.sync.COMPLETE_ACTION";
 
-    private static final DateTimeFormatter format = DateTimeFormat.forPattern( "MM/dd/yyyy HH:mm" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
-    private static final DateTimeFormatter formata = DateTimeFormat.forPattern( "M/d/yyyy hh:mm:ss a" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
-    private static final DateTimeFormatter formaty = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
-
     // Whether there is a Wi-Fi connection.
     private static boolean wifiConnected = false;
 
@@ -85,6 +84,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     ContentResolver mContentResolver;
     SharedPreferences mSharedPreferences;
     Context mContext;
+
+    KatgService katgService;
+    YoutubeService youtubeService;
 
     /**
      * Set up the sync adapter
@@ -102,6 +104,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          */
         mContentResolver = context.getContentResolver();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
+
+        initializeService();
     }
 
     /**
@@ -122,6 +126,36 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          */
         mContentResolver = context.getContentResolver();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
+
+        initializeService();
+    }
+
+    private void initializeService() {
+
+        Gson katgGson = new GsonBuilder()
+           .setDateFormat( "MM/dd/yyyy HH:mm" )
+           .create();
+
+        RestAdapter katgRestAdapter = new RestAdapter.Builder()
+            .setEndpoint( KatgService.KATG_URL )
+            .setConverter( new GsonConverter( katgGson ) )
+//                .setLogLevel( RestAdapter.LogLevel.FULL )
+            .build();
+
+        katgService = katgRestAdapter.create( KatgService.class );
+
+        Gson youtubeGson = new GsonBuilder()
+                .setDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" )
+                .create();
+
+        RestAdapter youtubeRestAdapter = new RestAdapter.Builder()
+                .setEndpoint( YoutubeService.YOUTUBE_KATG_URL )
+                .setConverter( new GsonConverter( youtubeGson ) )
+//                .setLogLevel( RestAdapter.LogLevel.FULL )
+                .build();
+
+        youtubeService = youtubeRestAdapter.create( YoutubeService.class );
+
     }
 
     // Checks the network connection and sets the wifiConnected and mobileConnected
@@ -138,7 +172,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             mobileConnected = false;
         }
 
-        enableHttpResponseCache();
     }
 
     /*
@@ -323,7 +356,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     case YOUTUBE:
                         Log.v( TAG, "executeJobs : refreshing youtube episodes" );
 
-                        getYoutubeEpisodes(provider, job);
+                        getYoutubeEpisodes( provider, job );
 
                         break;
 
@@ -338,16 +371,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void getShows( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        Log.v(TAG, "getShows : enter");
+        Log.v( TAG, "getShows : enter" );
 
         try {
 
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getShows : network is available" );
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork( job );
-                Log.i( TAG, "getShows : jsonArray=" + jsonArray.toString() );
-                processShows( jsonArray, provider, job );
+                List<Show> shows = katgService.seriesOverview();
+                if( null != shows && !shows.isEmpty() ) {
+
+                    processShows( shows, provider, job );
+
+                }
+
             }
 
         } catch( Exception e ) {
@@ -365,9 +402,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEvents : network is available" );
 
-                JSONObject json = loadJsonFromNetwork( job );
-                Log.i( TAG, "getEvents : json=" + json.toString() );
-                processEvents(json, provider, job);
+                Events events = katgService.events();
+                if( null != events ) {
+
+                    //Log.v( TAG, "getEvents : event=" + events.toString() );
+                    processEvents(events, provider, job);
+
+                }
+
             }
 
         } catch( Exception e ) {
@@ -385,9 +427,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEvents : network is available" );
 
-                JSONObject json = loadJsonFromNetwork(job);
-                Log.i( TAG, "getLives : json=" + json.toString() );
-                processLives(json, provider, job);
+                Live live = katgService.broadcasting();
+
+                Log.i(TAG, "getLives : live=" + live.toString());
+                processBroadcasting( live, provider, job );
             }
 
         } catch( Exception e ) {
@@ -410,9 +453,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getEpisodes : network is available" );
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork( job );
-                Log.i( TAG, "getEpisodes : jsonArray=" + jsonArray.toString() );
-                processEpisodes(jsonArray, provider, job.getType());
+                Uri uri = Uri.parse( job.getUrl() );
+                int showNameId = Integer.parseInt( uri.getQueryParameter( "shownameid" ) );
+                int showId = -1, number = -1;
+
+                try {
+                    showId = Integer.parseInt( uri.getQueryParameter( "showid" ) );
+                } catch( NumberFormatException e ) { }
+
+                try {
+                    number = Integer.parseInt(uri.getQueryParameter( "number" ) );
+                } catch( NumberFormatException e ) { }
+
+                List<Episode> episodes = katgService.listEpisodes( showNameId, showId, number );
+
+                processEpisodes( episodes, provider, job.getType() );
             }
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
@@ -444,12 +499,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.v( TAG, "getEpisodeDetails : network is available" );
 
                 Uri uri = Uri.parse( job.getUrl() );
-                String showId = uri.getQueryParameter( "showid" );
+                int showId = Integer.parseInt( uri.getQueryParameter( "showid" ) );
 
-                JSONObject json = loadJsonFromNetwork( job );
-                if( null != json ) {
-                    Log.i( TAG, "getEpisodeDetails : json=" + json.toString() );
-                    processEpisodeDetails( json, provider, Integer.parseInt( showId ) );
+                Detail showDetails = katgService.showDetails(showId, 0);
+                if( null != showDetails ) {
+                    Log.i(TAG, "getEpisodeDetails : showDetails=" + showDetails.toString());
+                    processEpisodeDetails(showDetails, provider, showId);
                 }
             }
 
@@ -481,9 +536,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v(TAG, "getRecentEpisodes : network is available");
 
-                JSONArray jsonArray = loadJsonArrayFromNetwork(job);
-                Log.i( TAG, "getRecentEpisodes : jsonArray=" + jsonArray.toString() );
-                processEpisodes(jsonArray, provider, job.getType());
+                List<Episode> recentEpisodes = katgService.recentEpisodes();
+                if( null != recentEpisodes && !recentEpisodes.isEmpty() ) {
+
+                    processEpisodes( recentEpisodes, provider, job.getType() );
+
+                }
+
             }
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
@@ -520,9 +579,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Job job = new Job();
                 job.setUrl( address + "?showid=" + showId );
 
-                JSONObject json = loadJsonFromNetwork( job );
-                Log.i( TAG, "getShowDetails : json=" + json.toString() );
-                processEpisodeDetails(json, provider, showId);
+                Detail showDetails = katgService.showDetails( showId, 1 );
+                if( null != showDetails ) {
+
+                    processEpisodeDetails( showDetails, provider, showId );
+
+                }
+
             }
 
         } catch( Exception e ) {
@@ -545,10 +608,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if( wifiConnected || mobileConnected ) {
                 Log.v( TAG, "getYoutubeEpisodes : network is available" );
 
-                JSONObject json = loadJsonFromNetwork( job );
-                if( null != json ) {
-                    Log.i( TAG, "getYoutubeEpisodes : json=" + json.toString() );
-                    processYoutubeEpisodes(json, provider, job);
+                Youtube youtube = youtubeService.listKatgYoutubeFeed();
+                if( null != youtube ) {
+                    Log.i(TAG, "getYoutubeEpisodes : youtube=" + youtube.toString());
+
+                    processYoutubeEpisodes( youtube, provider, job );
                 }
             }
 
@@ -567,168 +631,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "getYoutubeEpisodes : exit" );
     }
 
-    private JSONObject loadJsonFromNetwork( Job job ) throws IOException, JSONException {
-        Log.v( TAG, "loadJsonFromNetwork : enter" );
-
-        JSONObject json = null;
-        InputStream stream = null;
-
-        try {
-
-            stream = downloadUrl( job );
-
-            // json is UTF-8 by default
-            BufferedReader reader = new BufferedReader( new InputStreamReader( stream, "UTF-8" ), 8 );
-            StringBuilder sb = new StringBuilder();
-
-            String line;
-            while( ( line = reader.readLine() ) != null ) {
-                sb.append(line).append("\n");
-            }
-            json = new JSONObject( sb.toString() );
-
-            job.setStatus( WorkItemConstants.Status.OK );
-
-        } catch( NullPointerException e ) {
-            Log.e( TAG, "loadJsonFromNetwork : error", e );
-
-            job.setStatus( WorkItemConstants.Status.FAILED );
-        } finally {
-
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
-            if( null != stream  ) {
-                stream.close();
-            }
-
-        }
-
-        Log.v( TAG, "loadJsonFromNetwork : exit" );
-        return json;
-    }
-
-    private JSONArray loadJsonArrayFromNetwork( Job job ) throws IOException, JSONException {
-        Log.v( TAG, "loadJsonArrayFromNetwork : enter" );
-
-        JSONArray jsonArray = null;
-        InputStream stream = null;
-
-        try {
-
-            stream = downloadUrl( job );
-
-            // json is UTF-8 by default
-            BufferedReader reader = new BufferedReader( new InputStreamReader( stream, "UTF-8" ), 8 );
-            StringBuilder sb = new StringBuilder();
-
-            String line;
-            while( ( line = reader.readLine() ) != null ) {
-                sb.append(line).append("\n");
-            }
-            jsonArray = new JSONArray( sb.toString() );
-
-            job.setStatus( WorkItemConstants.Status.OK );
-
-        } finally {
-
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
-            if( null != stream  ) {
-                stream.close();
-            }
-
-        }
-
-        Log.v(TAG, "loadJsonArrayFromNetwork : exit");
-        return jsonArray;
-    }
-
-    private Bitmap loadBitmapFromNetwork( Job job ) throws IOException {
-        Log.v( TAG, "loadBitmapFromNetwork : enter" );
-
-        Bitmap bitmap = null;
-        InputStream stream = null;
-
-        try {
-
-            stream = downloadUrl( job );
-
-            bitmap = BitmapFactory.decodeStream( stream );
-
-            job.setStatus( WorkItemConstants.Status.OK );
-
-        } finally {
-
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
-            if( null != stream  ) {
-                stream.close();
-            }
-
-        }
-
-        Log.v( TAG, "loadBitmapFromNetwork : exit" );
-        return bitmap;
-    }
-
-    // Given a string representation of a URL, sets up a connection and gets
-    // an input stream.
-    private InputStream downloadUrl( Job job ) throws IOException {
-        Log.v( TAG, "downloadUrl : enter, url=" + job.getUrl() );
-
-//        long currentTime = System.currentTimeMillis();
-        InputStream stream = null;
-
-//        TrafficStats.setThreadStatsTag( 0xF00D );
-//        try {
-            URL url = new URL( job.getUrl() );
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout( 10000 /* milliseconds */ );
-            conn.setConnectTimeout( 15000 /* milliseconds */ );
-            conn.setRequestMethod( "GET" );
-
-            if( null != job.getEtag() && !"".equals( job.getEtag() ) ) {
-                conn.setRequestProperty( "If-None-Match", job.getEtag() );
-            }
-
-            conn.setDoInput( true );
-
-            // Starts the query
-            conn.connect();
-
-            if( conn.getResponseCode() == HttpURLConnection.HTTP_OK ) {
-                Log.v( TAG, "downloadUrl : HTTP OK" );
-
-                job.setEtag( conn.getHeaderField( "ETag" ) );
-
-                stream = conn.getInputStream();
-
-            } else if( conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED ) {
-                Log.v( TAG, "downloadUrl : HTTP NOT MODIFIED" );
-
-                job.setStatus( WorkItemConstants.Status.NOT_MODIFIED );
-            }
-//        } finally {
-//            TrafficStats.clearThreadStatsTag();
-//        }
-
-        Log.v( TAG, "downloadUrl : exit" );
-        return stream;
-    }
-
-    private void enableHttpResponseCache() {
-        try {
-            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
-            File httpCacheDir = new File( mContext.getCacheDir(), "http" );
-            Class.forName( "android.net.http.HttpResponseCache" )
-                    .getMethod( "install", File.class, long.class )
-                    .invoke( null, httpCacheDir, httpCacheSize );
-        } catch( Exception httpResponseCacheNotAvailable ) {
-            Log.d(TAG, "HTTP response cache is unavailable.");
-        }
-    }
-
-    private void processShows( JSONArray jsonArray, ContentProviderClient provider, Job job ) throws RemoteException {
+    private void processShows( List<Show> shows, ContentProviderClient provider, Job job ) throws RemoteException {
         Log.v( TAG, "processShows : enter" );
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
@@ -744,48 +647,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             ContentValues values;
 
-            for( int i = 0; i < jsonArray.length(); i++ ) {
-                JSONObject json = jsonArray.getJSONObject( i );
-                Log.v( TAG, "processShows : json=" + json.toString() );
-
-                int showNameId = json.getInt( "ShowNameId" );
-
-                int vip = 0;
-                try {
-                    vip = json.getBoolean( "VIP" ) ? 1 : 0;
-                } catch( Exception e ) {
-                    Log.v( TAG, "processShows : VIP format is not valid" );
-                }
-
-                int sortOrder = 0;
-                try {
-                    sortOrder = json.getInt( "SortOrder" );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processShows : SortOrder format is not valid" );
-                }
-
-                String name = json.getString( "Name" );
-                String prefix = json.getString( "Prefix" );
-                String coverImageUrl = json.getString( "CoverImageUrl" );
+            for( Show show : shows ) {
+                Log.v( TAG, "processShows : show=" + show.toString() );
 
                 values = new ContentValues();
-                values.put( ShowConstants._ID, showNameId );
-                values.put( ShowConstants.FIELD_NAME, name );
-                values.put( ShowConstants.FIELD_PREFIX, prefix );
-                values.put( ShowConstants.FIELD_VIP, vip );
-                values.put( ShowConstants.FIELD_SORTORDER, sortOrder );
-                values.put( ShowConstants.FIELD_DESCRIPTION, json.getString( "Description" ) );
-                values.put( ShowConstants.FIELD_COVERIMAGEURL, coverImageUrl );
-                values.put( ShowConstants.FIELD_COVERIMAGEURL_SQUARED, coverImageUrl );
-                values.put( ShowConstants.FIELD_COVERIMAGEURL_100, coverImageUrl );
-                values.put( ShowConstants.FIELD_COVERIMAGEURL_200, coverImageUrl );
-                values.put( ShowConstants.FIELD_FORUMURL, json.getString( "ForumUrl" ) );
-                values.put( ShowConstants.FIELD_PREVIEWURL, json.getString( "PreviewUrl" ) );
-                values.put( ShowConstants.FIELD_EPISODE_COUNT, json.getInt( "EpisodeCount" ) );
-                values.put( ShowConstants.FIELD_EPISODE_COUNT_MAX, json.getInt( "EpisodeNumberMax" ) );
+                values.put( ShowConstants._ID, show.getShowNameId() );
+                values.put( ShowConstants.FIELD_NAME, show.getName() );
+                values.put( ShowConstants.FIELD_PREFIX, show.getPrefix() );
+                values.put( ShowConstants.FIELD_VIP, show.isVip() ? 1 : 0 );
+                values.put( ShowConstants.FIELD_SORTORDER, show.getSortOrder() );
+                values.put( ShowConstants.FIELD_DESCRIPTION, show.getDescription() );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL, show.getCoverImageUrl() );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL_SQUARED, show.getCoverImageUrlSquared() );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL_100, show.getCoverImageUrl100() );
+                values.put( ShowConstants.FIELD_COVERIMAGEURL_200, show.getCoverImageUrl200() );
+                values.put( ShowConstants.FIELD_FORUMURL, show.getForumUrl() );
+                values.put( ShowConstants.FIELD_PREVIEWURL, show.getPreviewUrl() );
+                values.put( ShowConstants.FIELD_EPISODE_COUNT, show.getEpisodeCount() );
+                values.put( ShowConstants.FIELD_EPISODE_COUNT_MAX, show.getEpisodeNumberMax() );
                 values.put( ShowConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                Cursor cursor = provider.query( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, showNameId ), projection, null, null, null );
+                Cursor cursor = provider.query( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, show.getShowNameId() ), projection, null, null, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processShows : show iteration, updating existing entry" );
 
@@ -811,19 +693,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
                 count++;
 
-                if( showNameId ==  1 ) {
+                if( show.getShowNameId() ==  1 ) {
                     Log.v( TAG, "processShows : adding one time update for katg main show" );
 
                     values = new ContentValues();
-                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
+                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + show.getName() );
                     values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ONCE.name() );
                     values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name() );
                     values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name() );
                     values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST );
-                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + showNameId );
+                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + show.getShowNameId() );
                     values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ENDPOINT + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + showNameId }, null );
+                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ENDPOINT + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + show.getShowNameId() }, null );
                     if( cursor.moveToNext() ) {
                         Log.v( TAG, "processShows : updating daily show" );
 
@@ -852,20 +734,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     count++;
                 }
 
-                if( showNameId >  1 ) {
+                if( show.getShowNameId() >  1 ) {
                     Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
 
                     values = new ContentValues();
-                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + json.getString( "Name" ) );
+                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + show.getName() );
                     values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.DAILY.name() );
                     values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name() );
                     values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name() );
                     values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST );
-                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + showNameId );
+                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + show.getShowNameId() );
                     values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
                     values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ADDRESS + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + showNameId }, null );
+                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ADDRESS + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + show.getShowNameId() }, null );
                     if( cursor.moveToNext() ) {
                         Log.v( TAG, "processShows : updating daily spinoff show" );
 
@@ -938,7 +820,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "processShows : exit" );
     }
 
-    private void processEvents( JSONObject jsonObject, ContentProviderClient provider, Job job ) throws RemoteException {
+    private void processEvents( Events events, ContentProviderClient provider, Job job ) throws RemoteException {
         Log.v( TAG, "processEvents : enter" );
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
@@ -954,42 +836,26 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             ContentValues values;
 
-            for( int i = 0; i < jsonObject.getJSONArray( "events" ).length(); i++ ) {
-                JSONObject json = jsonObject.getJSONArray( "events" ).getJSONObject(i);
-                Log.v( TAG, "processEvents : json=" + json.toString() );
+            for( Event event : events.getEvents() ) {
 
-                String eventId = json.getString( "eventid" );
-
-                DateTime startDate = new DateTime();
-                try {
-                    startDate = format.parseDateTime( json.getString( "startdate" ) );
-                } catch( JSONException e ) {
-                    Log.v( TAG, "processEvents : startdate is not valid" );
-                }
+                DateTime startDate = new DateTime( event.getStartDate() );
                 startDate = startDate.withZone( DateTimeZone.UTC );
 
-                DateTime endDate = new DateTime();
-                try {
-                    endDate = format.parseDateTime( json.getString( "enddate" ) );
-                } catch( JSONException e ) {
-                    Log.v( TAG, "processEvents : enddate is not valid" );
-                }
+                DateTime endDate = new DateTime( event.getEndDate() );
                 endDate = endDate.withZone( DateTimeZone.UTC );
 
-                Log.v(TAG, "processEvents : startDate=" + startDate.toString() + ", endDate=" + endDate.toString());
-
                 values = new ContentValues();
-                values.put( EventConstants.FIELD_EVENTID, eventId );
-                values.put( EventConstants.FIELD_TITLE, json.getString( "title" ) );
-                values.put( EventConstants.FIELD_LOCATION, json.getString( "location" ) );
+                values.put( EventConstants.FIELD_EVENTID, event.getEventId() );
+                values.put( EventConstants.FIELD_TITLE, event.getTitle() );
+                values.put( EventConstants.FIELD_LOCATION, event.getLocation() );
                 values.put( EventConstants.FIELD_STARTDATE, startDate.getMillis() );
                 values.put( EventConstants.FIELD_ENDDATE, endDate.getMillis() );
-                values.put( EventConstants.FIELD_DETAILS, json.getString( "details" ) );
+                values.put( EventConstants.FIELD_DETAILS, event.getDetails() );
                 values.put( EventConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                Cursor cursor = provider.query( EventConstants.CONTENT_URI, projection, EventConstants.FIELD_EVENTID + "=?", new String[] { eventId }, null );
+                Cursor cursor = provider.query( EventConstants.CONTENT_URI, projection, EventConstants.FIELD_EVENTID + "=?", new String[] { event.getEventId() }, null );
                 if( cursor.moveToFirst() ) {
-                    Log.v( TAG, "processEvents : show iteration, updating existing entry" );
+                    Log.v( TAG, "processEvents : event iteration, updating existing entry" );
 
                     Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EventConstants._ID ) );
                     ops.add(
@@ -999,7 +865,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .build()
                     );
                 } else {
-                    Log.v( TAG, "processEvents : show iteration, adding new entry" );
+                    Log.v( TAG, "processEvents : event iteration, adding new entry" );
 
                     ops.add(
                             ContentProviderOperation.newInsert( EventConstants.CONTENT_URI )
@@ -1053,23 +919,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
-        Log.v(TAG, "processEvents : exit");
+        Log.v( TAG, "processEvents : exit" );
     }
 
-    private void processLives( JSONObject jsonObject, ContentProviderClient provider, Job job ) throws RemoteException {
-        Log.v( TAG, "processLives : enter" );
+    private void processBroadcasting( Live live, ContentProviderClient provider, Job job ) throws RemoteException {
+        Log.v( TAG, "processBroadcasting : enter" );
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
-        update.put(WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis());
+        update.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, lastRun.getMillis() );
 
-        int broadcasting;
         try {
-            broadcasting = jsonObject.getBoolean( "broadcasting" ) ? 1 : 0;
 
             ContentValues values = new ContentValues();
-            values.put( LiveConstants.FIELD_BROADCASTING, broadcasting );
+            values.put( LiveConstants.FIELD_BROADCASTING, live.isBroadcasting() ? 1 : 0 );
             values.put( LiveConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
             provider.update( ContentUris.withAppendedId( LiveConstants.CONTENT_URI, 1 ), values, null, null );
@@ -1079,18 +943,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
 
         } catch( Exception e ) {
-            Log.v( TAG, "processLives : broadcasting format is not valid" );
+            Log.v( TAG, "processBroadcasting : broadcasting format is not valid" );
 
             update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
-        Log.v( TAG, "processLives : exit" );
+        Log.v( TAG, "processBroadcasting : exit" );
     }
 
-    private void processEpisodes( JSONArray jsonArray, ContentProviderClient provider, EndpointConstants.Type type ) {
-        Log.v( TAG, "processEpisodes : enter" );
+    private void processEpisodes( List<Episode> episodes, ContentProviderClient provider, EndpointConstants.Type type ) {
+        Log.v(TAG, "processEpisodes : enter");
 
         try {
             int loaded = 0;
@@ -1101,101 +965,41 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             ContentValues values;
 
-            for( int i = 0; i < jsonArray.length(); i++ ) {
-                JSONObject json = jsonArray.getJSONObject( i );
-                Log.v( TAG, "processEpisodes : json=" + json.toString() );
+            for( Episode episode : episodes ) {
+                Log.v( TAG, "processEpisodes : episode=" + episode.toString() );
 
-                int showId = json.getInt( "ShowId" );
-                detailsQueue.add( showId );
+                detailsQueue.add( episode.getShowId() );
 
-                String videoFileUrl = "";
+                String fileName = "";
                 try {
-                    videoFileUrl = json.getString( "VideoFileUrl" );
-                } catch( JSONException e ) {
-                    Log.v( TAG, "processEpisodes : VideoFileUrl format is not valid or does not exist" );
-                }
 
-                String videoThumbnailUrl = "";
-                try {
-                    videoThumbnailUrl = json.getString( "VideoThumbnailUrl" );
-                } catch( JSONException e ) {
-                    Log.v( TAG, "processEpisodes : VideoThumbnailUrl format is not valid or does not exist" );
-                }
-
-                String previewUrl = "";
-                try {
-                    previewUrl = json.getString( "PreviewUrl" );
-                } catch( JSONException e ) {
-                    Log.v( TAG, "processEpisodes : PreviewUrl format is not valid or does not exist" );
-                }
-
-                String fileUrl = "", fileName = "";
-                try {
-                    fileUrl = json.getString( "FileUrl" );
-
-                    Uri uri = Uri.parse( fileUrl );
-                    if( null != uri.getLastPathSegment() ) {
-                        fileName = uri.getLastPathSegment();
+                    Uri fileUrl = Uri.parse( episode.getFileUrl() );
+                    if( null != fileUrl.getLastPathSegment() ) {
+                        fileName = fileUrl.getLastPathSegment();
                         Log.v( TAG, "processEpisodes : fileName=" + fileName );
                     }
-                } catch( JSONException e ) {
-                    Log.v( TAG, "processEpisodes : FileUrl format is not valid or does not exist" );
-                }
 
-                int length = -1;
-                try {
-                    length = json.getInt( "Length" );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processEpisodes : Length format is not valid or not present" );
-                }
-
-                int fileSize = -1;
-                try {
-                    fileSize = json.getInt( "FileSize" );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processEpisodes : FileSize format is not valid or not present" );
-                }
-
-                int vip = 0;
-                try {
-                    vip = json.getInt( "public" );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processEpisodes : Public format is not valid or not present" );
-                }
-
-                int showNameId = -1;
-                try {
-                    showNameId = json.getInt( "ShowNameId" );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processEpisodes : ShowNameId format is not valid or not present" );
-                }
-
-                int episodeType = -1;
-                try {
-                    episodeType = json.getInt( "Type" );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processEpisodes : Type format is not valid or not present" );
-                }
+                } catch( NullPointerException e ) { }
 
                 values = new ContentValues();
-                values.put( EpisodeConstants._ID, showId );
-                values.put( EpisodeConstants.FIELD_NUMBER, json.getInt( "Number" ) );
-                values.put( EpisodeConstants.FIELD_TITLE, json.getString( "Title" ) );
-                values.put( EpisodeConstants.FIELD_VIDEOFILEURL, videoFileUrl );
-                values.put( EpisodeConstants.FIELD_VIDEOTHUMBNAILURL, videoThumbnailUrl );
-                values.put( EpisodeConstants.FIELD_PREVIEWURL, previewUrl );
-                values.put( EpisodeConstants.FIELD_FILEURL, fileUrl );
+                values.put( EpisodeConstants._ID, episode.getShowId() );
+                values.put( EpisodeConstants.FIELD_NUMBER, episode.getNumber() );
+                values.put( EpisodeConstants.FIELD_TITLE, episode.getTitle() );
+                values.put( EpisodeConstants.FIELD_VIDEOFILEURL, episode.getVideoFileUrl() );
+                values.put( EpisodeConstants.FIELD_VIDEOTHUMBNAILURL, episode.getVideoThumbnailUrl() );
+                values.put( EpisodeConstants.FIELD_PREVIEWURL, episode.getPreviewUrl() );
+                values.put( EpisodeConstants.FIELD_FILEURL, episode.getFileUrl() );
                 values.put( EpisodeConstants.FIELD_FILENAME, fileName );
-                values.put( EpisodeConstants.FIELD_LENGTH, length );
-                values.put( EpisodeConstants.FIELD_FILESIZE, fileSize );
-                values.put( EpisodeConstants.FIELD_TYPE, episodeType );
-                values.put( EpisodeConstants.FIELD_PUBLIC, vip );
-                values.put( EpisodeConstants.FIELD_POSTED, json.getString( "PostedDate" ) );
-                values.put( EpisodeConstants.FIELD_TIMESTAMP, json.getLong( "Timestamp") );
-                values.put( EpisodeConstants.FIELD_SHOWNAMEID, showNameId );
+                values.put( EpisodeConstants.FIELD_LENGTH, episode.getLength() );
+                values.put( EpisodeConstants.FIELD_FILESIZE, episode.getFileSize() );
+                values.put( EpisodeConstants.FIELD_TYPE, episode.getType() );
+                values.put( EpisodeConstants.FIELD_PUBLIC, episode.isNotVip() ? 0 : 1 );
+                values.put( EpisodeConstants.FIELD_POSTED, episode.getPostedDate() );
+                values.put( EpisodeConstants.FIELD_TIMESTAMP, episode.getTimestamp() );
+                values.put( EpisodeConstants.FIELD_SHOWNAMEID, episode.getShowNameId() );
                 values.put( EpisodeConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                Cursor cursor = provider.query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, showId ), projection, null, null, null );
+                Cursor cursor = provider.query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, episode.getShowId() ), projection, null, null, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processEpisodes : episode iteration, updating existing entry" );
 
@@ -1233,31 +1037,24 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
 
                 Log.v( TAG, "processEpisodes : processing guests" );
-                JSONArray guests = json.getJSONArray( "Guests" );
-                if( guests.length() > 0 ) {
+                if( null != episode.getGuests() && episode.getGuests().length > 0 ) {
 
-                    for( int j = 0; j < guests.length(); j++ ) {
+                    for( Guest guest : episode.getGuests() ) {
 
-                        JSONObject guest = guests.getJSONObject( j );
                         Log.v( TAG, "processEpisodes : guest=" + guest.toString() );
 
-                        int showGuestId = guest.getInt( "ShowGuestId" );
-                        String name = guest.getString( "RealName" );
-                        String pictureUrl = guest.getString( "PictureUrl" );
-                        String pictureUrlLarge = guest.getString( "PictureUrlLarge" );
-
                         values = new ContentValues();
-                        values.put( GuestConstants._ID, showGuestId );
-                        values.put( GuestConstants.FIELD_REALNAME, name );
-                        values.put( GuestConstants.FIELD_DESCRIPTION, guest.getString( "Description" ) );
-                        values.put( GuestConstants.FIELD_PICTUREFILENAME, guest.getString( "PictureFilename" ) );
-                        values.put( GuestConstants.FIELD_URL1, guest.getString( "Url1" ) );
-                        values.put( GuestConstants.FIELD_URL2, guest.getString( "Url2" ) );
-                        values.put( GuestConstants.FIELD_PICTUREURL, pictureUrl );
-                        values.put( GuestConstants.FIELD_PICTUREURLLARGE, pictureUrlLarge );
+                        values.put( GuestConstants._ID, guest.getShowGuestId() );
+                        values.put( GuestConstants.FIELD_REALNAME, guest.getRealName() );
+                        values.put( GuestConstants.FIELD_DESCRIPTION, guest.getDescription() );
+                        values.put( GuestConstants.FIELD_PICTUREFILENAME, guest.getPictureFilename() );
+                        values.put( GuestConstants.FIELD_URL1, guest.getUrl1() );
+                        values.put( GuestConstants.FIELD_URL2, guest.getUrl2() );
+                        values.put( GuestConstants.FIELD_PICTUREURL, guest.getPictureUrl() );
+                        values.put( GuestConstants.FIELD_PICTUREURLLARGE, guest.getPictureUrlLarge() );
                         values.put( GuestConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                        cursor = provider.query( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, showGuestId ), null, null, null, null );
+                        cursor = provider.query( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, guest.getShowGuestId() ), null, null, null, null );
                         if( cursor.moveToFirst() ) {
                             Log.v( TAG, "processEpisodes : guest iteration, updating existing entry" );
 
@@ -1282,11 +1079,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         cursor.close();
 
                         values = new ContentValues();
-                        values.put( EpisodeGuestConstants.FIELD_SHOWID, showId );
-                        values.put( EpisodeGuestConstants.FIELD_SHOWGUESTID, showGuestId );
+                        values.put( EpisodeGuestConstants.FIELD_SHOWID, episode.getShowId() );
+                        values.put( EpisodeGuestConstants.FIELD_SHOWGUESTID, guest.getShowGuestId() );
                         values.put( GuestConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                        cursor = provider.query( EpisodeGuestConstants.CONTENT_URI, null, EpisodeGuestConstants.FIELD_SHOWID + "=? and " + EpisodeGuestConstants.FIELD_SHOWGUESTID + "=?", new String[] { String.valueOf( showId ), String.valueOf( showGuestId ) }, null );
+                        cursor = provider.query( EpisodeGuestConstants.CONTENT_URI, null, EpisodeGuestConstants.FIELD_SHOWID + "=? and " + EpisodeGuestConstants.FIELD_SHOWGUESTID + "=?", new String[] { String.valueOf( episode.getShowId() ), String.valueOf( guest.getShowGuestId() ) }, null );
                         if( cursor.moveToFirst() ) {
                             Log.v( TAG, "processEpisodes : episodeGuest iteration, updating existing entry" );
 
@@ -1343,16 +1140,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            Log.i( TAG, "processEpisodes : episodes loaded '" + loaded + "'" );
+            Log.i(TAG, "processEpisodes : episodes loaded '" + loaded + "'");
 
         } catch( Exception e ) {
-            Log.e( TAG, "processEpisodes : error", e );
+            Log.e(TAG, "processEpisodes : error", e);
         }
 
         Log.v( TAG, "processEpisodes : exit" );
     }
 
-    private void processEpisodeDetails( JSONObject jsonObject, ContentProviderClient provider, int showId ) {
+    private void processEpisodeDetails( Detail detail, ContentProviderClient provider, int showId ) {
         Log.v( TAG, "processEpisodeDetails : enter" );
 
         try {
@@ -1362,8 +1159,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String[] projection = new String[] { DetailConstants._ID };
 
             ContentValues values = new ContentValues();
-            values.put( DetailConstants.FIELD_NOTES, jsonObject.getString( "notes" ) );
-            values.put( DetailConstants.FIELD_FORUMURL, jsonObject.getString( "forum_url" ) );
+            values.put( DetailConstants.FIELD_NOTES, detail.getNotes() );
+            values.put( DetailConstants.FIELD_FORUMURL, detail.getForumUrl() );
             values.put( DetailConstants.FIELD_SHOWID, showId );
             values.put( DetailConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
@@ -1390,30 +1187,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
             cursor.close();
 
-            for( int i = 0; i < jsonObject.getJSONArray( "images" ).length(); i++ ) {
-                JSONObject json = jsonObject.getJSONArray( "images" ).getJSONObject( i );
-                Log.v( TAG, "processEpisodeDetails : json=" + json.toString() );
-
-                int pictureid = json.getInt( "pictureid" );
-
-                boolean explicit = false;
-                try {
-                    explicit = json.getBoolean( "explicit" );
-                } catch( Exception e ) {
-                    Log.v( TAG, "processEpisodes : Public format is not valid or not present" );
-                }
+            for( Image image : detail.getImages() ) {
+                Log.v(TAG, "processEpisodeDetails : image=" + image.toString());
 
                 values = new ContentValues();
-                values.put( ImageConstants._ID, pictureid );
-                values.put( ImageConstants.FIELD_TITLE, json.getString( "title" ) );
-                values.put( ImageConstants.FIELD_DESCRIPTION, json.getString( "description" ) );
-                values.put( ImageConstants.FIELD_EXPLICIT, explicit ? 1 : 0 );
-                values.put( ImageConstants.FIELD_DISPLAY_ORDER, json.getInt( "displayorder" ) );
-                values.put( ImageConstants.FIELD_MEDIAURL, json.getString( "media_url" ) );
+                values.put( ImageConstants._ID, image.getPictureId() );
+                values.put( ImageConstants.FIELD_TITLE, image.getTitle() );
+                values.put( ImageConstants.FIELD_DESCRIPTION, image.getDescription() );
+                values.put( ImageConstants.FIELD_EXPLICIT, image.isExplicit() ? 1 : 0 );
+                values.put( ImageConstants.FIELD_DISPLAY_ORDER, image.getDisplayOrder() );
+                values.put( ImageConstants.FIELD_MEDIAURL, image.getMediaUrl() );
                 values.put( ImageConstants.FIELD_SHOWID, showId );
                 values.put( ImageConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                cursor = provider.query( ContentUris.withAppendedId( ImageConstants.CONTENT_URI, pictureid ), null, null, null, null );
+                cursor = provider.query( ContentUris.withAppendedId( ImageConstants.CONTENT_URI, image.getPictureId() ), null, null, null, null );
                 if( cursor.moveToFirst() ) {
                     Log.v( TAG, "processEpisodeDetails : image iteration, updating existing entry" );
 
@@ -1474,7 +1261,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.v( TAG, "processEpisodeDetails : exit" );
     }
 
-    private void processYoutubeEpisodes( JSONObject jsonObject, ContentProviderClient provider, Job job ) throws RemoteException, OperationApplicationException, JSONException {
+    private void processYoutubeEpisodes( Youtube youtube, ContentProviderClient provider, Job job ) throws RemoteException, OperationApplicationException, JSONException {
         Log.v( TAG, "processYoutubeEpisodes : enter" );
 
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
@@ -1492,24 +1279,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             ContentValues values;
 
-            JSONObject feed = jsonObject.getJSONObject( "feed" );
-            //Log.v( TAG, "processYoutubeEpisodes : feed=" + feed.toString() );
-            if( null != feed ) {
+            if( null != youtube.getFeed() ) {
 
-                if( null != feed.getJSONArray( "entry" ) && feed.getJSONArray( "entry" ).length() > 0 ) {
+                if( null != youtube.getFeed().getEntries() && youtube.getFeed().getEntries().length > 0 ) {
 
-                    JSONObject json;
+                    for( YoutubeEntry entry : youtube.getFeed().getEntries() ) {
 
-                    for( int i = 0; i < feed.getJSONArray( "entry" ).length(); i++ ) {
-
-                        json = feed.getJSONArray( "entry" ).getJSONObject( i );
-                        if( null != json ) {
-                            //Log.v( TAG, "processYoutubeEpisodes : json=" + json.toString() );
+                        //if( null != json ) {
 
                             String content = "", thumbnail = "";
                             try {
-                                content = json.getJSONObject( "content" ).getString( "$t" );
-                            } catch( JSONException e ) {
+                                content = entry.getContent().getContent();
+                            } catch( Exception e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : content is not valid" );
                             }
 
@@ -1522,15 +1303,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                             String etag = "";
                             try {
-                                etag = json.getString( "gd$etag" );
-                            } catch( JSONException e ) {
+                                etag = entry.getEtag();
+                            } catch( Exception e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : etag is not valid" );
                             }
 
                             String youtubeId = "";
                             try {
-                                youtubeId = json.getJSONObject( "id" ).getString( "$t" );
-                            } catch( JSONException e ) {
+                                youtubeId = entry.getId().getValue();
+                            } catch( Exception e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : id is not valid" );
                             } finally {
                                 if( !"".equals( youtubeId ) ) {
@@ -1540,8 +1321,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                             DateTime published = new DateTime();
                             try {
-                                published = formaty.parseDateTime(json.getJSONObject( "published" ).getString( "$t" ) );
-                            } catch( JSONException e ) {
+                                published = new DateTime( entry.getPublished() );
+                            } catch( Exception e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : published is not valid" );
                             } finally {
                                 published = published.withZone( DateTimeZone.UTC );
@@ -1549,8 +1330,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                             DateTime updated = new DateTime();
                             try {
-                                updated = formaty.parseDateTime( json.getJSONObject( "updated" ).getString( "$t" ) );
-                            } catch( JSONException e ) {
+                                updated = new DateTime( entry.getUpdated() );
+                            } catch( Exception e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : updated is not valid" );
                             } finally {
                                 updated = updated.withZone( DateTimeZone.UTC );
@@ -1558,23 +1339,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                             String title = "";
                             try {
-                                title = json.getJSONObject( "title" ).getString( "$t");
-                            } catch( JSONException e ) {
+                                title = entry.getTitle().getValue();
+                            } catch( Exception e ) {
                                 Log.v( TAG, "processYoutubeEpisodes : title is not valid" );
                             }
 
                             String link = "";
-                            if( null != json.getJSONArray( "link" ) && json.getJSONArray( "link" ).length() > 0 ) {
+                            if( null != entry.getLinks() && entry.getLinks().length > 0 ) {
 
-                                for( int linkIdx = 0; linkIdx < json.getJSONArray( "link" ).length() - 1; linkIdx++ ) {
+                                for( YoutubeLink youtubeLink : entry.getLinks() ) {
 
-                                    JSONObject aLink = json.getJSONArray( "link" ).getJSONObject( linkIdx );
-                                    //Log.v( TAG, "processYoutubeEpisodes : link=" + aLink.toString() );
-
-                                    if( "alternate".equals(aLink.getString("rel")) ) {
-                                        link = aLink.getString( "href" );
+                                    if( "alternate".equals( youtubeLink.getRel() ) ) {
+                                        link = youtubeLink.getHref();
                                     }
+
                                 }
+
                             }
 
                             values = new ContentValues();
@@ -1625,7 +1405,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                 }
                                 count = 0;
                             }
-                        }
+                        //}
                     }
                 }
             }
