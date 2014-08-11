@@ -46,6 +46,8 @@ import com.keithandthegirl.app.db.model.Youtube;
 import com.keithandthegirl.app.db.model.YoutubeConstants;
 import com.keithandthegirl.app.db.model.YoutubeEntry;
 import com.keithandthegirl.app.db.model.YoutubeLink;
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -53,11 +55,13 @@ import org.joda.time.Days;
 import org.joda.time.Minutes;
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RestAdapter;
+import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 
 /**
@@ -132,12 +136,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void initializeService() {
 
+        OkHttpClient client = new OkHttpClient();
+
+        int cacheSize = 10 * 1024 * 1024; // 10 MiB
+        File cacheDirectory = new File( mContext.getCacheDir().getAbsolutePath(), "HttpCache" );
+        try {
+            Cache cache = new Cache( cacheDirectory, cacheSize );
+            client.setCache( cache );
+        } catch( IOException e ) { }
+
         Gson katgGson = new GsonBuilder()
            .setDateFormat( "MM/dd/yyyy HH:mm" )
            .create();
 
         RestAdapter katgRestAdapter = new RestAdapter.Builder()
             .setEndpoint( KatgService.KATG_URL )
+            .setClient( new OkClient( client ) )
             .setConverter( new GsonConverter( katgGson ) )
 //                .setLogLevel( RestAdapter.LogLevel.FULL )
             .build();
@@ -150,6 +164,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         RestAdapter youtubeRestAdapter = new RestAdapter.Builder()
                 .setEndpoint( YoutubeService.YOUTUBE_KATG_URL )
+                .setClient( new OkClient( client ) )
                 .setConverter( new GsonConverter( youtubeGson ) )
 //                .setLogLevel( RestAdapter.LogLevel.FULL )
                 .build();
