@@ -83,17 +83,17 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-		Log.v( TAG, "onCreate : enter" );
+//		Log.v( TAG, "onCreate : enter" );
 
         database = new DatabaseHelper( getContext() );
 
-		Log.v( TAG, "onCreate : exit" );
+//		Log.v( TAG, "onCreate : exit" );
         return ( null == database ? false : true );
     }
 
     @Override
     public String getType( Uri uri ) {
-        Log.v( TAG, "getType : enter" );
+//        Log.v( TAG, "getType : enter" );
 
         switch( URI_MATCHER.match( uri ) ) {
 
@@ -171,7 +171,7 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-        Log.v( TAG, "query : enter" );
+//        Log.v( TAG, "query : enter" );
 
         final SQLiteDatabase db = database.getReadableDatabase();
 
@@ -378,7 +378,7 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public Uri insert( Uri uri, ContentValues values ) {
-        Log.v( TAG, "insert : enter" );
+//        Log.v( TAG, "insert : enter" );
 
         final SQLiteDatabase db = database.getWritableDatabase();
 
@@ -474,7 +474,7 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public int delete( Uri uri, String selection, String[] selectionArgs ) {
-        Log.v( TAG, "delete : enter" );
+//        Log.v( TAG, "delete : enter" );
 
         final SQLiteDatabase db = database.getWritableDatabase();
 
@@ -706,7 +706,7 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public int update( Uri uri, ContentValues values, String selection, String[] selectionArgs ) {
-        Log.v( TAG, "update : enter" );
+//        Log.v( TAG, "update : enter" );
 
         final SQLiteDatabase db = database.getWritableDatabase();
 
@@ -892,7 +892,7 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public ContentProviderResult[] applyBatch( ArrayList<ContentProviderOperation> operations )	 throws OperationApplicationException {
-        Log.v( TAG, "applyBatch : enter" );
+//        Log.v( TAG, "applyBatch : enter" );
 
         final SQLiteDatabase db = database.getWritableDatabase();
         db.beginTransaction();

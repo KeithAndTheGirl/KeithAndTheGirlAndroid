@@ -64,6 +64,7 @@ import java.util.List;
 
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
+import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
 /**
@@ -148,20 +149,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch( IOException e ) { }
 
         Gson katgGson = new GsonBuilder()
-           .setDateFormat( "MM/dd/yyyy HH:mm" )
+           .setDateFormat("MM/dd/yyyy HH:mm")
            .create();
 
         RestAdapter katgRestAdapter = new RestAdapter.Builder()
             .setEndpoint( KatgService.KATG_URL )
             .setClient( new OkClient( client ) )
             .setConverter( new GsonConverter( katgGson ) )
-//                .setLogLevel( RestAdapter.LogLevel.FULL )
+            .setLogLevel( RestAdapter.LogLevel.FULL )
             .build();
 
         katgService = katgRestAdapter.create( KatgService.class );
 
         Gson youtubeGson = new GsonBuilder()
-                .setDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" )
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .create();
 
         RestAdapter youtubeRestAdapter = new RestAdapter.Builder()
@@ -250,26 +251,26 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 switch( wtype ) {
                     case ON_DEMAND:
                         if( !status.equals( WorkItemConstants.Status.OK ) ) {
-                            Log.v( TAG, "onPerformSync : adding On Demand job" );
+                            Log.i( TAG, "onPerformSync : adding On Demand job" );
 
                             jobs.add( job );
                         }
                         break;
                     case ONCE:
                         if( !status.equals( WorkItemConstants.Status.OK ) ) {
-                            Log.v( TAG, "onPerformSync : adding One Time job" );
+                            Log.i( TAG, "onPerformSync : adding One Time job" );
 
                             jobs.add( job );
                         }
                         break;
                     case HOURLY:
                         if( status.equals( WorkItemConstants.Status.NEVER ) ) {
-                            Log.v( TAG, "onPerformSync : adding Hourly job, never run" );
+                            Log.i( TAG, "onPerformSync : adding Hourly job, never run" );
 
                             jobs.add( job );
                         } else {
                             if( Minutes.minutesBetween( lastRun, now ).getMinutes() >= 60 ) {
-                                Log.v( TAG, "onPerformSync : adding Hourly job" );
+                                Log.i( TAG, "onPerformSync : adding Hourly job" );
 
                                 jobs.add( job );
                             }
@@ -277,12 +278,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
                     case DAILY:
                         if( status.equals( WorkItemConstants.Status.NEVER ) ) {
-                            Log.v( TAG, "onPerformSync : adding Daily job, never run" );
+                            Log.i( TAG, "onPerformSync : adding Daily job, never run" );
 
                             jobs.add( job );
                         } else {
                             if( Days.daysBetween( lastRun, now ).getDays() >= 1 ) {
-                                Log.v( TAG, "onPerformSync : adding Daily job" );
+                                Log.i( TAG, "onPerformSync : adding Daily job" );
 
                                 jobs.add( job );
                             }
@@ -290,12 +291,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
                     case WEEKLY:
                         if( status.equals( WorkItemConstants.Status.NEVER ) ) {
-                            Log.v( TAG, "onPerformSync : adding Weekly job, never run" );
+                            Log.i( TAG, "onPerformSync : adding Weekly job, never run" );
 
                             jobs.add( job );
                         } else {
                             if( Days.daysBetween( lastRun, now ).getDays() >= 7 ) {
-                                Log.v( TAG, "onPerformSync : adding Weekly job" );
+                                Log.i( TAG, "onPerformSync : adding Weekly job" );
                                 jobs.add( job );
                             }
                         }
@@ -329,49 +330,49 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             for( Job job : jobs ) {
                 switch( job.getType() ) {
                     case OVERVIEW:
-                        Log.v( TAG, "executeJobs : refreshing shows" );
+                        Log.i( TAG, "executeJobs : refreshing shows" );
 
                         getShows( provider, job );
                         break;
                     case EVENTS:
-                        Log.v( TAG, "executeJobs : refreshing events" );
+                        Log.i( TAG, "executeJobs : refreshing events" );
 
                         getEvents( provider, job );
                         break;
                     case LIVE:
-                        Log.v( TAG, "executeJobs : refreshing live status" );
+                        Log.i( TAG, "executeJobs : refreshing live status" );
 
                         getLives( provider, job );
                         break;
                     case LIST:
-                        Log.v( TAG, "executeJobs : refreshing episode list" );
+                        Log.i( TAG, "executeJobs : refreshing episode list" );
 
                         getEpisodes( provider, job );
                         break;
 
                     case RECENT:
-                        Log.v( TAG, "executeJobs : refreshing recent episodes" );
+                        Log.i( TAG, "executeJobs : refreshing recent episodes" );
 
                         getRecentEpisodes( provider, job );
 
                         break;
 
                     case IMAGE:
-                        Log.v( TAG, "executeJobs : refreshing images" );
+                        Log.i( TAG, "executeJobs : refreshing images" );
 
 //                        saveImage( provider, job );
 
                         break;
 
                     case DETAILS:
-                        Log.v( TAG, "executeJobs : refreshing episode details" );
+                        Log.i( TAG, "executeJobs : refreshing episode details" );
 
                         getEpisodeDetails( provider, job );
 
                         break;
 
                     case YOUTUBE:
-                        Log.v( TAG, "executeJobs : refreshing youtube episodes" );
+                        Log.i( TAG, "executeJobs : refreshing youtube episodes" );
 
                         getYoutubeEpisodes( provider, job );
 
@@ -437,7 +438,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void getLives( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        Log.v(TAG, "getLives : enter");
+        Log.v( TAG, "getLives : enter" );
 
         try {
 
@@ -489,12 +490,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getEpisodes : error", e);
 
-            update.put(WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name());
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.FAILED.name() );
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
@@ -527,7 +528,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getEpisodeDetails : error", e);
@@ -564,7 +565,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.e(TAG, "getRecentEpisodes : error", e);
@@ -635,7 +636,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "getYoutubeEpisodes : error", e );
@@ -751,7 +752,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     count++;
                 }
 
-                if( show.getShowNameId() >  1 ) {
+                if( !"KATG".equals( show.getPrefix() ) ) {
                     Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
 
                     values = new ContentValues();
@@ -825,7 +826,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
         } catch( Exception e ) {
             Log.e( TAG, "processShows : error", e );
 
@@ -926,7 +927,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "processEvents : error", e );
@@ -957,7 +958,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.v( TAG, "processBroadcasting : broadcasting format is not valid" );
@@ -971,7 +972,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void processEpisodes( List<Episode> episodes, ContentProviderClient provider, EndpointConstants.Type type ) {
-        Log.v(TAG, "processEpisodes : enter");
+        Log.v( TAG, "processEpisodes : enter" );
 
         try {
             int loaded = 0;
@@ -1444,7 +1445,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
             update.put( WorkItemConstants.FIELD_LAST_RUN, lastRun.getMillis() );
-            update.put( WorkItemConstants.FIELD_STATUS, job.getStatus().name() );
+            update.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
         } catch( Exception e ) {
             Log.e( TAG, "processYoutubeEpisodes : error", e );
@@ -1454,7 +1455,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
 
-        Log.v(TAG, "processYoutubeEpisodes : exit");
+        Log.v( TAG, "processYoutubeEpisodes : exit" );
     }
 
     private class Job {

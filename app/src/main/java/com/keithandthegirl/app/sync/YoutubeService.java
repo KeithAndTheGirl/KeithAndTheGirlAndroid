@@ -2,6 +2,7 @@ package com.keithandthegirl.app.sync;
 
 import com.keithandthegirl.app.db.model.Youtube;
 
+import retrofit.client.Response;
 import retrofit.http.GET;
 
 /**
