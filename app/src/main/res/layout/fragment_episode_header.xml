@@ -27,7 +27,7 @@
             android:id="@+id/episode_date"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="@color/episode_light"
+            android:textColor="@color/katg_episode_light"
             android:textStyle="bold"
             android:textSize="16sp"
             android:text="date" />
@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@android:color/black"
-            android:textColor="@color/show_title"
+            android:textColor="@color/katg_show_title"
             android:textStyle="bold"
             android:textSize="18sp"
             android:text="number"

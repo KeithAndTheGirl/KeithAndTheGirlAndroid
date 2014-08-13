@@ -13,5 +13,6 @@
     <dimen name="episode_images_gridview_vertical_spacing">20dp</dimen>
     <dimen name="episode_images_gridview_horizontal_spacing">20dp</dimen>
     <dimen name="widget_margin">8dp</dimen>
+    <dimen name="katg_show_gridview_width">158dp</dimen>
 
 </resources>

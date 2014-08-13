@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="5dp"
-    android:padding="5dp">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_margin="5dp"
+              android:padding="5dp">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal"
@@ -17,6 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_weight=".25"
             android:textColor="@android:color/black"
+            tools:text="Title"
             android:id="@+id/event_title" />
 
         <TextView
@@ -24,6 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_weight=".25"
             android:textColor="@android:color/black"
+            tools:text="start date"
             android:id="@+id/event_start_date" />
 
         <TextView
@@ -31,13 +34,15 @@
             android:layout_height="wrap_content"
             android:layout_weight=".25"
             android:textColor="@android:color/black"
-            android:id="@+id/event_end_date" />
+            android:id="@+id/event_end_date"
+            tools:text="end date"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".25"
             android:textColor="@android:color/black"
+            tools:text="location"
             android:id="@+id/event_location" />
 
     </LinearLayout>
@@ -54,6 +59,7 @@
             android:textColor="@android:color/black"
             android:id="@+id/event_details"
             android:linksClickable="true"
+            tools:text="event details"
             android:autoLink="web" />
 
     </LinearLayout>

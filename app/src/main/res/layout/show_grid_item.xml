@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="@dimen/katg_show_gridview_width"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
     <ImageView
         android:id="@+id/show_grid_item_coverimage"
         android:layout_width="150dp"
-        android:layout_height="150dp" />
+        android:layout_height="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="4dp"
+        tools:background="@color/katg_green"/>
 
-    <RelativeLayout
+    <TextView
+        android:id="@+id/show_grid_item_name"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_below="@id/show_grid_item_coverimage"
+        android:layout_alignLeft="@id/show_grid_item_coverimage"
+        android:layout_alignRight="@id/show_grid_item_coverimage"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="@color/katg_main_name"
+        tools:text="Show Name that wraps below"/>
+
+    <TextView
+        android:id="@+id/show_grid_item_vip"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:background="@color/main_name">
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:layout_alignParentRight="true"
+        android:text="VIP"
+        android:background="@drawable/vip_badge"
+        android:textColor="@color/White"
+        android:textSize="12sp"/>
 
-        <TextView
-            android:id="@+id/show_grid_item_vip"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:text="VIP"
-            android:gravity="center"
-            android:background="@color/main_vip"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-        />
-
-        <TextView
-            android:id="@+id/show_grid_item_name"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:text="Show Name that wraps below"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:layout_toEndOf="@id/show_grid_item_vip"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-        />
-
-    </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>

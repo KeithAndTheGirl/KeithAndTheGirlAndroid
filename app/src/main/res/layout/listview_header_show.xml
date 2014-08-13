@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/katg_main_background">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/katg_main_background">
 
     <ImageView
         android:id="@+id/show_coverimage"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_margin="10dp" />
+        android:layout_margin="10dp"
+        tools:background="@color/Red"/>
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
         android:layout_marginRight="10dp">
 
         <TextView
@@ -24,10 +25,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/katg_show_title"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:paddingBottom="20dp"
-            android:text="Title" />
+            tools:text="Keith and The Girl" />
 
         <TextView
             android:id="@+id/show_description"
@@ -37,7 +37,8 @@
             android:textSize="14sp"
             android:singleLine="false"
             android:paddingBottom="10dp"
-            android:text="Description" />
+            android:ellipsize="end"
+            tools:text="Hosts Keith Malley and Chemda talk with comics about current events, pop culture, politics and even intimate details of their lives. They create a new hour-long show each weekday." />
 
     </LinearLayout>
 

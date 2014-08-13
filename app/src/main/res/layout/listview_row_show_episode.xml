@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:orientation="vertical"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/episodeNumberLayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/episode_number"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textColor="@color/katg_show_title"
+                tools:text="Episode 9999" />
+
+            <TextView
+                android:id="@+id/episode_date"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textColor="@android:color/black"
+                android:gravity="right"
+                tools:text="12/12/2012" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/episode_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="9"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="If the title is long enough that it will wrap three lines. This is what it will look like." />
+
+            <ImageView
+                android:id="@+id/episode_details"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:src="@drawable/next_arrow" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingRight="8dp"
+                android:textStyle="bold"
+                android:text="Guest(s):"/>
+
+            <TextView
+                android:id="@+id/guestsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:text="Daniel Frey, Jeff Alexander, Stuart Kuredjian"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/episode_status"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/episodeNumberLayout">
+
+        <TextView
+            android:id="@+id/episode_played"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:paddingLeft="16dp"
+            android:text="@string/episode_not_played"/>
+
+        <TextView
+            android:id="@+id/episode_downloaded"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/episode_not_downloaded"/>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/SplitLine_ver1"
+        android:layout_width="match_parent"
+        android:layout_height= "2dp"
+        android:layout_below="@id/episode_status"
+        android:layout_marginTop="2dp"
+        android:alpha=".5"
+        android:background="@color/katg_green"
+        android:layout_gravity="bottom"/>
+
+</RelativeLayout>
