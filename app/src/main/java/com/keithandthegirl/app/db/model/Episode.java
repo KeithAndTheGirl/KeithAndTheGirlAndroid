@@ -86,6 +86,7 @@ public class Episode {
     @SerializedName( "ShowNameId" )
     private int showNameId;
 
+    @SerializedName( "Guests" )
     private Guest[] guests;
 
     public Episode() { }
