@@ -83,7 +83,7 @@ public class Episode {
     @SerializedName( "Timestamp" )
     private long timestamp;
 
-    @SerializedName( "showNameId" )
+    @SerializedName( "ShowNameId" )
     private int showNameId;
 
     private Guest[] guests;

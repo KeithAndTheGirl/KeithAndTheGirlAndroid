@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.internal.bind.DateTypeAdapter;
 import com.keithandthegirl.app.db.model.Detail;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EndpointConstants;
@@ -58,6 +59,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import retrofit.RestAdapter;
@@ -159,14 +161,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         katgService = katgRestAdapter.create( KatgService.class );
 
         Gson youtubeGson = new GsonBuilder()
-                .setDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" )
+                .setDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" )
                 .create();
 
         RestAdapter youtubeRestAdapter = new RestAdapter.Builder()
                 .setEndpoint( YoutubeService.YOUTUBE_KATG_URL )
                 .setClient( new OkClient( client ) )
                 .setConverter( new GsonConverter( youtubeGson ) )
-//                .setLogLevel( RestAdapter.LogLevel.FULL )
+                .setLogLevel( RestAdapter.LogLevel.FULL )
                 .build();
 
         youtubeService = youtubeRestAdapter.create( YoutubeService.class );
@@ -625,7 +627,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 Youtube youtube = youtubeService.listKatgYoutubeFeed();
                 if( null != youtube ) {
-                    Log.i(TAG, "getYoutubeEpisodes : youtube=" + youtube.toString());
+                    Log.i( TAG, "getYoutubeEpisodes : youtube=" + youtube.toString() );
 
                     processYoutubeEpisodes( youtube, provider, job );
                 }
@@ -670,7 +672,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( ShowConstants.FIELD_NAME, show.getName() );
                 values.put( ShowConstants.FIELD_PREFIX, show.getPrefix() );
                 values.put( ShowConstants.FIELD_VIP, show.isVip() ? 1 : 0 );
-                values.put( ShowConstants.FIELD_SORTORDER, show.getSortOrder() );
+                values.put( ShowConstants.FIELD_SORTORDER, show.getSortOrderAsInt() );
                 values.put( ShowConstants.FIELD_DESCRIPTION, show.getDescription() );
                 values.put( ShowConstants.FIELD_COVERIMAGEURL, show.getCoverImageUrl() );
                 values.put( ShowConstants.FIELD_COVERIMAGEURL_SQUARED, show.getCoverImageUrlSquared() );

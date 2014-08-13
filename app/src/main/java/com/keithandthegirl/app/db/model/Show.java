@@ -106,6 +106,15 @@ public class Show {
         return sortOrder;
     }
 
+    public int getSortOrderAsInt() {
+
+        if( null == sortOrder || "".equals( sortOrder ) ) {
+            return 1;
+        }
+
+        return Integer.parseInt( sortOrder );
+    }
+
     public void setSortOrder( String sortOrder ) {
         this.sortOrder = sortOrder;
     }
