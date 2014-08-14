@@ -42,19 +42,11 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
     private ContentResolver mContentResolver;
     private Uri mUri;
 
-    private LayoutInflater mInflater;
     private BroadcastingObserver mBroadcastingObserver;
 
     private Drawable micOn, micOff;
 
     protected Account mAccount;
-
-    protected MenuItem refreshItem;
-    protected ImageView refreshImageView;
-    protected Animation mRefreshRotation;
-
-    private SyncStartReceiver mSyncStartReceiver = new SyncStartReceiver();
-    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -81,12 +73,6 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
         mContentResolver.registerContentObserver( mUri, true, observer );
 
-        mInflater = (LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-        refreshImageView = (ImageView) mInflater.inflate( R.layout.refresh_action_view, null );
-
-        mRefreshRotation = AnimationUtils.loadAnimation( this, R.anim.clockwise_refresh );
-        mRefreshRotation.setRepeatCount( Animation.INFINITE );
-
         Log.d( TAG, "onCreate : exit" );
     }
 
@@ -94,14 +80,6 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
     protected void onPause() {
         Log.d( TAG, "onPause : enter" );
         super.onPause();
-
-        if( null != mSyncStartReceiver ) {
-            unregisterReceiver( mSyncStartReceiver );
-        }
-
-        if( null != mSyncCompleteReceiver ) {
-            unregisterReceiver( mSyncCompleteReceiver );
-        }
 
         getContentResolver().unregisterContentObserver( mBroadcastingObserver );
 
@@ -113,26 +91,12 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         Log.d( TAG, "onResume : enter" );
         super.onResume();
 
-        IntentFilter syncStartIntentFilter = new IntentFilter( SyncAdapter.START_ACTION );
-        registerReceiver( mSyncStartReceiver, syncStartIntentFilter );
-
-        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
-        registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
-
         getContentResolver().
             registerContentObserver(
                     ContentUris.withAppendedId(LiveConstants.CONTENT_URI, 1),
                     true,
                     mBroadcastingObserver
             );
-
-        boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
-
-        if( syncActive ) {
-
-            refresh();
-
-        }
 
         Log.d( TAG, "onResume : exit" );
     }
@@ -173,14 +137,6 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
             menu.findItem( R.id.action_broadcasting ).setEnabled( false );
             menu.findItem( R.id.action_broadcasting ).setIcon( micOff );
-
-        }
-
-        boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
-
-        if( syncActive ) {
-
-            refresh();
 
         }
 
@@ -228,72 +184,9 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
                 return true;
 
-            case R.id.action_refresh :
-
-                refreshItem = item;
-
-                Bundle b = new Bundle();
-                b.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
-                b.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
-
-                ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
-                ContentResolver.setIsSyncable( mAccount, KatgProvider.AUTHORITY, 1);
-
-                boolean pending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY );
-                boolean active = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
-
-                if (pending || active) {
-                    Log.d( TAG, "Cancelling previously pending/active sync." );
-                    ContentResolver.cancelSync( mAccount, KatgProvider.AUTHORITY );
-                }
-
-                DateTime now = new DateTime( DateTimeZone.UTC );
-                now = now.minusDays( 1 );
-
-                ContentValues values = new ContentValues();
-                values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
-
-                int updated = getContentResolver().update( WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_FREQUENCY + " = ? OR " + WorkItemConstants.FIELD_FREQUENCY + " = ?", new String[]{ WorkItemConstants.Frequency.HOURLY.name(), WorkItemConstants.Frequency.DAILY.name() } );
-                Log.i( TAG, "onOptionsItemSelected : records updated=" + updated );
-
-//                ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, b );
-
-                return true;
         }
 
         return super.onOptionsItemSelected( item );
-    }
-
-    public void refresh() {
-        Log.d( TAG, "refresh : enter" );
-
-        if( null != refreshImageView && null != refreshItem ) {
-            Log.d( TAG, "refresh : starting animation" );
-
-           /* Attach a rotating ImageView to the refresh item as an ActionView */
-
-           refreshImageView.startAnimation( mRefreshRotation );
-
-           refreshItem.setActionView( refreshImageView );
-
-        }
-
-        Log.d( TAG, "refresh : exit" );
-    }
-
-    public void refreshComplete() {
-        Log.d( TAG, "refreshComplete : enter" );
-
-        if( null != refreshItem && null != refreshItem.getActionView() ) {
-            Log.d( TAG, "refreshComplete : cleaning up animation" );
-
-            refreshItem.getActionView().clearAnimation();
-            refreshItem.setActionView( null );
-
-            invalidateOptionsMenu();
-        }
-
-        Log.d( TAG, "refreshComplete : exit" );
     }
 
     @SuppressLint( "NewApi" )
@@ -362,46 +255,6 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
             }
 
             Log.i( TAG, "onChange : exit" );
-        }
-
-    }
-
-    private class SyncStartReceiver extends BroadcastReceiver {
-
-        private final String TAG = SyncStartReceiver.class.getSimpleName();
-
-        @Override
-        public void onReceive( Context context, Intent intent ) {
-            Log.d( TAG, "onReceive : enter" );
-
-            if( intent.getAction().equals( SyncAdapter.START_ACTION ) ) {
-                Log.v( TAG, "onReceive : sync started" );
-
-                refresh();
-
-            }
-
-            Log.d( TAG, "onReceive : exit" );
-        }
-
-    }
-
-    private class SyncCompleteReceiver extends BroadcastReceiver {
-
-        private final String TAG = SyncCompleteReceiver.class.getSimpleName();
-
-        @Override
-        public void onReceive( Context context, Intent intent ) {
-            Log.d( TAG, "onReceive : enter" );
-
-            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
-                Log.v( TAG, "onReceive : sync complete" );
-
-                refreshComplete();
-
-            }
-
-            Log.d( TAG, "onReceive : exit" );
         }
 
     }
