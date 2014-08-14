@@ -106,7 +106,7 @@ public class EpisodeDetailsFragment extends Fragment {
     private void updateView() {
         Log.v( TAG, "updateView : enter" );
 
-        boolean scheduleDownload = false;
+//        boolean scheduleDownload = false;
 
         Cursor cursor = getActivity().getContentResolver().query( DetailConstants.CONTENT_URI, null, DetailConstants.FIELD_SHOWID + " = ? AND NOT (" + DetailConstants.FIELD_NOTES + " IS NULL OR " + DetailConstants.FIELD_NOTES + " = ?)", new String[] { String.valueOf( mEpisodeId ), "" }, null );
         if( cursor.moveToNext() ) {
@@ -120,15 +120,15 @@ public class EpisodeDetailsFragment extends Fragment {
         } else {
             Log.v( TAG, "updateView : schedule detail download" );
 
-            scheduleDownload = true;
+//            scheduleDownload = true;
         }
         cursor.close();
 
-        if( scheduleDownload ) {
+//        if( scheduleDownload ) {
 
             scheduleWorkItem();
 
-        }
+//        }
 
         Log.v( TAG, "updateView : exit" );
     }

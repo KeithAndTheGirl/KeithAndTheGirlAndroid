@@ -1,14 +1,24 @@
 package com.keithandthegirl.app.ui.custom;
 
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import com.keithandthegirl.app.db.KatgProvider;
+import com.keithandthegirl.app.db.model.LiveConstants;
+import com.keithandthegirl.app.sync.SyncAdapter;
 
 /**
  * Created by Jeff on 6/30/14.
@@ -21,6 +31,39 @@ public class SwipeRefreshListFragment extends ListFragment {
     private static final String TAG = SwipeRefreshListFragment.class.getSimpleName();
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private SyncStartReceiver mSyncStartReceiver = new SyncStartReceiver();
+    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
+
+    @Override
+    public void onPause() {
+        Log.d( TAG, "onPause : enter" );
+        super.onPause();
+
+        if( null != mSyncStartReceiver ) {
+            getActivity().unregisterReceiver( mSyncStartReceiver );
+        }
+
+        if( null != mSyncCompleteReceiver ) {
+            getActivity().unregisterReceiver( mSyncCompleteReceiver );
+        }
+
+        Log.d( TAG, "onPause : exit" );
+    }
+
+    @Override
+    public void onResume() {
+        Log.d( TAG, "onResume : enter" );
+        super.onResume();
+
+        IntentFilter syncStartIntentFilter = new IntentFilter( SyncAdapter.START_ACTION );
+        getActivity().registerReceiver( mSyncStartReceiver, syncStartIntentFilter );
+
+        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
+        getActivity().registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
+
+        Log.d( TAG, "onResume : exit" );
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -122,6 +165,44 @@ public class SwipeRefreshListFragment extends ListFragment {
                 return false;
             }
         }
+    }
+
+    private class SyncStartReceiver extends BroadcastReceiver {
+
+//        private final String TAG = SyncStartReceiver.class.getSimpleName();
+
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+            Log.d(TAG, "onReceive : enter");
+
+            if( intent.getAction().equals( SyncAdapter.START_ACTION ) ) {
+                Log.v( TAG, "onReceive : sync started" );
+
+                setRefreshing( true );
+            }
+
+            Log.d( TAG, "onReceive : exit" );
+        }
+
+    }
+
+    private class SyncCompleteReceiver extends BroadcastReceiver {
+
+//        private final String TAG = SyncCompleteReceiver.class.getSimpleName();
+
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+            Log.d( TAG, "onReceive : enter" );
+
+            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
+                Log.v( TAG, "onReceive : sync complete" );
+
+                setRefreshing( false );
+            }
+
+            Log.d( TAG, "onReceive : exit" );
+        }
+
     }
 
     /**

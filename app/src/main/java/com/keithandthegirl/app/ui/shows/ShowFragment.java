@@ -58,43 +58,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     private TextView mTitleTextView;
     private TextView mDescriptionTextView;
 
-    public SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
-
-        @Override
-        public void onRefresh() {
-            Log.i( TAG, "onRefresh : enter" );
-
-            Account account = MainApplication.CreateSyncAccount( getActivity() );
-
-            Bundle b = new Bundle();
-            b.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
-            b.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
-
-            ContentResolver.setSyncAutomatically( account, KatgProvider.AUTHORITY, true );
-            ContentResolver.setIsSyncable( account, KatgProvider.AUTHORITY, 1);
-
-            boolean pending = ContentResolver.isSyncPending( account, KatgProvider.AUTHORITY );
-            boolean active = ContentResolver.isSyncActive( account, KatgProvider.AUTHORITY );
-
-            if (pending || active) {
-                Log.d( TAG, "Cancelling previously pending/active sync." );
-                ContentResolver.cancelSync( account, KatgProvider.AUTHORITY );
-            }
-
-            DateTime now = new DateTime( DateTimeZone.UTC );
-            now = now.minusDays( 1 );
-
-            ContentValues values = new ContentValues();
-            values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
-
-            int updated = getActivity().getContentResolver().update( WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{ EndpointConstants.LIST, "?shownameid=" + mShowNameId } );
-            Log.i( TAG, "onRefresh : records updated=" + updated );
-
-//            ContentResolver.requestSync( account, KatgProvider.AUTHORITY, b );
-        }
-
-    };
-
     /**
      * Returns a new instance of this fragment for the given show id.
      */
@@ -125,7 +88,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         mTitleTextView = (TextView) mHeaderView.findViewById(R.id.show_title);
         mDescriptionTextView = (TextView) mHeaderView.findViewById(R.id.show_description);
 
-        setOnRefreshListener( listener );
+        setOnRefreshListener( this );
         return rootView;
     }
 
@@ -149,17 +112,49 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
         @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        super.onActivityCreated( savedInstanceState );
+        super.onActivityCreated(savedInstanceState);
 
         updateHeader( mShowNameId );
     }
 
     @Override
     public void onRefresh() {
-        setRefreshing(true);
+
         Bundle args = new Bundle();
         args.putLong( SHOW_NAME_ID_KEY, mShowNameId );
         getLoaderManager().restartLoader(0, args, this);
+
+        Account account = MainApplication.CreateSyncAccount( getActivity() );
+
+        Bundle b = new Bundle();
+        b.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
+        b.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
+
+        ContentResolver.setSyncAutomatically( account, KatgProvider.AUTHORITY, true );
+        ContentResolver.setIsSyncable( account, KatgProvider.AUTHORITY, 1);
+
+        boolean pending = ContentResolver.isSyncPending( account, KatgProvider.AUTHORITY );
+        boolean active = ContentResolver.isSyncActive( account, KatgProvider.AUTHORITY );
+
+        if (pending || active) {
+            Log.d( TAG, "Cancelling previously pending/active sync." );
+            ContentResolver.cancelSync( account, KatgProvider.AUTHORITY );
+        }
+
+        DateTime now = new DateTime( DateTimeZone.UTC );
+        now = now.minusDays( 1 );
+
+        ContentValues values = new ContentValues();
+        values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
+
+        int updated = -1;
+
+        if( mShowNameId == 1 ) {
+            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ?", new String[]{ EndpointConstants.RECENT } );
+        } else {
+            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{ EndpointConstants.LIST, "?shownameid=" + mShowNameId } );
+        }
+        Log.i( TAG, "onRefresh : updated=" + updated );
     }
 
     @Override
