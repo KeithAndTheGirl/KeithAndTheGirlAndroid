@@ -22,7 +22,6 @@ import com.keithandthegirl.app.sync.SyncAdapter;
 
 /**
  * Created by Jeff on 6/30/14.
- * Copyright JeffInMadison.com 2014
  * Adapted from Android Samples SwipeRefreshListFragment
  * https://developer.android.com/samples/SwipeRefreshListFragment/src/com.example.android.swiperefreshlistfragment/SwipeRefreshListFragment.html
  */
@@ -31,39 +30,6 @@ public class SwipeRefreshListFragment extends ListFragment {
     private static final String TAG = SwipeRefreshListFragment.class.getSimpleName();
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
-    private SyncStartReceiver mSyncStartReceiver = new SyncStartReceiver();
-    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
-
-    @Override
-    public void onPause() {
-        Log.d( TAG, "onPause : enter" );
-        super.onPause();
-
-        if( null != mSyncStartReceiver ) {
-            getActivity().unregisterReceiver( mSyncStartReceiver );
-        }
-
-        if( null != mSyncCompleteReceiver ) {
-            getActivity().unregisterReceiver( mSyncCompleteReceiver );
-        }
-
-        Log.d( TAG, "onPause : exit" );
-    }
-
-    @Override
-    public void onResume() {
-        Log.d( TAG, "onResume : enter" );
-        super.onResume();
-
-        IntentFilter syncStartIntentFilter = new IntentFilter( SyncAdapter.START_ACTION );
-        getActivity().registerReceiver( mSyncStartReceiver, syncStartIntentFilter );
-
-        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
-        getActivity().registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
-
-        Log.d( TAG, "onResume : exit" );
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -165,44 +131,6 @@ public class SwipeRefreshListFragment extends ListFragment {
                 return false;
             }
         }
-    }
-
-    private class SyncStartReceiver extends BroadcastReceiver {
-
-//        private final String TAG = SyncStartReceiver.class.getSimpleName();
-
-        @Override
-        public void onReceive( Context context, Intent intent ) {
-            Log.d(TAG, "onReceive : enter");
-
-            if( intent.getAction().equals( SyncAdapter.START_ACTION ) ) {
-                Log.v( TAG, "onReceive : sync started" );
-
-                setRefreshing( true );
-            }
-
-            Log.d( TAG, "onReceive : exit" );
-        }
-
-    }
-
-    private class SyncCompleteReceiver extends BroadcastReceiver {
-
-//        private final String TAG = SyncCompleteReceiver.class.getSimpleName();
-
-        @Override
-        public void onReceive( Context context, Intent intent ) {
-            Log.d( TAG, "onReceive : enter" );
-
-            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
-                Log.v( TAG, "onReceive : sync complete" );
-
-                setRefreshing( false );
-            }
-
-            Log.d( TAG, "onReceive : exit" );
-        }
-
     }
 
     /**

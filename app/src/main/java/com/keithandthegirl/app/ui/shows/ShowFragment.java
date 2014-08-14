@@ -1,15 +1,15 @@
 package com.keithandthegirl.app.ui.shows;
 
 import android.accounts.Account;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -30,30 +30,27 @@ import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
+import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import java.util.TimeZone;
 
 /**
  * Created by dmfrey on 3/30/14.
  */
 public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
-
     private static final String TAG = ShowFragment.class.getSimpleName();
 
     public static final String SHOW_NAME_ID_KEY = "showNameId";
 
     private View mHeaderView;
-    EpisodeCursorAdapter mAdapter;
+    private EpisodeCursorAdapter mAdapter;
+    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
+    private long mShowNameId;
 
-    long mShowNameId;
     private ImageView mCoverImageView;
     private TextView mTitleTextView;
     private TextView mDescriptionTextView;
@@ -88,7 +85,11 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         mTitleTextView = (TextView) mHeaderView.findViewById(R.id.show_title);
         mDescriptionTextView = (TextView) mHeaderView.findViewById(R.id.show_description);
 
-        setOnRefreshListener( this );
+        setOnRefreshListener(this);
+        setColorScheme(R.color.katg_refresh_1,
+                R.color.katg_refresh_2,
+                R.color.katg_refresh_3,
+                R.color.katg_refresh_4);
         return rootView;
     }
 
@@ -97,7 +98,14 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         super.onViewCreated(view, savedInstanceState);
         getListView().addHeaderView(mHeaderView);
         setListAdapter(mAdapter);
-//        setEmptyText("empty text");
+
+        // Setting the empty text will turn the fragment view into a blank screen with the text centered
+        // it also removes the view that the pull to refresh is attached to so you can't get it to try
+        // and refresh. Leaving it out gives you a view with the header and an empty view that you can
+        // at least pull down and attempt a refresh. But this is the right place to put the call.
+        //setEmptyText("empty text");
+
+        // Set the progress to visible on init by hiding list. As soon as you load data set it to true
         setListShown(false);
         Bundle args = new Bundle();
         args.putLong( SHOW_NAME_ID_KEY, mShowNameId );
@@ -105,8 +113,25 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
+        getActivity().registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if( null != mSyncCompleteReceiver ) {
+            getActivity().unregisterReceiver( mSyncCompleteReceiver );
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // set list adapter to null so that the header can be recreated in onCrateView
         setListAdapter(null);
     }
 
@@ -119,11 +144,9 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
     @Override
     public void onRefresh() {
-
-        Bundle args = new Bundle();
-        args.putLong( SHOW_NAME_ID_KEY, mShowNameId );
-        getLoaderManager().restartLoader(0, args, this);
-
+        // a swipe occurred and we need to start refreshing then start the sync adapter
+        // we will get a broadcast event when the sync adapter is done.
+        setRefreshing(true);
         Account account = MainApplication.CreateSyncAccount( getActivity() );
 
         Bundle b = new Bundle();
@@ -172,8 +195,9 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     @Override
     public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
         setListShown(true);
+        setRefreshing(false);
         mAdapter.swapCursor( cursor );
-        getListView().setFastScrollEnabled( true );
+        getListView().setFastScrollEnabled(true);
     }
 
     @Override
@@ -187,7 +211,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
         Intent i = new Intent( getActivity(), EpisodeActivity.class );
         i.putExtra( EpisodeActivity.EPISODE_KEY, id );
-        startActivity( i );
+        startActivity(i);
     }
 
     public void updateHeader( long showNameId ) {
@@ -257,5 +281,17 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         TextView downloaded;
         TextView guestsTextView;
         ViewHolder() { }
+    }
+
+    private class SyncCompleteReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+            // when we receive a syc complete action reset the loader so it can refresh the content
+            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
+                Bundle args = new Bundle();
+                args.putLong( SHOW_NAME_ID_KEY, mShowNameId );
+                getLoaderManager().restartLoader(0, args, ShowFragment.this);
+            }
+        }
     }
 }

@@ -162,4 +162,9 @@
     <color name="katg_episode_light">#80868a</color>
     <color name="katg_episode_description">#f3f5f6</color>
 
+    <color name="katg_refresh_1">#FF74be66</color>
+    <color name="katg_refresh_2">#5574be66</color>
+    <color name="katg_refresh_3">#2274be66</color>
+    <color name="katg_refresh_4">#1174be66</color>
+
 </resources>
