@@ -1,6 +1,9 @@
 package com.keithandthegirl.app.ui.shows;
 
+import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,13 +23,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.db.KatgProvider;
+import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.ui.EpisodeActivity;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -37,16 +45,55 @@ import java.util.TimeZone;
  * Created by dmfrey on 3/30/14.
  */
 public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String TAG = ShowFragment.class.getSimpleName();
 
     public static final String SHOW_NAME_ID_KEY = "showNameId";
 
     private View mHeaderView;
     EpisodeCursorAdapter mAdapter;
+
     long mShowNameId;
     private ImageView mCoverImageView;
     private TextView mTitleTextView;
     private TextView mDescriptionTextView;
+
+    public SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
+
+        @Override
+        public void onRefresh() {
+            Log.i( TAG, "onRefresh : enter" );
+
+            Account account = MainApplication.CreateSyncAccount( getActivity() );
+
+            Bundle b = new Bundle();
+            b.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
+            b.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
+
+            ContentResolver.setSyncAutomatically( account, KatgProvider.AUTHORITY, true );
+            ContentResolver.setIsSyncable( account, KatgProvider.AUTHORITY, 1);
+
+            boolean pending = ContentResolver.isSyncPending( account, KatgProvider.AUTHORITY );
+            boolean active = ContentResolver.isSyncActive( account, KatgProvider.AUTHORITY );
+
+            if (pending || active) {
+                Log.d( TAG, "Cancelling previously pending/active sync." );
+                ContentResolver.cancelSync( account, KatgProvider.AUTHORITY );
+            }
+
+            DateTime now = new DateTime( DateTimeZone.UTC );
+            now = now.minusDays( 1 );
+
+            ContentValues values = new ContentValues();
+            values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
+
+            int updated = getActivity().getContentResolver().update( WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{ EndpointConstants.LIST, "?shownameid=" + mShowNameId } );
+            Log.i( TAG, "onRefresh : records updated=" + updated );
+
+//            ContentResolver.requestSync( account, KatgProvider.AUTHORITY, b );
+        }
+
+    };
 
     /**
      * Returns a new instance of this fragment for the given show id.
@@ -78,7 +125,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         mTitleTextView = (TextView) mHeaderView.findViewById(R.id.show_title);
         mDescriptionTextView = (TextView) mHeaderView.findViewById(R.id.show_description);
 
-        setOnRefreshListener(this);
+        setOnRefreshListener( listener );
         return rootView;
     }
 
@@ -103,7 +150,8 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
         super.onActivityCreated( savedInstanceState );
-        updateHeader(mShowNameId);
+
+        updateHeader( mShowNameId );
     }
 
     @Override

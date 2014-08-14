@@ -232,20 +232,31 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
 
                 refreshItem = item;
 
-                boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
-                boolean syncPending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY );
+                Bundle b = new Bundle();
+                b.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
+                b.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
 
-                if( !syncActive && !syncPending ) {
+                ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
+                ContentResolver.setIsSyncable( mAccount, KatgProvider.AUTHORITY, 1);
 
-                    DateTime now = new DateTime( DateTimeZone.UTC );
-                    now = now.minusDays( 1 );
+                boolean pending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY );
+                boolean active = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
 
-                    ContentValues values = new ContentValues();
-                    values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
-
-                    getContentResolver().update( WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_FREQUENCY + " = ? OR " + WorkItemConstants.FIELD_FREQUENCY + " = ?", new String[]{ WorkItemConstants.Frequency.HOURLY.name(), WorkItemConstants.Frequency.DAILY.name() } );
-
+                if (pending || active) {
+                    Log.d( TAG, "Cancelling previously pending/active sync." );
+                    ContentResolver.cancelSync( mAccount, KatgProvider.AUTHORITY );
                 }
+
+                DateTime now = new DateTime( DateTimeZone.UTC );
+                now = now.minusDays( 1 );
+
+                ContentValues values = new ContentValues();
+                values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
+
+                int updated = getContentResolver().update( WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_FREQUENCY + " = ? OR " + WorkItemConstants.FIELD_FREQUENCY + " = ?", new String[]{ WorkItemConstants.Frequency.HOURLY.name(), WorkItemConstants.Frequency.DAILY.name() } );
+                Log.i( TAG, "onOptionsItemSelected : records updated=" + updated );
+
+//                ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, b );
 
                 return true;
         }
