@@ -86,4 +86,9 @@
         <item name="android:textColor">@drawable/ab_tab_text</item>
     </style>
 
+    <style name="PlayerTheme" parent="@style/Theme.Katg">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
 </resources>

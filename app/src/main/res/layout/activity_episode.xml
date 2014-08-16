@@ -17,6 +17,12 @@
             android:layout_width="match_parent"
             android:layout_height="130dp" />
 
+        <Button
+            android:id="@+id/episode_play"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Play" />
+
         <FrameLayout
             android:id="@+id/episode_guests"
             android:layout_width="match_parent"

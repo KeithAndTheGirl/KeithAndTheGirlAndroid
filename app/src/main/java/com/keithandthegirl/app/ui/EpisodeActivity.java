@@ -1,18 +1,24 @@
 package com.keithandthegirl.app.ui;
 
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.ui.player.SimplePlayerActivity;
 import com.keithandthegirl.app.ui.shows.EpisodeDetailsFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestImagesFragment;
 import com.keithandthegirl.app.ui.shows.EpisodeGuestsFragment;
@@ -54,11 +60,14 @@ public class EpisodeActivity extends AbstractBaseActivity {
     public static final String SHOW_COVER_IMAGE_URL_KEY = "show_cover_image_url";
     public static final String SHOW_FORUM_URL_KEY = "show_forum_url";
 
+    private Context mContext;
+
     private long mEpisodeId, mEpisodeLastPlayed;
     private int mEpisodeNumber, mEpisodeLength, mEpisodeFileSize, mEpisodeType, mEpisodePlayed, mShowNameId;
     private String mEpisodeTitle, mEpisodePreviewUrl, mEpisodeFileUrl, mEpisodeFilename, mEpisodeDetailNotes, mEpisodeDetailForumUrl, mShowName, mShowPrefix, mShowCoverImageUrl, mShowForumUrl, mEpisodePosted;
     private boolean mEpisodePublic, mEpisodeDownloaded, mShowVip;
 
+    private Button mEpisodePlay;
     private EpisodeHeaderFragment mEpisodeHeaderFragment;
     private EpisodeGuestsFragment mEpisodeGuestsFragment;
     private EpisodeGuestImagesFragment mEpisodeGuestImagesFragment;
@@ -71,6 +80,8 @@ public class EpisodeActivity extends AbstractBaseActivity {
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_episode );
+
+        mContext = getApplicationContext();
 
         Bundle extras = getIntent().getExtras();
         if( extras.containsKey( EPISODE_KEY ) ) {
@@ -214,6 +225,23 @@ public class EpisodeActivity extends AbstractBaseActivity {
 
             tx.commit();
         }
+
+        mEpisodePlay = (Button) findViewById( R.id.episode_play );
+        mEpisodePlay.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick( View v ) {
+
+                Intent mpdIntent = new Intent( mContext, SimplePlayerActivity.class )
+                        .setData(Uri.parse(mEpisodeFileUrl));
+//                        .putExtra( DemoUtil.CONTENT_ID_EXTRA, sample.contentId )
+//                        .putExtra( DemoUtil.CONTENT_TYPE_EXTRA, sample.type );
+                startActivity( mpdIntent );
+
+
+            }
+
+        });
 
         Log.v( TAG, "updateView : exit" );
     }

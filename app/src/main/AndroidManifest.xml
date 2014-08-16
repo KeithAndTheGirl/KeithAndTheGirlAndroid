@@ -80,6 +80,11 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
 
+        <activity android:name=".ui.player.SimplePlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/PlayerTheme"/>
+
         <!-- KATG Receivers -->
         <receiver android:name=".db.schedule.KatgAlarmReceiver" />
         <receiver
