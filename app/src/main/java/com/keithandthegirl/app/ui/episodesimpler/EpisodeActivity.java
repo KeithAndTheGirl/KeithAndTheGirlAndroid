@@ -3,6 +3,8 @@ package com.keithandthegirl.app.ui.episodesimpler;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,12 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
+import com.keithandthegirl.app.ui.player.SimplePlayerActivity;
 
 public class EpisodeActivity extends AbstractBaseActivity {
     private static final String TAG = EpisodeActivity.class.getSimpleName();
@@ -24,6 +28,7 @@ public class EpisodeActivity extends AbstractBaseActivity {
     private long mEpisodeId;
 
     public static final String EPISODE_KEY = "EPISODE_KEY";
+    private Button mPlayButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,19 @@ public class EpisodeActivity extends AbstractBaseActivity {
                     .add(R.id.container, EpisodeFragment.newInstance(mEpisodeId))
                     .commit();
             }
+
+        mPlayButton = (Button) findViewById(R.id.play);
+        mPlayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                Intent mpdIntent = new Intent( EpisodeActivity.this, SimplePlayerActivity.class );
+//                        .setData(Uri.parse(mEpisodeFileUrl));
+//                        .putExtra( DemoUtil.CONTENT_ID_EXTRA, sample.contentId )
+//                        .putExtra( DemoUtil.CONTENT_TYPE_EXTRA, sample.type );
+                startActivity( mpdIntent );
+
+            }
+        });
     }
 
     @Override

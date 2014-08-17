@@ -31,7 +31,7 @@ import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.sync.SyncAdapter;
-import com.keithandthegirl.app.ui.episodes.EpisodeActivity;
+import com.keithandthegirl.app.ui.episodesimpler.EpisodeActivity;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
 import com.squareup.picasso.Picasso;
 
