@@ -3,13 +3,9 @@ package com.keithandthegirl.app.ui;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -17,12 +13,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.keithandthegirl.app.MainApplication;
@@ -30,233 +22,175 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.LiveConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
-import com.keithandthegirl.app.sync.SyncAdapter;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 public abstract class AbstractBaseActivity extends ActionBarActivity {
-
     private static final String TAG = AbstractBaseActivity.class.getSimpleName();
 
     private ContentResolver mContentResolver;
     private Uri mUri;
-
     private BroadcastingObserver mBroadcastingObserver;
-
     private Drawable micOn, micOff;
-
     protected Account mAccount;
 
     @Override
-    protected void onCreate( Bundle savedInstanceState ) {
-        Log.d( TAG, "onCreate : enter" );
-        super.onCreate( savedInstanceState );
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         mContentResolver = getContentResolver();
 
         mUri = new Uri.Builder()
-                .scheme( "content://" )
-                .authority( KatgProvider.AUTHORITY )
-                .path( WorkItemConstants.TABLE_NAME )
+                .scheme("content://")
+                .authority(KatgProvider.AUTHORITY)
+                .path(WorkItemConstants.TABLE_NAME)
                 .build();
 
         TableObserver observer = new TableObserver();
 
         mBroadcastingObserver = new BroadcastingObserver();
+        mAccount = MainApplication.CreateSyncAccount(this);
+        ContentResolver.setSyncAutomatically(mAccount, KatgProvider.AUTHORITY, true);
 
-        mAccount = MainApplication.CreateSyncAccount( this );
-        ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
+        micOn = getResources().getDrawable(R.drawable.ic_live_mic_on);
+        micOff = getResources().getDrawable(R.drawable.ic_live_mic_off);
 
-        micOn = getResources().getDrawable( R.drawable.ic_live_mic_on );
-        micOff = getResources().getDrawable( R.drawable.ic_live_mic_off );
-
-        mContentResolver.registerContentObserver( mUri, true, observer );
-
-        Log.d( TAG, "onCreate : exit" );
+        mContentResolver.registerContentObserver(mUri, true, observer);
     }
 
     @Override
     protected void onPause() {
-        Log.d( TAG, "onPause : enter" );
         super.onPause();
-
-        getContentResolver().unregisterContentObserver( mBroadcastingObserver );
-
-        Log.d( TAG, "onPause : exit" );
+        getContentResolver().unregisterContentObserver(mBroadcastingObserver);
     }
 
     @Override
     protected void onResume() {
-        Log.d( TAG, "onResume : enter" );
         super.onResume();
 
         getContentResolver().
-            registerContentObserver(
-                    ContentUris.withAppendedId(LiveConstants.CONTENT_URI, 1),
-                    true,
-                    mBroadcastingObserver
-            );
-
-        Log.d( TAG, "onResume : exit" );
+                registerContentObserver(
+                        ContentUris.withAppendedId(LiveConstants.CONTENT_URI, 1),
+                        true,
+                        mBroadcastingObserver
+                );
     }
 
     @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        Log.d( TAG, "onCreateOptionsMenu : enter" );
-
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate( R.menu.main, menu );
+        getMenuInflater().inflate(R.menu.main, menu);
 
-        Log.d( TAG, "onCreateOptionsMenu : exit" );
         return true;
     }
 
     @Override
-    public boolean onPrepareOptionsMenu( Menu menu ) {
-        Log.d( TAG, "onPrepareOptionsMenu : enter" );
-        super.onPrepareOptionsMenu( menu );
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
 
         boolean broadcasting = false;
 
-        Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( LiveConstants.CONTENT_URI, 1 ), null, null, null, null );
-        if( cursor.moveToNext() ) {
-
-            broadcasting = cursor.getInt( cursor.getColumnIndex( LiveConstants.FIELD_BROADCASTING ) ) == 0 ? false : true;
-
+        Cursor cursor = getContentResolver().query(ContentUris.withAppendedId(LiveConstants.CONTENT_URI, 1), null, null, null, null);
+        if (cursor.moveToNext()) {
+            broadcasting = cursor.getInt(cursor.getColumnIndex(LiveConstants.FIELD_BROADCASTING)) == 0 ? false : true;
         }
         cursor.close();
 
-
-        if( broadcasting ) {
-
-            menu.findItem( R.id.action_broadcasting ).setEnabled( true );
-            menu.findItem( R.id.action_broadcasting ).setIcon( micOn );
-
-        } else {
-
-            menu.findItem( R.id.action_broadcasting ).setEnabled( false );
-            menu.findItem( R.id.action_broadcasting ).setIcon( micOff );
-
+        MenuItem broadcastingMenu = menu.findItem(R.id.action_broadcasting);
+        if (broadcastingMenu != null) {
+            if (broadcasting) {
+                broadcastingMenu.setEnabled(true);
+                broadcastingMenu.setIcon(micOn);
+            } else {
+                broadcastingMenu.setEnabled(false);
+                broadcastingMenu.setIcon(micOff);
+            }
         }
-
-        Log.d( TAG, "onPrepareOptionsMenu : exit" );
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected( MenuItem item ) {
-
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if( id == R.id.action_settings ) {
+        if (id == R.id.action_settings) {
             return true;
         }
 
-        switch( id ) {
-
-            case R.id.action_settings :
-
-                Intent preferencesIntent = new Intent( this, PreferencesActivity.class );
-                startActivity( preferencesIntent );
-
+        switch (id) {
+            case R.id.action_settings:
+                Intent preferencesIntent = new Intent(this, PreferencesActivity.class);
+                startActivity(preferencesIntent);
                 return true;
 
-            case R.id.action_login :
-
-                Intent vipIntent = new Intent( this, AuthenticatorActivity.class );
-                startActivity( vipIntent );
-
+            case R.id.action_login:
+                Intent vipIntent = new Intent(this, AuthenticatorActivity.class);
+                startActivity(vipIntent);
                 return true;
 
-            case R.id.action_work_items :
-
-                Intent workItemsIntent = new Intent( this, WorkItemsActivity.class );
-                startActivity( workItemsIntent );
-
+            case R.id.action_work_items:
+                Intent workItemsIntent = new Intent(this, WorkItemsActivity.class);
+                startActivity(workItemsIntent);
                 return true;
 
-            case R.id.action_broadcasting :
-
-                Toast.makeText( this, "KATG is broadcasting now!", Toast.LENGTH_LONG ).show();
-
+            case R.id.action_broadcasting:
+                Toast.makeText(this, "KATG is broadcasting now!", Toast.LENGTH_LONG).show();
                 return true;
-
         }
 
-        return super.onOptionsItemSelected( item );
+        return super.onOptionsItemSelected(item);
     }
 
-    @SuppressLint( "NewApi" )
+    @SuppressLint("NewApi")
     private class BroadcastingObserver extends ContentObserver {
-
         private final String TAG = BroadcastingObserver.class.getSimpleName();
 
         public BroadcastingObserver() {
-            super( null );
+            super(null);
         }
 
         @Override
-        public void onChange( boolean selfChange ) {
-            super.onChange( selfChange, null );
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange, null);
         }
 
         @Override
-        public void onChange( boolean selfChange, Uri uri ) {
-            Log.i( TAG, "onChange : enter" );
+        public void onChange(boolean selfChange, Uri uri) {
+            boolean syncActive = ContentResolver.isSyncActive(mAccount, KatgProvider.AUTHORITY);
+            boolean syncPending = ContentResolver.isSyncPending(mAccount, KatgProvider.AUTHORITY);
 
-            boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
-            boolean syncPending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY);
-
-            if( !syncActive && !syncPending ) {
+            if (!syncActive && !syncPending) {
                 invalidateOptionsMenu();
             }
-
-            Log.i( TAG, "onChange : exit" );
         }
-
     }
 
     public class TableObserver extends ContentObserver {
-
         private final String TAG = TableObserver.class.getSimpleName();
 
         public TableObserver() {
-            super( null );
+            super(null);
         }
 
         @Override
-        public void onChange( boolean selfChange ) {
-            Log.i( TAG, "onChange : enter" );
-            super.onChange( selfChange );
-
-            onChange( selfChange, null );
-
-            Log.i( TAG, "onChange : exit" );
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            onChange(selfChange, null);
         }
 
         @Override
-        public void onChange( boolean selfChange, Uri uri ) {
-            Log.i( TAG, "onChange : enter" );
+        public void onChange(boolean selfChange, Uri uri) {
+            boolean syncActive = ContentResolver.isSyncActive(mAccount, KatgProvider.AUTHORITY);
+            boolean syncPending = ContentResolver.isSyncPending(mAccount, KatgProvider.AUTHORITY);
 
-            boolean syncActive = ContentResolver.isSyncActive( mAccount, KatgProvider.AUTHORITY );
-            boolean syncPending = ContentResolver.isSyncPending( mAccount, KatgProvider.AUTHORITY);
-
-            if( !syncActive && !syncPending ) {
-
+            if (!syncActive && !syncPending) {
                 Bundle settingsBundle = new Bundle();
-                settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
-                settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
+                settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 
-                ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
-
+                ContentResolver.requestSync(mAccount, KatgProvider.AUTHORITY, settingsBundle);
             }
-
-            Log.i( TAG, "onChange : exit" );
         }
-
     }
 
 }

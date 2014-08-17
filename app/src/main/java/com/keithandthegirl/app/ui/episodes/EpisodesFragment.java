@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.shows;
+package com.keithandthegirl.app.ui.episodes;
 
 import android.content.Context;
 import android.database.Cursor;

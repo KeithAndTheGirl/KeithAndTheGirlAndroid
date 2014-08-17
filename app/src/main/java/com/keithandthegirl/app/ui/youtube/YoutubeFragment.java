@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.YoutubeConstants;
-import com.keithandthegirl.app.ui.YoutubeFragmentActivity;
 import com.squareup.picasso.Picasso;
 
 /**

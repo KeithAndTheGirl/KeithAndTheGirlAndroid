@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.youtube;
 
 import android.content.Intent;
 import android.widget.Toast;
@@ -7,7 +7,6 @@ import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.ui.youtube.DeveloperKey;
 
 /**
  * Created by dmfrey on 5/22/14.

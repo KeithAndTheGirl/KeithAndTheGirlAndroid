@@ -23,7 +23,6 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.ShowConstants;
-import com.keithandthegirl.app.ui.ShowsActivity;
 import com.keithandthegirl.app.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -31,66 +30,24 @@ import com.squareup.picasso.Picasso;
  * Created by dmfrey on 3/21/14.
  */
 public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
-
     private static final String TAG = ShowsGridFragment.class.getSimpleName();
 
     ShowCursorAdapter mAdapter;
 
     @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        Log.v(TAG, "onCreateLoader : enter");
-
-        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_PREFIX, ShowConstants.FIELD_COVERIMAGEURL_200, ShowConstants.FIELD_VIP };
-
-        String selection = null;
-
-        String[] selectionArgs = null;
-
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER );
-
-        Log.v( TAG, "onCreateLoader : exit" );
-        return cursorLoader;
-    }
-
-    @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        Log.v( TAG, "onLoadFinished : enter" );
-
-        mAdapter.swapCursor( cursor );
-
-        Log.v( TAG, "onLoadFinished : exit" );
-    }
-
-    @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v( TAG, "onLoaderReset : enter" );
-
-        mAdapter.swapCursor( null );
-
-        Log.v( TAG, "onLoaderReset : exit" );
-    }
-
-    @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
-        Log.v( TAG, "onCreate : exit" );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreateView : enter" );
-
         final View rootView = inflater.inflate( R.layout.fragment_shows, container, false );
-
-        Log.v( TAG, "onCreateView : exit" );
         return rootView;
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated( savedInstanceState );
 
         setRetainInstance( true );
@@ -102,21 +59,15 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         final GridView mGridView = (GridView) getActivity().findViewById( R.id.shows_gridview );
         mGridView.setAdapter( mAdapter );
         mGridView.setOnItemClickListener( this );
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     @Override
     public void onResume() {
-        Log.v( TAG, "onResume : enter" );
-
         super.onResume();
         mAdapter.notifyDataSetChanged();
-
-        Log.v( TAG, "onResume : exit" );
     }
 
-    @TargetApi( Build.VERSION_CODES.JELLY_BEAN )
+//    @TargetApi( Build.VERSION_CODES.JELLY_BEAN )
     @Override
     public void onItemClick( AdapterView<?> parent, View v, int position, long id ) {
         Log.v( TAG, "onItemClick : enter - position=" + position + ", id=" + id );
@@ -127,18 +78,35 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             // makeThumbnailScaleUpAnimation() looks kind of ugly here as the loading spinner may
             // show plus the thumbnail image in GridView is cropped. so using
             // makeScaleUpAnimation() instead.
-            ActivityOptions options = ActivityOptions.makeScaleUpAnimation( v, 0, 0, v.getWidth(), v.getHeight() );
+            // TODO This options wasn't being used... I disabled it Jeff
+//            ActivityOptions options = ActivityOptions.makeScaleUpAnimation( v, 0, 0, v.getWidth(), v.getHeight() );
             startActivity( i );
         } else {
             startActivity( i );
         }
+    }
 
-        Log.v( TAG, "onItemClick : exit" );
+    @Override
+    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
+        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_PREFIX, ShowConstants.FIELD_COVERIMAGEURL_200, ShowConstants.FIELD_VIP };
+        String selection = null;
+        String[] selectionArgs = null;
+
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER );
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
+        mAdapter.swapCursor( cursor );
+    }
+
+    @Override
+    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
+        mAdapter.swapCursor( null );
     }
 
     private class ShowCursorAdapter extends CursorAdapter {
-        private final String TAG = ShowCursorAdapter.class.getSimpleName();
-
         private LayoutInflater mInflater;
 
         public ShowCursorAdapter( Context context ) {
@@ -148,8 +116,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
         @Override
         public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-            Log.v( TAG, "newView : enter" );
-
             View view = mInflater.inflate( R.layout.show_grid_item, parent, false );
 
             ViewHolder refHolder = new ViewHolder();
@@ -160,15 +126,11 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             refHolder.name = (TextView) view.findViewById( R.id.show_grid_item_name );
 
             view.setTag( refHolder );
-
-            Log.v( TAG, "newView : exit" );
             return view;
         }
 
         @Override
         public void bindView( View view, Context context, Cursor cursor ) {
-            Log.v( TAG, "bindView : enter" );
-
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             String name = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_NAME ) );
@@ -185,19 +147,14 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             }
 
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mHolder.coverImage);
-
-            Log.v( TAG, "bindView : exit" );
         }
     }
 
     private static class ViewHolder {
-
         ImageView coverImage;
         TextView vip;
         TextView name;
 
         ViewHolder() { }
-
     }
-
 }

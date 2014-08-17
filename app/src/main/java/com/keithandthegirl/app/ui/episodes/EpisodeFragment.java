@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.shows;
+package com.keithandthegirl.app.ui.episodes;
 
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -17,7 +17,6 @@ import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.EpisodeGuestConstants;
 import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
-import com.keithandthegirl.app.ui.EpisodeActivity;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTimeZone;

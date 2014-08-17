@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.shows;
+package com.keithandthegirl.app.ui.episodes;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.GuestConstants;
-import com.keithandthegirl.app.ui.EpisodeActivity;
 
 import java.util.ArrayList;
 import java.util.List;

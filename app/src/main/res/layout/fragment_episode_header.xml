@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:background="@android:color/black"
-    tools:context="com.keithandthegirl.app.ui.shows.EpisodeHeaderFragment">
+    tools:context="com.keithandthegirl.app.ui.episodes.EpisodeHeaderFragment">
 
     <ImageView
         android:id="@+id/episode_heading"

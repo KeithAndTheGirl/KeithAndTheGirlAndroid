@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.shows;
+package com.keithandthegirl.app.ui.episodes;
 
 import android.content.ContentValues;
 import android.database.ContentObserver;
@@ -17,7 +17,6 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
-import com.keithandthegirl.app.ui.EpisodeActivity;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Keith and the Girl Comedy Podcast</string>
     <string name="app_short_name">KATG</string>
     <string name="action_login">VIP</string>
@@ -41,5 +40,6 @@
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
     <string name="add_widget">Add widget</string>
     <string name="failed">Playback failed</string>
-
+    <string name="title_activity_episode">EpisodeActivity</string>
+    <string name="loading">Loading…</string>
 </resources>
