@@ -1,5 +1,6 @@
 package com.keithandthegirl.app.ui.episodesimpler;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -45,6 +46,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private static final int VIEW_PROGRESS = 1;
 
     private long mEpisodeId;
+    private EpisodeEventListener mEpisodeEventListener;
     private EpisodeInfoHolder mEpisodeInfoHolder;
     private List<String> mEpisodeGuestImagesList;
     private EpisodeGuestImageAdapter mEpisodeGuestImageAdapter;
@@ -128,6 +130,14 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             updateUI(mEpisodeInfoHolder);
         }
         return fragmentView;
+    }
+
+    @Override
+    public void onAttach(final Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof EpisodeEventListener) {
+            mEpisodeEventListener = (EpisodeEventListener) activity;
+        }
     }
 
     private void updateUI(EpisodeInfoHolder episodeHolder) {
@@ -285,10 +295,18 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         } else {
             mEpisodeInfoHolder = wrappedData.getWrappedData();
             updateUI(mEpisodeInfoHolder);
+            if (mEpisodeEventListener != null) {
+                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.getShowNameId());
+            }
         }
     }
 
     @Override
     public void onLoaderReset(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader) {
     }
+
+    public interface EpisodeEventListener {
+        void onEpisodeLoaded(String episodeFileUrl);
+    }
+
 }
