@@ -296,7 +296,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mEpisodeInfoHolder = wrappedData.getWrappedData();
             updateUI(mEpisodeInfoHolder);
             if (mEpisodeEventListener != null) {
-                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.getShowNameId());
+                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.getEpisodeFileUrl());
             }
         }
     }
