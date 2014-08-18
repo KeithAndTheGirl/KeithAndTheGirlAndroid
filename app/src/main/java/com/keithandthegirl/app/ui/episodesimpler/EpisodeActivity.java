@@ -10,8 +10,11 @@ import android.widget.Button;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
+import com.keithandthegirl.app.ui.episodesimpler.gallery.EpisodeImageGalleryFragment;
 import com.keithandthegirl.app.ui.player.SimplePlayerActivity;
+import com.keithandthegirl.app.ui.shows.ShowFragment;
 
+import java.util.List;
 import java.util.Observable;
 
 public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener {
@@ -20,7 +23,6 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     private long mEpisodeId;
     private Button mPlayButton;
     private String mEpisodeFileUrl;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, EpisodeFragment.newInstance(mEpisodeId))
+                    .addToBackStack(null)
                     .commit();
         }
 
@@ -68,6 +71,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         if (id == R.id.action_settings) {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -76,5 +80,16 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         mEpisodeFileUrl = episodeFileUrl;
         mPlayButton.setEnabled(true);
         // TODO Enable UI better now that we have episodeId
+        // TODO also need to save it for config change
+    }
+
+    @Override
+    public void onShowImageClicked(final int position, final List<String> imageUrls) {
+        String[] strings = imageUrls.toArray(new String[imageUrls.size()]);
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container, EpisodeImageGalleryFragment.newInstance(position, strings), EpisodeImageGalleryFragment.STACK_NAME)
+                .addToBackStack(null)
+                .commit();
     }
 }

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -39,7 +40,7 @@ import java.util.List;
  * Use the {@link EpisodeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<EpisodeInfoHolder> {
+public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<EpisodeInfoHolder>, AdapterView.OnItemClickListener {
     private static final String TAG = EpisodeFragment.class.getSimpleName();
     private static final String ARG_EPISODE_ID = "ARG_EPISODE_ID";
     private static final int VIEW_EPISODE_DETAILS = 0;
@@ -73,7 +74,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
      * @param episodeId episode id for the current episode.
      * @return A new instance of fragment EpisodeFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static EpisodeFragment newInstance(long episodeId) {
         EpisodeFragment fragment = new EpisodeFragment();
         Bundle args = new Bundle();
@@ -98,6 +98,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         mEpisodeGuestImagesList = new ArrayList<String>();
         mEpisodeGuestImageAdapter = new EpisodeGuestImageAdapter(getActivity(), mEpisodeGuestImagesList);
+
         mEpisodeImagesList = new ArrayList<String>();
         mEpisodeImageAdapter = new EpisodeImageAdapter(getActivity(), mEpisodeImagesList);
     }
@@ -124,6 +125,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeShowNotesWebView = (WebView) fragmentView.findViewById(R.id.episodeShowNotesWebView);
         mEpisodeImagesGridView = (ExpandedHeightGridView) fragmentView.findViewById(R.id.episodeImagesGridView);
         mEpisodeImagesGridView.setAdapter(mEpisodeImageAdapter);
+        mEpisodeImagesGridView.setOnItemClickListener(this);
 
         // if this is a config change we already have episode info loaded so update UI.
         if (mEpisodeInfoHolder != null) {
@@ -183,7 +185,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             settings.setDefaultTextEncodingName("utf-8");
             String html = episodeHolder.getEpisodeDetailNotes();
             if (!StringUtils.isNullOrEmpty(html)) {
-                html = "<ul><li>" + html.replaceAll("\r\n", "</li><li>") + "</li></ul>";
+                html = "<ul><li>" + html.replaceAll("\r\n", "</li><li>") + "</li></ul></br>";
             }
             mEpisodeShowNotesWebView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
             mEpisodeShowNotesWebView.setBackgroundColor(0);
@@ -299,11 +301,17 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     @Override
-    public void onLoaderReset(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader) {
+    public void onLoaderReset(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader) { }
+
+    @Override
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        if (mEpisodeEventListener != null) {
+            mEpisodeEventListener.onShowImageClicked(position, mEpisodeInfoHolder.getEpisodeImages());
+        }
     }
 
     public interface EpisodeEventListener {
         void onEpisodeLoaded(String episodeFileUrl);
+        void onShowImageClicked(int position, List<String> imageUrls);
     }
-
 }
