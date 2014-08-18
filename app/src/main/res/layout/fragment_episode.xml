@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.keithandthegirl.app.ui.shows.EpisodeFragment">
+    tools:context="com.keithandthegirl.app.ui.episodes.EpisodeFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

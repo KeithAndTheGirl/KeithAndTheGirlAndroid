@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.youtube;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -6,7 +6,6 @@ import android.util.Log;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.ui.youtube.DeveloperKey;
 
 /**
  * Created by dmfrey on 5/22/14.

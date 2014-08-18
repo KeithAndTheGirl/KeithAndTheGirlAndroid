@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.episodes;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -23,11 +23,12 @@ import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.player.SimplePlayerActivity;
-import com.keithandthegirl.app.ui.shows.EpisodeDetailsFragment;
-import com.keithandthegirl.app.ui.shows.EpisodeGuestImagesFragment;
-import com.keithandthegirl.app.ui.shows.EpisodeGuestsFragment;
-import com.keithandthegirl.app.ui.shows.EpisodeHeaderFragment;
-import com.keithandthegirl.app.ui.shows.EpisodeImagesFragment;
+import com.keithandthegirl.app.ui.episodes.EpisodeDetailsFragment;
+import com.keithandthegirl.app.ui.episodes.EpisodeGuestImagesFragment;
+import com.keithandthegirl.app.ui.episodes.EpisodeGuestsFragment;
+import com.keithandthegirl.app.ui.episodes.EpisodeHeaderFragment;
+import com.keithandthegirl.app.ui.episodes.EpisodeImagesFragment;
+import com.keithandthegirl.app.ui.AbstractBaseActivity;
 
 public class EpisodeActivity extends AbstractBaseActivity {
 
@@ -80,8 +81,8 @@ public class EpisodeActivity extends AbstractBaseActivity {
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
-        Log.d( TAG, "onCreate : enter" );
-        super.onCreate( savedInstanceState );
+        Log.d(TAG, "onCreate : enter");
+        super.onCreate(savedInstanceState);
 
         setContentView( R.layout.activity_episode );
 

@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.shows;
+package com.keithandthegirl.app.ui.episodes;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.ui.EpisodeActivity;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTimeZone;
@@ -25,7 +24,7 @@ import java.util.TimeZone;
 public class EpisodeHeaderFragment extends Fragment {
 
     private static final String TAG = EpisodeHeaderFragment.class.getSimpleName();
-    private static final DateTimeFormatter mFormatter = DateTimeFormat.forPattern( "MMM d, yyyy" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
+    private static final DateTimeFormatter mFormatter = DateTimeFormat.forPattern( "MMM d, yyyy" ).withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("America/New_York")));
 
     private int mEpisodeNumber;
     private String mEpisodeTitle, mShowPrefix, mShowCoverImageUrl, mEpisodePosted;
@@ -40,7 +39,7 @@ public class EpisodeHeaderFragment extends Fragment {
     public static EpisodeHeaderFragment newInstance( Bundle args ) {
 
         EpisodeHeaderFragment fragment = new EpisodeHeaderFragment();
-        fragment.setArguments( args );
+        fragment.setArguments(args);
 
         return fragment;
     }

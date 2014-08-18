@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.youtube;
 
 import android.content.ContentUris;
 import android.database.Cursor;
