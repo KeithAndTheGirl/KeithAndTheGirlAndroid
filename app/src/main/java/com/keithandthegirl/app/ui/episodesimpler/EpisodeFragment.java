@@ -215,32 +215,39 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                     episodeHolder.setEpisodePlayed(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_PLAYED)));
                     episodeHolder.setEpisodeLastPlayed(cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED)));
                     episodeHolder.setShowNameId(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_SHOWNAMEID)));
+                    episodeHolder.setEpisodeDetailNotes(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_NOTES)));
+                    episodeHolder.setEpisodeDetailForumUrl(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_FORUMURL)));
+                    episodeHolder.setShowName(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_NAME)));
+                    episodeHolder.setShowPrefix(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_PREFIX)));
+                    episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_VIP)) == 1 ? true : false);
+                    episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_COVERIMAGEURL_200)));
+                    episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_FORUMURL)));
                 }
                 cursor.close();
 
-                cursor = contentResolver.query(DetailConstants.CONTENT_URI, null, DetailConstants.FIELD_SHOWID + " = ?", new String[]{String.valueOf(mEpisodeId)}, null);
-                if (cursor.moveToNext()) {
-                    episodeHolder.setEpisodeDetailNotes(cursor.getString(cursor.getColumnIndex(DetailConstants.FIELD_NOTES)));
-                    episodeHolder.setEpisodeDetailForumUrl(cursor.getString(cursor.getColumnIndex(DetailConstants.FIELD_FORUMURL)));
+//                cursor = contentResolver.query(DetailConstants.CONTENT_URI, null, DetailConstants.FIELD_SHOWID + " = ?", new String[]{String.valueOf(mEpisodeId)}, null);
+//                if (cursor.moveToNext()) {
+//                    episodeHolder.setEpisodeDetailNotes(cursor.getString(cursor.getColumnIndex(DetailConstants.FIELD_NOTES)));
+//                    episodeHolder.setEpisodeDetailForumUrl(cursor.getString(cursor.getColumnIndex(DetailConstants.FIELD_FORUMURL)));
+//
+//                }
+//                cursor.close();
 
-                }
-                cursor.close();
-
-                int showNameId = episodeHolder.getShowNameId();
-                if (showNameId > 0) {
-                    cursor = contentResolver.query(ContentUris.withAppendedId(ShowConstants.CONTENT_URI, showNameId), null, null, null, null);
-                    if (cursor.moveToNext()) {
-                        episodeHolder.setShowName(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_NAME)));
-                        episodeHolder.setShowPrefix(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_PREFIX)));
-                        episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.FIELD_VIP)) == 1 ? true : false);
-                        episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_COVERIMAGEURL_200)));
-                        episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_FORUMURL)));
-                    }
-                    cursor.close();
-                }
+//                int showNameId = episodeHolder.getShowNameId();
+//                if (showNameId > 0) {
+//                    cursor = contentResolver.query(ContentUris.withAppendedId(ShowConstants.CONTENT_URI, showNameId), null, null, null, null);
+//                    if (cursor.moveToNext()) {
+//                        episodeHolder.setShowName(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_NAME)));
+//                        episodeHolder.setShowPrefix(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_PREFIX)));
+//                        episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.FIELD_VIP)) == 1 ? true : false);
+//                        episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_COVERIMAGEURL_200)));
+//                        episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_FORUMURL)));
+//                    }
+//                    cursor.close();
+//                }
 
                 String rawGuestsQuery =
-                        "SELECT  g._id, g.realname " +
+                        "SELECT  g._id, g.realname, g.pictureurl " +
                                 "FROM  guest g left join episode_guests eg on g._id = eg.showguestid " +
                                 "WHERE  eg.showid = ?";
                 DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
@@ -248,27 +255,17 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
                 List<Long> guestIds = new ArrayList<Long>();
                 List<String> guestNames = new ArrayList<String>();
+                List<String> guestImages = new ArrayList<String>();
                 while (cursor.moveToNext()) {
 
                     guestIds.add(cursor.getLong(cursor.getColumnIndex(GuestConstants._ID)));
                     guestNames.add(cursor.getString(cursor.getColumnIndex(GuestConstants.FIELD_REALNAME)));
+                    guestImages.add(cursor.getString(cursor.getColumnIndex(GuestConstants.FIELD_PICTUREURL)));
 
                 }
                 cursor.close();
                 episodeHolder.setGuestNames(guestNames);
-
-                String RAW_GUESTS_QUERY =
-                        "SELECT g._id, g.pictureurl " +
-                                "FROM  guest g left join episode_guests eg on g._id = eg.showguestid " +
-                                "WHERE  eg.showid = ?";
-                List<String> guestImages = new ArrayList<String>();
-                dbHelper = new DatabaseHelper(getActivity());
-                cursor = dbHelper.getReadableDatabase().rawQuery(RAW_GUESTS_QUERY, new String[]{String.valueOf(mEpisodeId)});
-                while (cursor.moveToNext()) {
-                    guestImages.add(cursor.getString(cursor.getColumnIndex(GuestConstants.FIELD_PICTUREURL)));
-                }
                 episodeHolder.setEpisodeGuestImages(guestImages);
-                cursor.close();
 
                 String[] projection = {ImageConstants._ID, ImageConstants.FIELD_MEDIAURL};
                 String selection = ImageConstants.FIELD_SHOWID + " = ?";

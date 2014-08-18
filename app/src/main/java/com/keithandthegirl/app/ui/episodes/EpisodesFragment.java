@@ -31,13 +31,13 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
         Log.v(TAG, "onCreateLoader : enter");
 
-        String[] projection = { EpisodeConstants._ID, EpisodeConstants.FIELD_TITLE };
+        String[] projection = { EpisodeConstants.TABLE_NAME + "." + EpisodeConstants._ID, EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_TITLE };
 
-        String selection = EpisodeConstants.FIELD_SHOWNAMEID + "=?";
+        String selection = EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_SHOWNAMEID + "=?";
 
         String[] selectionArgs = new String[] { String.valueOf( args.getLong( SHOW_NAME_ID_KEY ) ) };
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), EpisodeConstants.CONTENT_URI, projection, selection, selectionArgs, EpisodeConstants.FIELD_NUMBER + " DESC" );
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), EpisodeConstants.CONTENT_URI, projection, selection, selectionArgs, EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_NUMBER + " DESC" );
 
         Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
@@ -115,7 +115,7 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            mHolder.name.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_TITLE ) ) );
+            mHolder.name.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_TITLE ) ) );
         }
 
     }

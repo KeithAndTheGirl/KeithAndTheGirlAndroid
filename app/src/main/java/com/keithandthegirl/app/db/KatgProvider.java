@@ -27,6 +27,8 @@ import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.db.model.YoutubeConstants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.provider.BaseColumns._ID;
 
@@ -272,14 +274,73 @@ public class KatgProvider extends ContentProvider {
 
                 cursor = db.query( EpisodeConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
+//                sb.append( EpisodeConstants.TABLE_NAME );
+//                sb.append( " LEFT OUTER JOIN " );
+//                sb.append( DetailConstants.TABLE_NAME );
+//                sb.append( " ON (" );
+//                sb.append( DetailConstants.TABLE_NAME ).append( "." ).append( DetailConstants.FIELD_SHOWID );
+//                sb.append( " = ");
+//                sb.append( EpisodeConstants.TABLE_NAME ).append( "." ).append( EpisodeConstants._ID );
+//                sb.append( ")" );
+//                sb.append( " LEFT OUTER JOIN " );
+//                sb.append( ShowConstants.TABLE_NAME );
+//                sb.append( " ON (" );
+//                sb.append( ShowConstants.TABLE_NAME ).append( "." ).append( ShowConstants._ID );
+//                sb.append( " = ");
+//                sb.append( EpisodeConstants.TABLE_NAME ).append( "." ).append( EpisodeConstants.FIELD_SHOWNAMEID );
+//                sb.append( ")" );
+//
+//                queryBuilder.setTables( sb.toString() );
+//                queryBuilder.setProjectionMap( mEpisodeColumnMap );
+//
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+//				System.out.println( sb.toString() );
+//				System.out.println( selection );
+//				if( null != selectionArgs && selectionArgs.length > 0 ) {
+//					for( String arg : selectionArgs ) {
+//						System.out.println( "query : arg=" + arg );
+//					}
+//				}
+//
+//                cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
                 return cursor;
 
             case EpisodeConstants.SINGLE :
-                selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-                cursor = db.query( EpisodeConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+                selection = EpisodeConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+                sb.append( EpisodeConstants.TABLE_NAME );
+                sb.append( " LEFT OUTER JOIN " );
+                sb.append( DetailConstants.TABLE_NAME );
+                sb.append( " ON (" );
+                sb.append( DetailConstants.TABLE_NAME ).append( "." ).append( DetailConstants.FIELD_SHOWID );
+                sb.append( " = ");
+                sb.append( EpisodeConstants.TABLE_NAME ).append( "." ).append( EpisodeConstants._ID );
+                sb.append( ")" );
+                sb.append( " LEFT OUTER JOIN " );
+                sb.append( ShowConstants.TABLE_NAME );
+                sb.append( " ON (" );
+                sb.append( ShowConstants.TABLE_NAME ).append( "." ).append( ShowConstants._ID );
+                sb.append( " = ");
+                sb.append( EpisodeConstants.TABLE_NAME ).append( "." ).append( EpisodeConstants.FIELD_SHOWNAMEID );
+                sb.append( ")" );
+
+                queryBuilder.setTables( sb.toString() );
+                queryBuilder.setProjectionMap( mEpisodeColumnMap );
+
+                System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+                System.out.println( sb.toString() );
+                System.out.println( selection );
+                if( null != selectionArgs && selectionArgs.length > 0 ) {
+                    for( String arg : selectionArgs ) {
+                        System.out.println( "query : arg=" + arg );
+                    }
+                }
+
+                cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
 
                 cursor.setNotificationUri( getContext().getContentResolver(), uri );
 
@@ -911,6 +972,58 @@ public class KatgProvider extends ContentProvider {
             db.endTransaction();
         }
 
+    }
+
+    private static final Map<String, String> mEpisodeColumnMap = buildEpisodeColumnMap();
+    private static Map<String, String> buildEpisodeColumnMap() {
+
+        Map<String, String> columnMap = new HashMap<String, String>();
+
+        String episodeProjection[] = EpisodeConstants.COLUMN_MAP;
+        for( String col : episodeProjection ) {
+
+            String qualifiedCol = EpisodeConstants.TABLE_NAME + "." + col;
+            columnMap.put( qualifiedCol, qualifiedCol );
+        }
+
+        columnMap = buildDetailColumnMap( columnMap );
+        columnMap = buildShowColumnMap( columnMap );
+
+        return columnMap;
+    }
+
+    private static final Map<String, String> mDetailColumnMap = buildDetailColumnMap( new HashMap<String, String>() );
+    private static Map<String, String> buildDetailColumnMap(  Map<String, String> columnMap ) {
+
+        if( null == columnMap ) {
+            columnMap = new HashMap<String, String>();
+        }
+
+        String detailProjection[] = DetailConstants.COLUMN_MAP;
+        for( String col : detailProjection ) {
+
+            String qualifiedCol = DetailConstants.TABLE_NAME + "." + col + " as " + DetailConstants.TABLE_NAME + "_" + col;
+            columnMap.put( DetailConstants.TABLE_NAME + "." + col, qualifiedCol );
+        }
+
+        return columnMap;
+    }
+
+    private static final Map<String, String> mShowColumnMap = buildShowColumnMap( new HashMap<String, String>() );
+    private static Map<String, String> buildShowColumnMap(  Map<String, String> columnMap ) {
+
+        if( null == columnMap ) {
+            columnMap = new HashMap<String, String>();
+        }
+
+        String detailProjection[] = ShowConstants.COLUMN_MAP;
+        for( String col : detailProjection ) {
+
+            String qualifiedCol = ShowConstants.TABLE_NAME + "." + col + " as " + ShowConstants.TABLE_NAME + "_" + col;
+            columnMap.put( ShowConstants.TABLE_NAME + "." + col, qualifiedCol );
+        }
+
+        return columnMap;
     }
 
     private String appendRowId( String selection, long id ) {

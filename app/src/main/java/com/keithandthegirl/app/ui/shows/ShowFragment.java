@@ -182,6 +182,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
+
         String[] projection = null;
         String selection = EpisodeConstants.FIELD_SHOWNAMEID + "=?";
 
