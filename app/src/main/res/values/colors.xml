@@ -153,7 +153,7 @@
     <color name="katg_action_bar_tab_selected">#ffffff</color>
     <color name="katg_action_bar_tab_unselected">#b6bcbf</color>
 
-    <color name="katg_main_background">#ee191f25</color>
+    <color name="katg_main_background">#262B31</color>
     <color name="katg_background_middle">#ee191f25</color>
     <color name="katg_main_vip">#ea454b</color>
     <color name="katg_main_name">#506577</color>

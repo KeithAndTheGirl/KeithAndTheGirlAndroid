@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,8 +32,8 @@ import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.sync.SyncAdapter;
-import com.keithandthegirl.app.ui.episodesimpler.EpisodeActivity;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
+import com.keithandthegirl.app.ui.episodesimpler.EpisodeActivity;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
@@ -58,12 +59,12 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     /**
      * Returns a new instance of this fragment for the given show id.
      */
-    public static ShowFragment newInstance( long showNameId ) {
+    public static ShowFragment newInstance(long showNameId) {
         ShowFragment fragment = new ShowFragment();
 
         Bundle args = new Bundle();
-        args.putLong( SHOW_NAME_ID_KEY, showNameId );
-        fragment.setArguments( args );
+        args.putLong(SHOW_NAME_ID_KEY, showNameId);
+        fragment.setArguments(args);
 
         return fragment;
     }
@@ -71,14 +72,14 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if( null != getArguments() ) {
+        if (null != getArguments()) {
             mShowNameId = getArguments().getLong(SHOW_NAME_ID_KEY);
         }
         mAdapter = new EpisodeCursorAdapter(getActivity());
     }
 
     @Override
-    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
         mHeaderView = inflater.inflate(R.layout.listview_header_show, null, false);
         mCoverImageView = (ImageView) mHeaderView.findViewById(R.id.show_coverimage);
@@ -96,7 +97,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getListView().addHeaderView(mHeaderView);
+        getListView().addHeaderView(mHeaderView, null, false);
         setListAdapter(mAdapter);
 
         // Setting the empty text will turn the fragment view into a blank screen with the text centered
@@ -108,23 +109,23 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         // Set the progress to visible on init by hiding list. As soon as you load data set it to true
         setListShown(false);
         Bundle args = new Bundle();
-        args.putLong( SHOW_NAME_ID_KEY, mShowNameId );
+        args.putLong(SHOW_NAME_ID_KEY, mShowNameId);
         getLoaderManager().initLoader(0, args, this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
-        getActivity().registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
+        IntentFilter syncCompleteIntentFilter = new IntentFilter(SyncAdapter.COMPLETE_ACTION);
+        getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
     }
 
 
     @Override
     public void onPause() {
         super.onPause();
-        if( null != mSyncCompleteReceiver ) {
-            getActivity().unregisterReceiver( mSyncCompleteReceiver );
+        if (null != mSyncCompleteReceiver) {
+            getActivity().unregisterReceiver(mSyncCompleteReceiver);
         }
     }
 
@@ -135,11 +136,11 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         setListAdapter(null);
     }
 
-        @Override
-    public void onActivityCreated( Bundle savedInstanceState ) {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        updateHeader( mShowNameId );
+        updateHeader(mShowNameId);
     }
 
     @Override
@@ -147,129 +148,86 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         // a swipe occurred and we need to start refreshing then start the sync adapter
         // we will get a broadcast event when the sync adapter is done.
         setRefreshing(true);
-        Account account = MainApplication.CreateSyncAccount( getActivity() );
+        Account account = MainApplication.CreateSyncAccount(getActivity());
 
         Bundle b = new Bundle();
-        b.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
-        b.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 
-        ContentResolver.setSyncAutomatically( account, KatgProvider.AUTHORITY, true );
-        ContentResolver.setIsSyncable( account, KatgProvider.AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, KatgProvider.AUTHORITY, true);
+        ContentResolver.setIsSyncable(account, KatgProvider.AUTHORITY, 1);
 
-        boolean pending = ContentResolver.isSyncPending( account, KatgProvider.AUTHORITY );
-        boolean active = ContentResolver.isSyncActive( account, KatgProvider.AUTHORITY );
+        boolean pending = ContentResolver.isSyncPending(account, KatgProvider.AUTHORITY);
+        boolean active = ContentResolver.isSyncActive(account, KatgProvider.AUTHORITY);
 
         if (pending || active) {
-            Log.d( TAG, "Cancelling previously pending/active sync." );
-            ContentResolver.cancelSync( account, KatgProvider.AUTHORITY );
+            Log.d(TAG, "Cancelling previously pending/active sync.");
+            ContentResolver.cancelSync(account, KatgProvider.AUTHORITY);
         }
 
-        DateTime now = new DateTime( DateTimeZone.UTC );
-        now = now.minusDays( 1 );
+        DateTime now = new DateTime(DateTimeZone.UTC);
+        now = now.minusDays(1);
 
         ContentValues values = new ContentValues();
-        values.put( WorkItemConstants.FIELD_LAST_RUN, now.getMillis() );
+        values.put(WorkItemConstants.FIELD_LAST_RUN, now.getMillis());
 
         int updated = -1;
 
-        if( mShowNameId == 1 ) {
-            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ?", new String[]{ EndpointConstants.RECENT } );
+        if (mShowNameId == 1) {
+            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ?", new String[]{EndpointConstants.RECENT});
         } else {
-            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{ EndpointConstants.LIST, "?shownameid=" + mShowNameId } );
+            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{EndpointConstants.LIST, "?shownameid=" + mShowNameId});
         }
-        Log.i( TAG, "onRefresh : updated=" + updated );
+        Log.i(TAG, "onRefresh : updated=" + updated);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
+    public Loader<Cursor> onCreateLoader(int i, Bundle args) {
         String[] projection = null;
         String selection = EpisodeConstants.FIELD_SHOWNAMEID + "=?";
 
-        mShowNameId = args.getLong( SHOW_NAME_ID_KEY );
-        String[] selectionArgs = new String[] { String.valueOf( mShowNameId ) };
+        mShowNameId = args.getLong(SHOW_NAME_ID_KEY);
+        String[] selectionArgs = new String[]{String.valueOf(mShowNameId)};
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), EpisodeConstants.CONTENT_URI, projection, selection, selectionArgs, EpisodeConstants.FIELD_NUMBER + " DESC" );
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), EpisodeConstants.CONTENT_URI, projection, selection, selectionArgs, EpisodeConstants.FIELD_NUMBER + " DESC");
         return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         setListShown(true);
         setRefreshing(false);
-        mAdapter.swapCursor( cursor );
+        mAdapter.swapCursor(cursor);
         getListView().setFastScrollEnabled(true);
     }
 
     @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mAdapter.swapCursor(null);
     }
 
     @Override
-    public void onListItemClick( ListView l, View v, int position, long id ) {
+    public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
-        Intent i = new Intent( getActivity(), EpisodeActivity.class );
-        i.putExtra( EpisodeActivity.EPISODE_KEY, id );
+        Intent i = new Intent(getActivity(), EpisodeActivity.class);
+        i.putExtra(EpisodeActivity.EPISODE_KEY, id);
         startActivity(i);
     }
 
-    public void updateHeader( long showNameId ) {
-        String[] projection = new String[] { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_DESCRIPTION, ShowConstants.FIELD_COVERIMAGEURL_200 };
+    public void updateHeader(long showNameId) {
+        String[] projection = new String[]{ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_DESCRIPTION, ShowConstants.FIELD_COVERIMAGEURL_200};
 
-        Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId(ShowConstants.CONTENT_URI, showNameId), projection, null, null, null );
-        if( cursor.moveToNext() ) {
+        Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(ShowConstants.CONTENT_URI, showNameId), projection, null, null, null);
+        if (cursor.moveToNext()) {
 
-            String coverUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_COVERIMAGEURL_200 ) );
+            String coverUrl = cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_COVERIMAGEURL_200));
 
-            mTitleTextView.setText( cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_NAME ) ) );
-            mDescriptionTextView.setText( cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_DESCRIPTION ) ) );
+            mTitleTextView.setText(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_NAME)));
+            mDescriptionTextView.setText(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_DESCRIPTION)));
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mCoverImageView);
         }
         cursor.close();
-    }
-
-    private class EpisodeCursorAdapter extends CursorAdapter {
-        private LayoutInflater mInflater;
-
-        String mEpisodesLabel;
-
-        public EpisodeCursorAdapter( Context context ) {
-            super( context, null, false );
-
-            mInflater = LayoutInflater.from( context );
-            mEpisodesLabel = getString(R.string.episode_label);
-        }
-
-        @Override
-        public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-            View view = mInflater.inflate( R.layout.listview_row_show_episode, parent, false );
-
-            ViewHolder refHolder = new ViewHolder();
-            refHolder.number = (TextView) view.findViewById( R.id.episode_number );
-            refHolder.showDate = (TextView) view.findViewById( R.id.episode_date );
-            refHolder.title = (TextView) view.findViewById( R.id.episode_title );
-            refHolder.details = (ImageView) view.findViewById( R.id.episode_details );
-            refHolder.played = (TextView) view.findViewById( R.id.episode_played );
-            refHolder.downloaded = (TextView) view.findViewById( R.id.episode_downloaded );
-            refHolder.guestsTextView = (TextView) view.findViewById(R.id.guestsTextView);
-
-            view.setTag( refHolder );
-
-            return view;
-        }
-
-        @Override
-        public void bindView( View view, Context context, Cursor cursor ) {
-            ViewHolder mHolder = (ViewHolder) view.getTag();
-
-            long id = cursor.getLong( cursor.getColumnIndex( EpisodeConstants._ID ) );
-            long instant = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_TIMESTAMP ) );
-
-            mHolder.number.setText( mEpisodesLabel + " " + cursor.getInt( cursor.getColumnIndex( EpisodeConstants.FIELD_NUMBER ) ) );
-            mHolder.showDate.setText(  cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_POSTED ) ) );
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.FIELD_TITLE ) ) );
-        }
     }
 
     private static class ViewHolder {
@@ -280,16 +238,60 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         TextView played;
         TextView downloaded;
         TextView guestsTextView;
-        ViewHolder() { }
+
+        ViewHolder() {
+        }
+    }
+
+    private class EpisodeCursorAdapter extends CursorAdapter {
+        String mEpisodesLabel;
+        private LayoutInflater mInflater;
+
+        public EpisodeCursorAdapter(Context context) {
+            super(context, null, false);
+
+            mInflater = LayoutInflater.from(context);
+            mEpisodesLabel = getString(R.string.episode_label);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = mInflater.inflate(R.layout.listview_row_show_episode, parent, false);
+
+            ViewHolder refHolder = new ViewHolder();
+            refHolder.number = (TextView) view.findViewById(R.id.episode_number);
+            refHolder.showDate = (TextView) view.findViewById(R.id.episode_date);
+            refHolder.title = (TextView) view.findViewById(R.id.episode_title);
+            refHolder.details = (ImageView) view.findViewById(R.id.episode_details);
+            refHolder.played = (TextView) view.findViewById(R.id.episode_played);
+            refHolder.downloaded = (TextView) view.findViewById(R.id.episode_downloaded);
+            refHolder.guestsTextView = (TextView) view.findViewById(R.id.guestsTextView);
+
+            view.setTag(refHolder);
+
+            return view;
+        }
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            ViewHolder mHolder = (ViewHolder) view.getTag();
+
+            long id = cursor.getLong(cursor.getColumnIndex(EpisodeConstants._ID));
+            long instant = cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_TIMESTAMP));
+
+            mHolder.number.setText(mEpisodesLabel + " " + cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
+            mHolder.showDate.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
+            mHolder.title.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
+        }
     }
 
     private class SyncCompleteReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive( Context context, Intent intent ) {
+        public void onReceive(Context context, Intent intent) {
             // when we receive a syc complete action reset the loader so it can refresh the content
-            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
+            if (intent.getAction().equals(SyncAdapter.COMPLETE_ACTION)) {
                 Bundle args = new Bundle();
-                args.putLong( SHOW_NAME_ID_KEY, mShowNameId );
+                args.putLong(SHOW_NAME_ID_KEY, mShowNameId);
                 getLoaderManager().restartLoader(0, args, ShowFragment.this);
             }
         }

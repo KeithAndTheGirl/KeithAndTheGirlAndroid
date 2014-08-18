@@ -47,7 +47,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:textStyle="bold"
                                 android:textSize="18sp"
-                                tools:text="Episode:"/>
+                                android:text="Episode:"/>
 
                             <TextView
                                 android:id="@+id/episodeNumberTextView"
