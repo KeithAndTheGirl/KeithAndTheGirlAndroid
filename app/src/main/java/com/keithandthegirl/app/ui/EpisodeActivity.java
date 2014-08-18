@@ -1,5 +1,7 @@
 package com.keithandthegirl.app.ui;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +16,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.account.AccountGeneral;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
@@ -232,8 +236,14 @@ public class EpisodeActivity extends AbstractBaseActivity {
             @Override
             public void onClick( View v ) {
 
+                Account account = MainApplication.CreateSyncAccount( mContext );
+                AccountManager accountManager = AccountManager.get( mContext );
+
+                String katg_uid = accountManager.getUserData( account, AccountGeneral.KATG_VIP_UID );
+                String katg_key = accountManager.getUserData( account, AccountGeneral.KATG_VIP_KEY );
+
                 Intent mpdIntent = new Intent( mContext, SimplePlayerActivity.class )
-                        .setData(Uri.parse(mEpisodeFileUrl));
+                        .setData( Uri.parse( mEpisodeFileUrl ) );
 //                        .putExtra( DemoUtil.CONTENT_ID_EXTRA, sample.contentId )
 //                        .putExtra( DemoUtil.CONTENT_TYPE_EXTRA, sample.type );
                 startActivity( mpdIntent );
