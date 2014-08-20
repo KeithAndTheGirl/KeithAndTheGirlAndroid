@@ -1,19 +1,30 @@
 package com.keithandthegirl.app.ui.episodesimpler;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -21,17 +32,24 @@ import android.widget.ViewSwitcher;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.DetailConstants;
+import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.db.model.ImageConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.loader.AbstractAsyncTaskLoader;
 import com.keithandthegirl.app.loader.WrappedLoaderCallbacks;
 import com.keithandthegirl.app.loader.WrappedLoaderResult;
+import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.ExpandedHeightGridView;
 import com.keithandthegirl.app.utils.StringUtils;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +84,10 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private View mEpisodeDetailsLayout;
     private View mEpisodeGuestsLayout;
     private View mEpisodeImagesLayout;
+
+    private Button mEpisodeDownloadButton;
+
+    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
 
     /**
      * Use this factory method to create a new instance of
@@ -131,7 +153,83 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (mEpisodeInfoHolder != null) {
             updateUI(mEpisodeInfoHolder);
         }
+
+        mEpisodeDownloadButton = (Button) fragmentView.findViewById( R.id.episode_download );
+        mEpisodeDownloadButton.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+//                final File file = new File(Environment.getExternalStoragePublicDirectory(null), mEpisodeInfoHolder.getEpisodeFilename());
+                DownloadManager mgr = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+                boolean isDownloading = false;
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterByStatus(
+                        DownloadManager.STATUS_PAUSED|
+                                DownloadManager.STATUS_PENDING|
+                                DownloadManager.STATUS_RUNNING|
+                                DownloadManager.STATUS_SUCCESSFUL);
+                Cursor cur = mgr.query(query);
+                int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+                for(cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+                    isDownloading = isDownloading || (mEpisodeInfoHolder.getEpisodeFilename() == cur.getString(col));
+                }
+                cur.close();
+
+                if( !isDownloading ) {
+
+                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mEpisodeInfoHolder.getEpisodeFileUrl()));
+
+                    // only download via Any Newtwork Connection
+                    // TODO: Setup preferences to allow user to decide if Mobile or WIFI networks should be used for downloads
+                    //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+                    request.setTitle(mEpisodeInfoHolder.getShowPrefix() + ":" + mEpisodeInfoHolder.getEpisodeNumber());
+                    request.setDescription(mEpisodeInfoHolder.getEpisodeTitle());
+
+                    // show download status in notification bar
+                    request.setVisibleInDownloadsUi(true);
+                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    request.setDestinationInExternalFilesDir(getActivity(), null, mEpisodeInfoHolder.getEpisodeFilename());
+
+                    // enqueue this request
+                    DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+                    long downloadId = downloadManager.enqueue(request);
+
+                    if (downloadId > 0) {
+                        mEpisodeInfoHolder.setEpisodeDownloadId(downloadId);
+                        ContentValues values = new ContentValues();
+                        values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, downloadId);
+                        values.put(EpisodeConstants.FIELD_DOWNLOADED, 0);
+                        getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
+                    }
+
+                }
+            }
+
+        });
+
         return fragmentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter syncCompleteIntentFilter = new IntentFilter(SyncAdapter.COMPLETE_ACTION);
+        getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
+
+        getActivity().registerReceiver(mDownloadCompleteReceiver, mDownloadCompleteIntentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (null != mSyncCompleteReceiver) {
+            getActivity().unregisterReceiver(mSyncCompleteReceiver);
+        }
+
+        if (null != mDownloadCompleteReceiver) {
+            getActivity().unregisterReceiver(mDownloadCompleteReceiver);
+        }
     }
 
     @Override
@@ -213,6 +311,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                     episodeHolder.setEpisodeType(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_TYPE)));
                     episodeHolder.setEpisodePublic(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_PUBLIC)) == 1);
                     episodeHolder.setEpisodePosted(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
+                    episodeHolder.setEpisodeDownloadId(cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOAD_ID)));
                     episodeHolder.setEpisodeDownloaded(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOADED)) == 1);
                     episodeHolder.setEpisodePlayed(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_PLAYED)));
                     episodeHolder.setEpisodeLastPlayed(cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED)));
@@ -297,6 +396,11 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             if (mEpisodeEventListener != null) {
                 mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.getEpisodeFileUrl());
             }
+
+            if(null == mEpisodeInfoHolder.getEpisodeDetailNotes() || "".equals(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
+                scheduleWorkItem(mEpisodeInfoHolder.getShowName());
+            }
+
         }
     }
 
@@ -314,4 +418,66 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         void onEpisodeLoaded(String episodeFileUrl);
         void onShowImageClicked(int position, List<String> imageUrls);
     }
+
+    private void scheduleWorkItem( String showName ) {
+
+        ContentValues values = new ContentValues();
+        values.put( WorkItemConstants.FIELD_NAME, showName + " " + mEpisodeId + " details" );
+        values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ON_DEMAND.name() );
+        values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSON.name() );
+        values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.DETAILS.name() );
+        values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.DETAILS );
+        values.put( WorkItemConstants.FIELD_PARAMETERS, "?showid=" + mEpisodeId );
+        values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
+        values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+
+        Cursor cursor = getActivity().getContentResolver().query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.DETAILS, "?showid=" + mEpisodeId }, null );
+        if( cursor.moveToNext() ) {
+
+            long id = cursor.getLong( cursor.getColumnIndex( WorkItemConstants._ID) );
+            getActivity().getContentResolver().update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, id ), values, null, null );
+
+        } else {
+
+            getActivity().getContentResolver().insert( WorkItemConstants.CONTENT_URI, values );
+
+        }
+        cursor.close();
+
+        Log.v( TAG, "scheduleWorkItem : exit" );
+    }
+
+    private class SyncCompleteReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // when we receive a syc complete action reset the loader so it can refresh the content
+            if (intent.getAction().equals(SyncAdapter.COMPLETE_ACTION)) {
+                getLoaderManager().restartLoader(1, null, EpisodeFragment.this);
+            }
+        }
+    }
+
+    private String mDownloadCompleteIntentName = DownloadManager.ACTION_DOWNLOAD_COMPLETE;
+    private IntentFilter mDownloadCompleteIntentFilter = new IntentFilter(mDownloadCompleteIntentName);
+    private BroadcastReceiver mDownloadCompleteReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
+            if(id != mEpisodeInfoHolder.getEpisodeDownloadId()) {
+                return;
+            }
+
+            mEpisodeInfoHolder.setEpisodeDownloadId(-1);
+            ContentValues values = new ContentValues();
+            values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, -1);
+            values.put(EpisodeConstants.FIELD_DOWNLOADED, 1);
+            getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
+
+            Log.i( TAG, "Episode Downloaded!" );
+        }
+
+    };
+
 }

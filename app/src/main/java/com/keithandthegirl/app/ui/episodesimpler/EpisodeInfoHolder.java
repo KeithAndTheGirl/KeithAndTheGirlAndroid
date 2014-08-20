@@ -24,6 +24,7 @@ public class EpisodeInfoHolder {
     private int mEpisodeType;
     private boolean mEpisodePublic;
     private String mEpisodePosted;
+    private long mEpisodeDownloadId;
     private boolean mEpisodeDownloaded;
     private int mEpisodePlayed;
     private long mEpisodeLastPlayed;
@@ -107,6 +108,13 @@ public class EpisodeInfoHolder {
     }
     public void setEpisodePosted(final String episodePosted) {
         mEpisodePosted = episodePosted;
+    }
+
+    public long getEpisodeDownloadId() {
+        return mEpisodeDownloadId;
+    }
+    public void setEpisodeDownloadId(final long episodeDownloadId) {
+        mEpisodeDownloadId = episodeDownloadId;
     }
 
     public boolean isEpisodeDownloaded() {

@@ -57,6 +57,12 @@
                                 android:textStyle="bold"
                                 android:textSize="18sp"
                                 tools:text="9999"/>
+
+                            <Button
+                                android:id="@+id/episode_download"
+                                android:layout_width="110dp"
+                                android:layout_height="wrap_content"
+                                android:text="Download" />
                         </LinearLayout>
 
                         <TextView
