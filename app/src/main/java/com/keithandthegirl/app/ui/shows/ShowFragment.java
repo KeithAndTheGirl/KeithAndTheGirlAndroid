@@ -26,9 +26,11 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.sync.SyncAdapter;
@@ -38,6 +40,9 @@ import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dmfrey on 3/30/14.
@@ -279,9 +284,30 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             long id = cursor.getLong(cursor.getColumnIndex(EpisodeConstants._ID));
             long instant = cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_TIMESTAMP));
 
+            StringBuilder guestNames = new StringBuilder();
+            String rawGuestsQuery =
+                    "SELECT  g._id, g.realname, g.pictureurl " +
+                            "FROM  guest g left join episode_guests eg on g._id = eg.showguestid " +
+                            "WHERE  eg.showid = ?";
+            DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+            Cursor guestCursor = dbHelper.getReadableDatabase().rawQuery(rawGuestsQuery, new String[]{String.valueOf(id)});
+            if( guestCursor.getCount() > 0 ) {
+                while (guestCursor.moveToNext()) {
+
+                    guestNames.append(guestCursor.getString(guestCursor.getColumnIndex(GuestConstants.FIELD_REALNAME)));
+
+                    if (guestNames.length() > 0 && !guestCursor.isLast()) {
+                        guestNames.append(", ");
+                    }
+
+                }
+            }
+            guestCursor.close();
+
             mHolder.number.setText(mEpisodesLabel + " " + cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
             mHolder.showDate.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
             mHolder.title.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
+            mHolder.guestsTextView.setText(guestNames.toString());
         }
     }
 

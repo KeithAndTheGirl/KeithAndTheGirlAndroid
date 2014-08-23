@@ -326,27 +326,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 }
                 cursor.close();
 
-//                cursor = contentResolver.query(DetailConstants.CONTENT_URI, null, DetailConstants.FIELD_SHOWID + " = ?", new String[]{String.valueOf(mEpisodeId)}, null);
-//                if (cursor.moveToNext()) {
-//                    episodeHolder.setEpisodeDetailNotes(cursor.getString(cursor.getColumnIndex(DetailConstants.FIELD_NOTES)));
-//                    episodeHolder.setEpisodeDetailForumUrl(cursor.getString(cursor.getColumnIndex(DetailConstants.FIELD_FORUMURL)));
-//
-//                }
-//                cursor.close();
-
-//                int showNameId = episodeHolder.getShowNameId();
-//                if (showNameId > 0) {
-//                    cursor = contentResolver.query(ContentUris.withAppendedId(ShowConstants.CONTENT_URI, showNameId), null, null, null, null);
-//                    if (cursor.moveToNext()) {
-//                        episodeHolder.setShowName(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_NAME)));
-//                        episodeHolder.setShowPrefix(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_PREFIX)));
-//                        episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.FIELD_VIP)) == 1 ? true : false);
-//                        episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_COVERIMAGEURL_200)));
-//                        episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_FORUMURL)));
-//                    }
-//                    cursor.close();
-//                }
-
                 String rawGuestsQuery =
                         "SELECT  g._id, g.realname, g.pictureurl " +
                                 "FROM  guest g left join episode_guests eg on g._id = eg.showguestid " +
