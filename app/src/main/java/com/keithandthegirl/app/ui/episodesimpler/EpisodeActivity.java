@@ -26,7 +26,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     private static final String TAG = EpisodeActivity.class.getSimpleName();
     private long mEpisodeId;
     private Button mPlayButton, mPauseButton, mBackButton, mSkipButton;
-    private String mEpisodeFileUrl;
+    private Uri mEpisodeFileUri;
 
     private ExoPlayer player;
     private int mCurrentPosition = 0;
@@ -54,7 +54,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
             @Override
             public void onClick(final View v) {
 
-                FrameworkSampleSource sampleSource = new FrameworkSampleSource( EpisodeActivity.this, Uri.parse( mEpisodeFileUrl ), null, 1 );
+                FrameworkSampleSource sampleSource = new FrameworkSampleSource( EpisodeActivity.this, mEpisodeFileUri, null, 1 );
 
                 player = ExoPlayer.Factory.newInstance(1);
                 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null, true);
@@ -163,8 +163,8 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     }
 
     @Override
-    public void onEpisodeLoaded(final String episodeFileUrl, final int lastPlayed) {
-        mEpisodeFileUrl = episodeFileUrl;
+    public void onEpisodeLoaded(final Uri episodeUri, final int lastPlayed) {
+        mEpisodeFileUri = episodeUri;
         mCurrentPosition = lastPlayed;
         mPlayButton.setEnabled(true);
         // TODO Enable UI better now that we have episodeId

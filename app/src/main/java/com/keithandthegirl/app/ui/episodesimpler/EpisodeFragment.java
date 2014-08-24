@@ -328,7 +328,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                     episodeHolder.setGuestNames(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES)));
 
                     String guestImages = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_IMAGES));
-                    Log.i( TAG, "guestImages=" + guestImages);
                     if(null != guestImages && !"".equals(guestImages)) {
                        String[] images = guestImages.split(",");
                        episodeHolder.setEpisodeGuestImages(Arrays.asList(images));
@@ -365,7 +364,20 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mEpisodeInfoHolder = wrappedData.getWrappedData();
             updateUI(mEpisodeInfoHolder);
             if (mEpisodeEventListener != null) {
-                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.getEpisodeFileUrl(), mEpisodeInfoHolder.getEpisodeLastPlayed());
+
+                Uri episodeUri = null;
+                if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
+                    Log.i( TAG, "loading from file");
+
+                    File externalFile = new File(getActivity().getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
+                    episodeUri = Uri.fromFile( externalFile );
+                } else {
+                    Log.i( TAG, "streaming from url");
+
+                    episodeUri = Uri.parse( mEpisodeInfoHolder.getEpisodeFileUrl());
+                }
+
+                mEpisodeEventListener.onEpisodeLoaded(episodeUri, mEpisodeInfoHolder.getEpisodeLastPlayed());
             }
 
             if(null == mEpisodeInfoHolder.getEpisodeDetailNotes() || "".equals(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
@@ -386,7 +398,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     public interface EpisodeEventListener {
-        void onEpisodeLoaded(String episodeFileUrl, int lastPlayedPosition);
+        void onEpisodeLoaded(Uri episodeUri, int lastPlayedPosition);
         void onShowImageClicked(int position, List<String> imageUrls);
     }
 
@@ -440,11 +452,18 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 return;
             }
 
+            DownloadManager mgr = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager.Query query = new DownloadManager.Query();
+            Uri uri = mgr.getUriForDownloadedFile(id);
+            Log.i( TAG, "download uri=" + uri.getEncodedPath() );
+
             mEpisodeInfoHolder.setEpisodeDownloadId(-1);
             ContentValues values = new ContentValues();
             values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, -1);
             values.put(EpisodeConstants.FIELD_DOWNLOADED, 1);
             getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
+
+            getLoaderManager().restartLoader(1, null, EpisodeFragment.this);
 
             Log.i( TAG, "Episode Downloaded!" );
         }
