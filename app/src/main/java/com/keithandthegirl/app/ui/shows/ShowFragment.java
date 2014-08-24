@@ -41,6 +41,9 @@ import com.squareup.picasso.Picasso;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -243,6 +246,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         TextView played;
         TextView downloaded;
         TextView guestsTextView;
+        TextView duration;
 
         ViewHolder() {
         }
@@ -271,6 +275,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             refHolder.played = (TextView) view.findViewById(R.id.episode_played);
             refHolder.downloaded = (TextView) view.findViewById(R.id.episode_downloaded);
             refHolder.guestsTextView = (TextView) view.findViewById(R.id.guestsTextView);
+            refHolder.duration = (TextView) view.findViewById(R.id.episode_duration);
 
             view.setTag(refHolder);
 
@@ -282,7 +287,10 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             long id = cursor.getLong(cursor.getColumnIndex(EpisodeConstants._ID));
+            int length = cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_LENGTH));
+            int lastPlayed = cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED));
             long instant = cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_TIMESTAMP));
+            int downloaded = cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOADED));
 
             StringBuilder guestNames = new StringBuilder();
             String rawGuestsQuery =
@@ -308,6 +316,18 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             mHolder.showDate.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
             mHolder.title.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
             mHolder.guestsTextView.setText(guestNames.toString());
+            mHolder.duration.setText( ((int)(length/60)) + " minutes");
+
+            if( downloaded == 1) {
+                mHolder.downloaded.setText("Downloaded");
+            }
+
+            if( lastPlayed > 0 ) {
+                // multiply length by 1000, length is reported in seconds from the server
+                double percent = ( (double)lastPlayed / (double)(length * 1000) );
+
+                mHolder.played.setText(MessageFormat.format("{0,number,percent}", percent) + " Played");
+            }
         }
     }
 

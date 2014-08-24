@@ -314,7 +314,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                     episodeHolder.setEpisodeDownloadId(cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOAD_ID)));
                     episodeHolder.setEpisodeDownloaded(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOADED)) == 1);
                     episodeHolder.setEpisodePlayed(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_PLAYED)));
-                    episodeHolder.setEpisodeLastPlayed(cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED)));
+                    episodeHolder.setEpisodeLastPlayed(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED)));
                     episodeHolder.setShowNameId(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_SHOWNAMEID)));
                     episodeHolder.setEpisodeDetailNotes(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_NOTES)));
                     episodeHolder.setEpisodeDetailForumUrl(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_FORUMURL)));
@@ -373,7 +373,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mEpisodeInfoHolder = wrappedData.getWrappedData();
             updateUI(mEpisodeInfoHolder);
             if (mEpisodeEventListener != null) {
-                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.getEpisodeFileUrl());
+                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.getEpisodeFileUrl(), mEpisodeInfoHolder.getEpisodeLastPlayed());
             }
 
             if(null == mEpisodeInfoHolder.getEpisodeDetailNotes() || "".equals(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
@@ -394,7 +394,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     public interface EpisodeEventListener {
-        void onEpisodeLoaded(String episodeFileUrl);
+        void onEpisodeLoaded(String episodeFileUrl, int lastPlayedPosition);
         void onShowImageClicked(int position, List<String> imageUrls);
     }
 

@@ -37,7 +37,7 @@ import static android.provider.BaseColumns._ID;
  */
 public class KatgProvider extends ContentProvider {
 
-    private static final String TAG = KatgProvider.class.getSimpleName();
+//    private static final String TAG = KatgProvider.class.getSimpleName();
 
     public static final String AUTHORITY = "com.keithandthegirl.provider";
 
@@ -331,14 +331,14 @@ public class KatgProvider extends ContentProvider {
                 queryBuilder.setTables( sb.toString() );
                 queryBuilder.setProjectionMap( mEpisodeColumnMap );
 
-                System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
-                System.out.println( sb.toString() );
-                System.out.println( selection );
-                if( null != selectionArgs && selectionArgs.length > 0 ) {
-                    for( String arg : selectionArgs ) {
-                        System.out.println( "query : arg=" + arg );
-                    }
-                }
+//                System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+//                System.out.println( sb.toString() );
+//                System.out.println( selection );
+//                if( null != selectionArgs && selectionArgs.length > 0 ) {
+//                    for( String arg : selectionArgs ) {
+//                        System.out.println( "query : arg=" + arg );
+//                    }
+//                }
 
                 cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
 

@@ -27,7 +27,7 @@ public class EpisodeInfoHolder {
     private long mEpisodeDownloadId;
     private boolean mEpisodeDownloaded;
     private int mEpisodePlayed;
-    private long mEpisodeLastPlayed;
+    private int mEpisodeLastPlayed;
     private int mShowNameId;
     private String mEpisodeDetailNotes;
     private String mEpisodeDetailForumUrl;
@@ -131,10 +131,10 @@ public class EpisodeInfoHolder {
         mEpisodePlayed = episodePlayed;
     }
 
-    public long getEpisodeLastPlayed() {
+    public int getEpisodeLastPlayed() {
         return mEpisodeLastPlayed;
     }
-    public void setEpisodeLastPlayed(final long episodeLastPlayed) {
+    public void setEpisodeLastPlayed(final int episodeLastPlayed) {
         mEpisodeLastPlayed = episodeLastPlayed;
     }
 
