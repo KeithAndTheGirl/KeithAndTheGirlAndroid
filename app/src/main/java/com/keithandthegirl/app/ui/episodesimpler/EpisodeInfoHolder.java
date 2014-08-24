@@ -36,7 +36,7 @@ public class EpisodeInfoHolder {
     private boolean mShowVip;
     private String mShowCoverImageUrl;
     private String mShowForumUrl;
-    private List<String> mGuestNames;
+    private String mGuestNames;
     private List<String> mGuestImages;
     private List<String> mEpisodeImages;
 
@@ -194,10 +194,10 @@ public class EpisodeInfoHolder {
         mShowForumUrl = showForumUrl;
     }
 
-    public List<String> getGuestNames() {
+    public String getGuestNames() {
         return mGuestNames;
     }
-    public void setGuestNames(final List<String> guestNames) {
+    public void setGuestNames(final String guestNames) {
         mGuestNames = guestNames;
     }
 

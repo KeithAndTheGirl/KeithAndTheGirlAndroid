@@ -291,31 +291,17 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             int lastPlayed = cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED));
             long instant = cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_TIMESTAMP));
             int downloaded = cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOADED));
-
-            StringBuilder guestNames = new StringBuilder();
-            String rawGuestsQuery =
-                    "SELECT  g._id, g.realname, g.pictureurl " +
-                            "FROM  guest g left join episode_guests eg on g._id = eg.showguestid " +
-                            "WHERE  eg.showid = ?";
-            DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-            Cursor guestCursor = dbHelper.getReadableDatabase().rawQuery(rawGuestsQuery, new String[]{String.valueOf(id)});
-            if( guestCursor.getCount() > 0 ) {
-                while (guestCursor.moveToNext()) {
-
-                    guestNames.append(guestCursor.getString(guestCursor.getColumnIndex(GuestConstants.FIELD_REALNAME)));
-
-                    if (guestNames.length() > 0 && !guestCursor.isLast()) {
-                        guestNames.append(", ");
-                    }
-
-                }
-            }
-            guestCursor.close();
+            String guestNames = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES));
 
             mHolder.number.setText(mEpisodesLabel + " " + cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
             mHolder.showDate.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
             mHolder.title.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
-            mHolder.guestsTextView.setText(guestNames.toString());
+            if( null != guestNames ) {
+                mHolder.guestsTextView.setVisibility( View.VISIBLE);
+                mHolder.guestsTextView.setText(guestNames);
+            } else {
+                mHolder.guestsTextView.setVisibility( View.GONE);
+            }
             mHolder.duration.setText( ((int)(length/60)) + " minutes");
 
             if( downloaded == 1) {

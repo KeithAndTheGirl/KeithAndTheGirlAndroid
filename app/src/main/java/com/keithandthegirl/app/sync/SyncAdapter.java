@@ -60,6 +60,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import retrofit.RestAdapter;
@@ -1057,9 +1058,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 //Log.v( TAG, "processEpisodes : processing guests" );
                 if( null != episode.getGuests() && episode.getGuests().length > 0 ) {
 
-                    for( Guest guest : episode.getGuests() ) {
+                    List<String> guestNames = new ArrayList<String>();
+                    List<String> guestIds = new ArrayList<String>();
+                    List<String> guestImages = new ArrayList<String>();
 
+                    for( Guest guest : episode.getGuests() ) {
                         //Log.v( TAG, "processEpisodes : guest=" + guest.toString() );
+
+                        guestNames.add( guest.getRealName() );
+                        guestIds.add( String.valueOf( guest.getShowGuestId() ) );
+                        guestImages.add( guest.getPictureUrlLarge() );
 
                         values = new ContentValues();
                         values.put( GuestConstants._ID, guest.getShowGuestId() );
@@ -1125,6 +1133,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         }
                         cursor.close();
                     }
+
+                    if( !guestNames.isEmpty() ) {
+
+                        values = new ContentValues();
+                        values.put( EpisodeConstants.FIELD_GUEST_NAMES, concatList( guestNames, "," ) );
+                        values.put( EpisodeConstants.FIELD_GUEST_IDS, concatList( guestIds, "," ) );
+                        values.put( EpisodeConstants.FIELD_GUEST_IMAGES, concatList( guestImages, "," ) );
+
+                        ops.add(
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, episode.getShowId() ) )
+                                .withValues( values )
+                                .withYieldAllowed( true )
+                                .build()
+                        );
+
+                    }
                 }
 
                 if( !ops.isEmpty() ) {
@@ -1165,6 +1189,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         //Log.v( TAG, "processEpisodes : exit" );
+    }
+
+    private String concatList( List<String> sList, String separator ) {
+        Iterator<String> iter = sList.iterator();
+        StringBuilder sb = new StringBuilder();
+
+        while( iter.hasNext() ){
+            sb.append( iter.next() ).append( iter.hasNext() ? separator : "" );
+        }
+        return sb.toString();
     }
 
     private void processEpisodeDetails( Detail detail, ContentProviderClient provider, int showId ) {

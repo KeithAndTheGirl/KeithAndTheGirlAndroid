@@ -51,6 +51,8 @@ import org.joda.time.DateTimeZone;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -250,11 +252,11 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeNumberTextView.setText(String.valueOf(episodeHolder.getEpisodeNumber()));
         mEpisodeTitleTextView.setText(episodeHolder.getEpisodeTitle());
 
-        if (episodeHolder.getGuestNames().size() == 0) {
+        if (null == episodeHolder.getGuestNames() || "".equals(episodeHolder.getGuestNames())) {
             mEpisodeGuestsLayout.setVisibility(View.GONE);
         } else {
             mEpisodeGuestsLayout.setVisibility(View.VISIBLE);
-            mEpisodeGuestsTextView.setText(StringUtils.getCommaSeparatedString(episodeHolder.getGuestNames(), true));
+            mEpisodeGuestsTextView.setText(episodeHolder.getGuestNames());
         }
 
         if (episodeHolder.getEpisodeGuestImages().size() > 0) {
@@ -323,29 +325,19 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                     episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_VIP)) == 1 ? true : false);
                     episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_COVERIMAGEURL_200)));
                     episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_FORUMURL)));
-                }
-                cursor.close();
+                    episodeHolder.setGuestNames(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES)));
 
-                String rawGuestsQuery =
-                        "SELECT  g._id, g.realname, g.pictureurl " +
-                                "FROM  guest g left join episode_guests eg on g._id = eg.showguestid " +
-                                "WHERE  eg.showid = ?";
-                DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-                cursor = dbHelper.getReadableDatabase().rawQuery(rawGuestsQuery, new String[]{String.valueOf(mEpisodeId)});
-
-                List<Long> guestIds = new ArrayList<Long>();
-                List<String> guestNames = new ArrayList<String>();
-                List<String> guestImages = new ArrayList<String>();
-                while (cursor.moveToNext()) {
-
-                    guestIds.add(cursor.getLong(cursor.getColumnIndex(GuestConstants._ID)));
-                    guestNames.add(cursor.getString(cursor.getColumnIndex(GuestConstants.FIELD_REALNAME)));
-                    guestImages.add(cursor.getString(cursor.getColumnIndex(GuestConstants.FIELD_PICTUREURL)));
+                    String guestImages = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_IMAGES));
+                    Log.i( TAG, "guestImages=" + guestImages);
+                    if(null != guestImages && !"".equals(guestImages)) {
+                       String[] images = guestImages.split(",");
+                       episodeHolder.setEpisodeGuestImages(Arrays.asList(images));
+                    } else {
+                        episodeHolder.setEpisodeGuestImages(Collections.EMPTY_LIST);
+                    }
 
                 }
                 cursor.close();
-                episodeHolder.setGuestNames(guestNames);
-                episodeHolder.setEpisodeGuestImages(guestImages);
 
                 String[] projection = {ImageConstants._ID, ImageConstants.FIELD_MEDIAURL};
                 String selection = ImageConstants.FIELD_SHOWID + " = ?";

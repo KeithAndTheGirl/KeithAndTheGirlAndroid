@@ -76,9 +76,19 @@ public class EpisodeConstants extends AbstractBaseDatabase {
     public static final String FIELD_SHOWNAMEID = "shownameid";
     public static final String FIELD_SHOWNAMEID_DATA_TYPE = "INTEGER";
 
+    public static final String FIELD_GUEST_NAMES = "guest_names";
+    public static final String FIELD_GUEST_NAMES_DATA_TYPE = "TEXT";
+
+    public static final String FIELD_GUEST_IDS = "guest_ids";
+    public static final String FIELD_GUEST_IDS_DATA_TYPE = "TEXT";
+
+    public static final String FIELD_GUEST_IMAGES = "guest_images";
+    public static final String FIELD_GUEST_IMAGES_DATA_TYPE = "TEXT";
+
     public static final String[] COLUMN_MAP = { _ID,
             FIELD_NUMBER, FIELD_TITLE, FIELD_VIDEOFILEURL, FIELD_VIDEOTHUMBNAILURL, FIELD_PREVIEWURL, FIELD_FILEURL, FIELD_FILENAME, FIELD_LENGTH, FIELD_FILESIZE, FIELD_TYPE, FIELD_PUBLIC, FIELD_POSTED, FIELD_TIMESTAMP,
             FIELD_DOWNLOAD_ID, FIELD_DOWNLOADED, FIELD_PLAYED, FIELD_LASTPLAYED, FIELD_SHOWNAMEID,
+            FIELD_GUEST_NAMES, FIELD_GUEST_IDS, FIELD_GUEST_IMAGES,
             FIELD_LAST_MODIFIED_DATE
     };
 
@@ -106,6 +116,9 @@ public class EpisodeConstants extends AbstractBaseDatabase {
         createTable.append( FIELD_PLAYED ).append( " " ).append( FIELD_PLAYED_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_LASTPLAYED ).append( " " ).append( FIELD_LASTPLAYED_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_SHOWNAMEID ).append( " " ).append( FIELD_SHOWNAMEID_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_GUEST_NAMES ).append( " " ).append( FIELD_GUEST_NAMES_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_GUEST_IDS ).append( " " ).append( FIELD_GUEST_IDS_DATA_TYPE ).append( ", " );
+        createTable.append( FIELD_GUEST_IMAGES ).append( " " ).append( FIELD_GUEST_IMAGES_DATA_TYPE ).append( ", " );
         createTable.append( FIELD_LAST_MODIFIED_DATE ).append( " " ).append( FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
         createTable.append( ");" );
 
@@ -139,9 +152,12 @@ public class EpisodeConstants extends AbstractBaseDatabase {
         insert.append( FIELD_PLAYED ).append( "," );
         insert.append( FIELD_LASTPLAYED ).append( "," );
         insert.append( FIELD_LAST_MODIFIED_DATE ).append( "," );
-        insert.append( FIELD_SHOWNAMEID );
+        insert.append( FIELD_SHOWNAMEID ).append( "," );
+        insert.append( FIELD_GUEST_NAMES ).append( "," );
+        insert.append( FIELD_GUEST_IDS ).append( "," );
+        insert.append( FIELD_GUEST_IMAGES );
         insert.append( " ) " );
-        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+        insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 
         INSERT_ROW = insert.toString();
 
@@ -167,6 +183,9 @@ public class EpisodeConstants extends AbstractBaseDatabase {
         update.append( FIELD_LASTPLAYED ).append( " = ?, " );
         update.append( FIELD_LAST_MODIFIED_DATE ).append( " = ?, " );
         update.append( FIELD_SHOWNAMEID ).append( " = ? " );
+        update.append( FIELD_GUEST_NAMES ).append( " = ? " );
+        update.append( FIELD_GUEST_IDS ).append( " = ? " );
+        update.append( FIELD_GUEST_IMAGES ).append( " = ? " );
         update.append( "WHERE " ).append( _ID ).append( " = ? " );
 
         UPDATE_ROW = update.toString();
