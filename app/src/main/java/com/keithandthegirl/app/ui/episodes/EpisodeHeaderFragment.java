@@ -50,7 +50,6 @@ public class EpisodeHeaderFragment extends Fragment {
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setRetainInstance( true );
@@ -62,13 +61,10 @@ public class EpisodeHeaderFragment extends Fragment {
             mShowPrefix = getArguments().getString( EpisodeActivity.SHOW_NAME_KEY );
             mShowCoverImageUrl = getArguments().getString(EpisodeActivity.SHOW_COVER_IMAGE_URL_KEY);
         }
-
-        Log.v( TAG, "onCreate : exit" );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-
         // Inflate the layout for this fragment
 
         return inflater.inflate( R.layout.fragment_episode_header, container, false );

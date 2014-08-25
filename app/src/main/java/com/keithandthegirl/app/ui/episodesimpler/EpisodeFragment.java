@@ -252,7 +252,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeNumberTextView.setText(String.valueOf(episodeHolder.getEpisodeNumber()));
         mEpisodeTitleTextView.setText(episodeHolder.getEpisodeTitle());
 
-        if (null == episodeHolder.getGuestNames() || "".equals(episodeHolder.getGuestNames())) {
+        if (!StringUtils.isNullOrEmpty(episodeHolder.getGuestNames())) {
             mEpisodeGuestsLayout.setVisibility(View.GONE);
         } else {
             mEpisodeGuestsLayout.setVisibility(View.VISIBLE);
@@ -383,7 +383,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             if(null == mEpisodeInfoHolder.getEpisodeDetailNotes() || "".equals(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
                 scheduleWorkItem(mEpisodeInfoHolder.getShowName());
             }
-
         }
     }
 
@@ -426,8 +425,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         }
         cursor.close();
-
-        Log.v( TAG, "scheduleWorkItem : exit" );
     }
 
     private class SyncCompleteReceiver extends BroadcastReceiver {
@@ -454,8 +451,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
             DownloadManager mgr = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Query query = new DownloadManager.Query();
-            Uri uri = mgr.getUriForDownloadedFile(id);
-            Log.i( TAG, "download uri=" + uri.getEncodedPath() );
+//            Uri uri = mgr.getUriForDownloadedFile(id);
+//            Log.i( TAG, "download uri=" + uri.getEncodedPath() );
 
             mEpisodeInfoHolder.setEpisodeDownloadId(-1);
             ContentValues values = new ContentValues();

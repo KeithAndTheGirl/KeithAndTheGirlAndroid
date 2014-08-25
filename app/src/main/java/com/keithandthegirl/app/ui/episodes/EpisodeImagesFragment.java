@@ -32,8 +32,6 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        Log.v(TAG, "onCreateLoader : enter");
-
         String[] projection = { ImageConstants._ID, ImageConstants.FIELD_MEDIAURL };
 
         String selection = ImageConstants.FIELD_SHOWID + " = ?";
@@ -41,27 +39,17 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
         String[] selectionArgs = new String[] { String.valueOf( mEpisodeId ) };
 
         CursorLoader cursorLoader = new CursorLoader( getActivity(), ImageConstants.CONTENT_URI, projection, selection, selectionArgs, ImageConstants.FIELD_DISPLAY_ORDER );
-
-        Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        Log.v( TAG, "onLoadFinished : enter" );
-
         mAdapter.swapCursor( cursor );
-
-        Log.v( TAG, "onLoadFinished : exit" );
     }
 
     @Override
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v( TAG, "onLoaderReset : enter" );
-
         mAdapter.swapCursor(null);
-
-        Log.v( TAG, "onLoaderReset : exit" );
     }
 
     /**
@@ -85,7 +73,6 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setRetainInstance(true);
@@ -94,22 +81,16 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
             mEpisodeId = getArguments().getLong( EpisodeActivity.EPISODE_KEY );
         }
         mImageThumbSize = getResources().getDimensionPixelSize( R.dimen.image_thumbnail_size );
-        Log.v( TAG, "onCreate : exit" );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreateView : enter" );
-
         final View rootView = inflater.inflate( R.layout.fragment_episode_images, container, false );
-
-        Log.v(TAG, "onCreateView : exit");
         return rootView;
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated(savedInstanceState);
 
         setRetainInstance(true);
@@ -121,22 +102,15 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
         mGridViewImages = (GridView) getActivity().findViewById( R.id.episode_images_gridview );
         mGridViewImages.setAdapter( mAdapter );
 //        mGridViewImages.setOnItemClickListener( this );
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     @Override
     public void onResume() {
-        Log.v( TAG, "onResume : enter" );
-
         super.onResume();
         mAdapter.notifyDataSetChanged();
-
-        Log.v( TAG, "onResume : exit" );
     }
 
     private class EpisodeImageCursorAdapter extends CursorAdapter {
-
         private final String TAG = EpisodeImageCursorAdapter.class.getSimpleName();
 
         private final Context mContext;
@@ -189,8 +163,6 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
         @Override
         public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-            Log.v(TAG, "newView : enter");
-
             //resize the gridview height based on item count.
             if(mAdapter.getCount() != mLastKnownCount) setGridViewHeight();
 
@@ -198,35 +170,26 @@ public class EpisodeImagesFragment extends Fragment implements LoaderManager.Loa
 
             ViewHolder refHolder = new ViewHolder();
             refHolder.mediaUrl = (ImageView) view.findViewById( R.id.episode_grid_item_image );
-            refHolder.mediaUrl.setScaleType( ImageView.ScaleType.CENTER_CROP );
+//            refHolder.mediaUrl.setScaleType( ImageView.ScaleType.CENTER_CROP );
 
             view.setTag( refHolder );
-
-            Log.v( TAG, "newView : exit" );
             return view;
         }
 
         @Override
         public void bindView( View view, Context context, Cursor cursor ) {
-            Log.v( TAG, "bindView : enter" );
-
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             String mediaUrl = cursor.getString( cursor.getColumnIndex( ImageConstants.FIELD_MEDIAURL ) );
             Log.d( TAG, "bindView : mediaUrl=" + mediaUrl );
             Picasso.with(getActivity()).load(mediaUrl).fit().centerCrop().into(mHolder.mediaUrl);
-
-            Log.v( TAG, "bindView : exit" );
         }
-
     }
 
     private static class ViewHolder {
-
         ImageView mediaUrl;
 
         ViewHolder() { }
-
     }
 
 }

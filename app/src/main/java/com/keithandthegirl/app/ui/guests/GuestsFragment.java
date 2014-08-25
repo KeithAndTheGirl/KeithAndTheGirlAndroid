@@ -39,15 +39,11 @@ public class GuestsFragment extends ListFragment {
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
-
-        Log.v( TAG, "onCreate : exit" );
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated( savedInstanceState );
 
         setRetainInstance( true );
@@ -57,18 +53,12 @@ public class GuestsFragment extends ListFragment {
 
         mAdapter = new GuestCursorAdapter( getActivity(), cursor );
         setListAdapter( mAdapter );
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     @Override
     public void onResume() {
-        Log.v( TAG, "onResume : enter" );
-
         super.onResume();
         mAdapter.notifyDataSetChanged();
-
-        Log.v( TAG, "onResume : exit" );
     }
 
     @Override

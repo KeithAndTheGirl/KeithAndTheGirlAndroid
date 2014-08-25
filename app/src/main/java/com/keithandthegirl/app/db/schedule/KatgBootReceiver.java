@@ -16,15 +16,10 @@ public class KatgBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive( Context context, Intent intent ) {
-        Log.i( TAG, "onReceive : enter" );
-
         if( intent.getAction().equals( "android.intent.action.BOOT_COMPLETED" ) ) {
             Log.i( TAG, "onReceive : setting alarms after device boot" );
 
             alarm.setAlarm( context );
         }
-
-        Log.i( TAG, "onReceive : exit" );
     }
-
 }

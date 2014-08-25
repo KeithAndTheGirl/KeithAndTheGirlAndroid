@@ -85,18 +85,13 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-//		Log.v( TAG, "onCreate : enter" );
-
         database = new DatabaseHelper( getContext() );
 
-//		Log.v( TAG, "onCreate : exit" );
         return ( null == database ? false : true );
     }
 
     @Override
     public String getType( Uri uri ) {
-//        Log.v( TAG, "getType : enter" );
-
         switch( URI_MATCHER.match( uri ) ) {
 
             case EndpointConstants.ALL :
@@ -168,13 +163,10 @@ public class KatgProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException( "Unknown URI " + uri );
         }
-
     }
 
     @Override
     public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-//        Log.v( TAG, "query : enter" );
-
         final SQLiteDatabase db = database.getReadableDatabase();
 
         final SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
@@ -439,8 +431,6 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public Uri insert( Uri uri, ContentValues values ) {
-//        Log.v( TAG, "insert : enter" );
-
         final SQLiteDatabase db = database.getWritableDatabase();
 
         Uri newUri = null;
@@ -535,8 +525,6 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public int delete( Uri uri, String selection, String[] selectionArgs ) {
-//        Log.v( TAG, "delete : enter" );
-
         final SQLiteDatabase db = database.getWritableDatabase();
 
         int deleted = 0;
@@ -767,8 +755,6 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public int update( Uri uri, ContentValues values, String selection, String[] selectionArgs ) {
-//        Log.v( TAG, "update : enter" );
-
         final SQLiteDatabase db = database.getWritableDatabase();
 
         int affected = 0;
@@ -953,8 +939,6 @@ public class KatgProvider extends ContentProvider {
 
     @Override
     public ContentProviderResult[] applyBatch( ArrayList<ContentProviderOperation> operations )	 throws OperationApplicationException {
-//        Log.v( TAG, "applyBatch : enter" );
-
         final SQLiteDatabase db = database.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -1032,5 +1016,4 @@ public class KatgProvider extends ContentProvider {
                 + id
                 + ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" );
     }
-
 }

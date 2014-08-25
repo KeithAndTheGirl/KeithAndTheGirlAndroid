@@ -51,7 +51,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
      */
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.d( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.act_login );
@@ -69,38 +68,24 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
         }
 
         findViewById( R.id.submit ).setOnClickListener( new View.OnClickListener() {
-
             @Override
             public void onClick( View v ) {
-                Log.d( TAG, "submit.onClick : enter" );
-
                 submit();
-
-                Log.d( TAG, "submit.onClick : exit" );
             }
-
         });
-
-        Log.d( TAG, "onCreate : exit" );
     }
 
     @Override
     protected void onActivityResult( int requestCode, int resultCode, Intent data ) {
-        Log.d( TAG, "onActivityResult : enter" );
-
         // The sign up activity returned that the user has successfully created an account
         if( requestCode == REQ_SIGNUP && resultCode == RESULT_OK ) {
             finishLogin( data );
         } else {
             super.onActivityResult( requestCode, resultCode, data );
         }
-
-        Log.d( TAG, "onActivityResult : exit" );
     }
 
     public void submit() {
-        Log.d( TAG, "submit : enter" );
-
         final String userName = ((TextView) findViewById( R.id.accountName ) ).getText().toString();
         final String userPass = ((TextView) findViewById( R.id.accountPassword ) ).getText().toString();
 
@@ -110,8 +95,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
             @Override
             protected Intent doInBackground( String... params ) {
-                Log.d( TAG, "submit.doInBackground : enter" );
-
                 String authtoken = null;
                 Bundle data = new Bundle();
                 try {
@@ -130,15 +113,11 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
                 final Intent res = new Intent();
                 res.putExtras( data );
-
-                Log.d( TAG, "submit.doInBackground : exit" );
                 return res;
             }
 
             @Override
             protected void onPostExecute( Intent intent ) {
-                Log.d( TAG, "submit.onPostExecute : enter" );
-
                 if( intent.hasExtra( KEY_ERROR_MESSAGE ) ) {
 
                     Toast.makeText( getBaseContext(), intent.getStringExtra( KEY_ERROR_MESSAGE ), Toast.LENGTH_SHORT ).show();
@@ -148,18 +127,11 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
                     finishLogin( intent );
 
                 }
-
-                Log.d( TAG, "submit.onPostExecute : exit" );
             }
-
         }.execute();
-
-        Log.d( TAG, "submit : exit" );
     }
 
     private void finishLogin( Intent intent ) {
-        Log.d( TAG,  "finishLogin : enter" );
-
         Account dummyAccount = null;
 
         Account[] accounts = mAccountManager.getAccountsByType( AccountGeneral.ACCOUNT_TYPE );
@@ -220,9 +192,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
         setAccountAuthenticatorResult( intent.getExtras() );
         setResult( RESULT_OK, intent );
-
-        Log.d( TAG,  "finishLogin : exit" );
         finish();
     }
-
 }

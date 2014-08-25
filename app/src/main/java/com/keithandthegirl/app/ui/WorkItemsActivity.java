@@ -17,7 +17,6 @@ public class WorkItemsActivity extends AbstractBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_workitems );
@@ -33,8 +32,5 @@ public class WorkItemsActivity extends AbstractBaseActivity {
 
         WorkFragment workFragment = new WorkFragment();
         fm.beginTransaction().replace( R.id.container, workFragment ).commit();
-
-        Log.d( TAG, "onCreate : exit" );
     }
-
 }

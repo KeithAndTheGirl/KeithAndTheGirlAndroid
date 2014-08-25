@@ -31,8 +31,6 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        Log.v(TAG, "onCreateLoader : enter");
-
         String[] projection = null;
 
         String selection = null;
@@ -40,27 +38,17 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         String[] selectionArgs = null;
 
         CursorLoader cursorLoader = new CursorLoader( getActivity(), YoutubeConstants.CONTENT_URI, projection, selection, selectionArgs, YoutubeConstants.FIELD_YOUTUBE_PUBLISHED + " DESC" );
-
-        Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        Log.v( TAG, "onLoadFinished : enter" );
-
         mAdapter.swapCursor( cursor );
-
-        Log.v( TAG, "onLoadFinished : exit" );
     }
 
     @Override
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v( TAG, "onLoaderReset : enter" );
-
         mAdapter.swapCursor( null );
-
-        Log.v( TAG, "onLoaderReset : exit" );
     }
 
     public YoutubeFragment() { }
@@ -86,18 +74,12 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
     @Override
     public void onResume() {
-        Log.v( TAG, "onResume : enter" );
-
         super.onResume();
         mAdapter.notifyDataSetChanged();
-
-        Log.v( TAG, "onResume : exit" );
     }
 
     @Override
     public void onListItemClick( ListView l, View v, int position, long id ) {
-        Log.v( TAG, "onListItemClick : enter" );
-
         Cursor c = ( (YoutubeCursorAdapter) l.getAdapter() ).getCursor();
         c.moveToPosition( position );
 
@@ -107,13 +89,10 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         Intent intent = new Intent( getActivity(), YoutubeFragmentActivity.class );
         intent.putExtra( YoutubeFragmentActivity.YOUTUBE_VIDEO_KEY, youtubeId );
         startActivity( intent );
-
-        Log.v( TAG, "onListItemClick : exit" );
     }
 
 
     private class YoutubeCursorAdapter extends CursorAdapter {
-
         private LayoutInflater mInflater;
 
         public YoutubeCursorAdapter( Context context ) {
@@ -160,7 +139,5 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         ImageView select;
 
         ViewHolder() { }
-
     }
-
 }

@@ -38,8 +38,6 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        Log.v(TAG, "onCreateLoader : enter");
-
         String[] projection = null;
 
         String selection = null;
@@ -47,66 +45,46 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
         String[] selectionArgs = null;
 
         CursorLoader cursorLoader = new CursorLoader( getActivity(), WorkItemConstants.CONTENT_URI, projection, selection, selectionArgs, null );
-
-        Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        Log.v( TAG, "onLoadFinished : enter" );
-
         mAdapter.swapCursor(cursor);
-
-        Log.v( TAG, "onLoadFinished : exit" );
     }
 
     @Override
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v(TAG, "onLoaderReset : enter");
-
         mAdapter.swapCursor(null);
-
-        Log.v( TAG, "onLoaderReset : exit" );
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated(savedInstanceState);
 
         getLoaderManager().initLoader( 0, getArguments(), this );
         mAdapter = new WorkItemCursorAdapter( getActivity().getApplicationContext() );
         setListAdapter(mAdapter);
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     @Override
     public void onPause() {
-        Log.d(TAG, "onPause : enter");
         super.onPause();
 
         if( null != mSyncCompleteReceiver ) {
             getActivity().unregisterReceiver( mSyncCompleteReceiver );
         }
-
-        Log.d(TAG, "onPause : exit");
     }
 
     @Override
     public void onResume() {
-        Log.d( TAG, "onResume : enter" );
         super.onResume();
 
         IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
         getActivity().registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
-
-        Log.d( TAG, "onResume : exit" );
     }
 
     private class WorkItemCursorAdapter extends CursorAdapter {
-
         private final DateTimeFormatter fmt = DateTimeFormat.forPattern( "yyyy-MM-dd HH:mm:ss" );
 
         private Context mContext;
@@ -172,18 +150,12 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
         @Override
         public void onReceive( Context context, Intent intent ) {
-            Log.d( TAG, "onReceive : enter" );
-
             if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
                 Log.v( TAG, "onReceive : sync complete" );
 
                 mAdapter.notifyDataSetChanged();
 
             }
-
-            Log.d( TAG, "onReceive : exit" );
         }
-
     }
-
 }

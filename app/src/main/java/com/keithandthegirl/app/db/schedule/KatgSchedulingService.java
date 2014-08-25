@@ -23,8 +23,6 @@ public class KatgSchedulingService extends IntentService {
 
     @Override
     protected void onHandleIntent( Intent intent ) {
-        Log.i( TAG, "onHandleIntent : enter" );
-
         Account mAccount = MainApplication.CreateSyncAccount( this );
 
         ContentResolver.setSyncAutomatically( mAccount, KatgProvider.AUTHORITY, true );
@@ -34,8 +32,5 @@ public class KatgSchedulingService extends IntentService {
         settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
 
         ContentResolver.requestSync( mAccount, KatgProvider.AUTHORITY, settingsBundle );
-
-        Log.i( TAG, "onHandleIntent : exit" );
     }
-
 }

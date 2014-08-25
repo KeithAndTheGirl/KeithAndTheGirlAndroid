@@ -21,7 +21,6 @@ import com.squareup.picasso.Picasso;
  * Created by dmfrey on 3/30/14.
  */
 public class ShowHeaderFragment extends Fragment {
-
     private static final String TAG = ShowHeaderFragment.class.getSimpleName();
 
     Context mContext;
@@ -30,24 +29,17 @@ public class ShowHeaderFragment extends Fragment {
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
-        Log.v( TAG, "onCreate : exit" );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreateView : enter" );
-
         View rootView = inflater.inflate( R.layout.fragment_show_header, container, false );
-
-        Log.v( TAG, "onCreateView : exit" );
         return rootView;
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity();
@@ -64,13 +56,9 @@ public class ShowHeaderFragment extends Fragment {
             updateHeader(showNameId);
 
         }
-
-        Log.v( TAG, "onActivityCreated : enter" );
     }
 
     public void updateHeader( long showNameId ) {
-        Log.v( TAG, "updateHeader : enter" );
-
         Log.v( TAG, "updateHeader : showNameId=" + showNameId );
 
         String[] projection = new String[] { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_DESCRIPTION, ShowConstants.FIELD_COVERIMAGEURL_200 };
@@ -85,8 +73,5 @@ public class ShowHeaderFragment extends Fragment {
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mCoverImageView);
         }
         cursor.close();
-
-        Log.v( TAG, "updateHeader : exit" );
     }
-
 }

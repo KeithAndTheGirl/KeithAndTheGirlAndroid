@@ -62,7 +62,6 @@ public class EpisodeGuestsFragment extends Fragment {
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setRetainInstance( true );
@@ -72,15 +71,11 @@ public class EpisodeGuestsFragment extends Fragment {
         }
 
         getActivity().getContentResolver().registerContentObserver( GuestConstants.CONTENT_URI, true, guestsObserver );
-
-        Log.v( TAG, "onCreate : exit") ;
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-
         // Inflate the layout for this fragment
-
         return inflater.inflate( R.layout.fragment_episode_guests, container, false );
     }
 
@@ -98,14 +93,11 @@ public class EpisodeGuestsFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        Log.v( TAG, "onDestroy : enter" );
         super.onDestroy();
 
         dbHelper.close();
 
         getActivity().getContentResolver().unregisterContentObserver( guestsObserver );
-
-        Log.v( TAG, "onDestroy : exit" );
     }
 
     private void updateView() {
@@ -139,21 +131,17 @@ public class EpisodeGuestsFragment extends Fragment {
 
             mNames.setText( combined );
         }
-
     }
 
     private class GuestsObserver extends ContentObserver {
 
         public GuestsObserver() {
             super( null );
-
         }
 
         @Override
         public void onChange( boolean selfChange ) {
-
             this.onChange( selfChange, null );
-
         }
 
         @Override
@@ -169,9 +157,6 @@ public class EpisodeGuestsFragment extends Fragment {
                 }
 
             });
-
         }
-
     }
-
 }

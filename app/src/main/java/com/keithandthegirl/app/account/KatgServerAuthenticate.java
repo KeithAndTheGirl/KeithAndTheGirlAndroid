@@ -22,8 +22,6 @@ public class KatgServerAuthenticate implements ServerAuthenticate {
 
     @Override
     public String userSignIn( String user, String password, String authType ) throws Exception {
-        Log.i( TAG, "userSignIn : enter" );
-
         String authtoken = null;
 
         HttpURLConnection conn = null;
@@ -102,8 +100,6 @@ public class KatgServerAuthenticate implements ServerAuthenticate {
 
         }
 
-        Log.i( TAG, "userSignIn : exit" );
         return authtoken;
     }
-
 }

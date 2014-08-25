@@ -200,8 +200,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      */
     @Override
     public void onPerformSync( Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult ) {
-        //Log.i( TAG, "onPerformSync : enter" );
-
         /*
          * Put the data transfer code here.
          */
@@ -320,13 +318,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             completeIntent.setAction( COMPLETE_ACTION );
             mContext.sendBroadcast( completeIntent );
         }
-
-        //Log.i( TAG, "onPerformSync : exit" );
     }
 
     private void executeJobs( ContentProviderClient provider, List<Job> jobs ) throws RemoteException, IOException {
-        //Log.v( TAG, "executeJobs : enter" );
-
         if( !jobs.isEmpty() ) {
             for( Job job : jobs ) {
                 switch( job.getType() ) {
@@ -385,13 +379,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
         }
-
-        //Log.v( TAG, "executeJobs : exit" );
     }
 
     private void getShows( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        //Log.v( TAG, "getShows : enter" );
-
         try {
 
             if( wifiConnected || mobileConnected ) {
@@ -409,13 +399,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch( Exception e ) {
             //Log.e(TAG, "getShows : error", e);
         }
-
-        //Log.v( TAG, "getShows : exit" );
     }
 
     private void getEvents( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        //Log.v( TAG, "getEvents : enter" );
-
         try {
 
             if( wifiConnected || mobileConnected ) {
@@ -434,13 +420,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch( Exception e ) {
             //Log.e(TAG, "getEvents : error", e);
         }
-
-        //Log.v( TAG, "getEvents : exit" );
     }
 
     private void getLives( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        //Log.v( TAG, "getLives : enter" );
-
         try {
 
             if( wifiConnected || mobileConnected ) {
@@ -455,13 +437,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch( Exception e ) {
             //Log.e(TAG, "getLives : error", e);
         }
-
-        //Log.v( TAG, "getLives : exit" );
     }
 
     private void getEpisodes( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        //Log.v( TAG, "getEpisodes : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -500,13 +478,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "getEpisodes : exit" );
     }
 
     private void getEpisodeDetails( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        //Log.v( TAG, "getEpisodeDetails : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -538,13 +512,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "getEpisodeDetails : exit" );
     }
 
     private void getRecentEpisodes( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        //Log.v( TAG, "getRecentEpisodes : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -575,13 +545,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "getRecentEpisodes : exit" );
     }
 
     private void getShowDetails( ContentProviderClient provider, int showId ) throws RemoteException, IOException {
-        //Log.v( TAG, "getShowDetails : enter" );
-
         String address = "";
         Cursor cursor = provider.query( EndpointConstants.CONTENT_URI, null, EndpointConstants.FIELD_TYPE + "=?", new String[] { EndpointConstants.Type.DETAILS.name() }, null );
 
@@ -610,13 +576,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch( Exception e ) {
             //Log.e(TAG, "getShowDetails : error", e);
         }
-
-        //Log.v( TAG, "getShowDetails : exit" );
     }
 
     private void getYoutubeEpisodes( ContentProviderClient provider, Job job ) throws RemoteException, IOException {
-        //Log.v( TAG, "getYoutubeEpisodes : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -646,13 +608,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "getYoutubeEpisodes : exit" );
     }
 
     private void processShows( List<Show> shows, ContentProviderClient provider, Job job ) throws RemoteException {
-        //Log.v( TAG, "processShows : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -752,6 +710,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                     count++;
                 }
+                cursor.close();
 
                 if( !"KATG".equals( show.getPrefix() ) ) {
                     //Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
@@ -794,7 +753,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                     count++;
                 }
-
+                cursor.close();
                 if( count > 100 ) {
                     //Log.v( TAG, "processShows : applying batch for '" + count + "' transactions" );
 
@@ -835,13 +794,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "processShows : exit" );
     }
 
     private void processEvents( Events events, ContentProviderClient provider, Job job ) throws RemoteException {
-        //Log.v( TAG, "processEvents : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -937,13 +892,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "processEvents : exit" );
     }
 
     private void processBroadcasting( Live live, ContentProviderClient provider, Job job ) throws RemoteException {
-        //Log.v( TAG, "processBroadcasting : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -968,13 +919,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "processBroadcasting : exit" );
     }
 
     private void processEpisodes( List<Episode> episodes, ContentProviderClient provider, EndpointConstants.Type type ) {
-        //Log.v( TAG, "processEpisodes : enter" );
-
         try {
             int loaded = 0;
             List<Integer> detailsQueue = new ArrayList<Integer>();
@@ -1187,8 +1134,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch( Exception e ) {
             //Log.e(TAG, "processEpisodes : error", e);
         }
-
-        //Log.v( TAG, "processEpisodes : exit" );
     }
 
     private String concatList( List<String> sList, String separator ) {
@@ -1202,8 +1147,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void processEpisodeDetails( Detail detail, ContentProviderClient provider, int showId ) {
-        //Log.v( TAG, "processEpisodeDetails : enter" );
-
         try {
             int count = 0, loaded = 0;
 
@@ -1309,13 +1252,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch( Exception e ) {
             //Log.e( TAG, "processEpisodeDetails : error", e );
         }
-
-        //Log.v( TAG, "processEpisodeDetails : exit" );
     }
 
     private void processYoutubeEpisodes( Youtube youtube, ContentProviderClient provider, Job job ) throws RemoteException, OperationApplicationException, JSONException {
-        //Log.v( TAG, "processYoutubeEpisodes : enter" );
-
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
@@ -1488,12 +1427,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             provider.update( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, job.getId() ), update, null, null );
         }
-
-        //Log.v( TAG, "processYoutubeEpisodes : exit" );
     }
 
     private class Job {
-
         private Long id;
         private EndpointConstants.Type type;
         private WorkItemConstants.Download download;
@@ -1560,5 +1496,4 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
     }
-
 }

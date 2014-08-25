@@ -56,7 +56,6 @@ public class EpisodeDetailsFragment extends Fragment {
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setRetainInstance( true );
@@ -68,43 +67,31 @@ public class EpisodeDetailsFragment extends Fragment {
         }
 
         getActivity().getContentResolver().registerContentObserver( DetailConstants.CONTENT_URI, true, detailsObserver );
-
-        Log.v( TAG, "onCreate : exit" );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-
         // Inflate the layout for this fragment
-
         return inflater.inflate( R.layout.fragment_episode_details, container, false );
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated( savedInstanceState );
 
         mNotesWebView = (WebView) getActivity().findViewById( R.id.episode_details_notes );
 
         updateView();
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     @Override
     public void onDestroyView() {
-        Log.v( TAG, "onDestroyView : enter" );
         super.onDestroyView();
 
         getActivity().getContentResolver().unregisterContentObserver( detailsObserver );
-
-        Log.v(TAG, "onDestroyView : exit");
     }
 
     private void updateView() {
-        Log.v( TAG, "updateView : enter" );
-
 //        boolean scheduleDownload = false;
 
         Cursor cursor = getActivity().getContentResolver().query( DetailConstants.CONTENT_URI, null, DetailConstants.FIELD_SHOWID + " = ? AND NOT (" + DetailConstants.FIELD_NOTES + " IS NULL OR " + DetailConstants.FIELD_NOTES + " = ?)", new String[] { String.valueOf( mEpisodeId ), "" }, null );
@@ -128,13 +115,9 @@ public class EpisodeDetailsFragment extends Fragment {
             scheduleWorkItem();
 
 //        }
-
-        Log.v( TAG, "updateView : exit" );
     }
 
     private void scheduleWorkItem() {
-        Log.v( TAG, "scheduleWorkItem : enter" );
-
         ContentValues values = new ContentValues();
         values.put( WorkItemConstants.FIELD_NAME, mShowName + " " + mEpisodeId + " details" );
         values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ON_DEMAND.name() );
@@ -156,8 +139,6 @@ public class EpisodeDetailsFragment extends Fragment {
 
         }
         cursor.close();
-
-        Log.v( TAG, "scheduleWorkItem : exit" );
     }
 
     private class DetailsObserver extends ContentObserver {
@@ -187,9 +168,6 @@ public class EpisodeDetailsFragment extends Fragment {
                 }
 
             });
-
         }
-
     }
-
 }

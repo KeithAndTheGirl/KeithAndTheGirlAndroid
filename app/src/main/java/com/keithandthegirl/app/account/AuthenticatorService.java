@@ -20,12 +20,8 @@ public class AuthenticatorService extends Service {
 
     @Override
     public void onCreate() {
-        Log.v( TAG, "onCreate : enter" );
-
         // Create a new authenticator object
         mAuthenticator = new Authenticator( this );
-
-        Log.v( TAG, "onCreate : exit" );
     }
 
     /*
@@ -34,9 +30,6 @@ public class AuthenticatorService extends Service {
      */
     @Override
     public IBinder onBind( Intent intent ) {
-        Log.v( TAG, "onBind : enter" );
-        Log.v( TAG, "onBind : exit" );
         return mAuthenticator.getIBinder();
     }
-
 }

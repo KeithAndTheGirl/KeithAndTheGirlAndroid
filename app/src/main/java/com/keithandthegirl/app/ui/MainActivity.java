@@ -37,7 +37,6 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
-        Log.d( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_main );
@@ -91,7 +90,7 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
             // the adapter. Also specify this Activity object, which implements
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
-            LinearLayout view = (LinearLayout) getLayoutInflater().inflate(R.layout.custom_tab, null);
+            LinearLayout view = (LinearLayout) getLayoutInflater().inflate(R.layout.custom_tab, null, false);
 
             ImageView icon = (ImageView) view.findViewById(R.id.icon);
             icon.setImageDrawable(mSectionsPagerAdapter.getUnselectedIcon(i));
@@ -112,8 +111,6 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
 //            );
 
         }
-
-        Log.d( TAG, "onCreate : exit" );
     }
 
     @Override

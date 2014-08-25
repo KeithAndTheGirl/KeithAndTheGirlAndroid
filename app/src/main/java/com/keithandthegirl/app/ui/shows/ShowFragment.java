@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
  * Created by dmfrey on 3/30/14.
  */
 public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {

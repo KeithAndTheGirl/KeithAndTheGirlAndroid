@@ -36,22 +36,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onOpen( SQLiteDatabase db ) {
-        Log.v( TAG, "onOpen : enter" );
         super.onOpen( db );
 
         if( !db.isReadOnly() ) {
-            Log.i( TAG, "onOpen : turning on referencial integrity" );
-
             db.execSQL( "PRAGMA foreign_keys = ON;" );
         }
-
-        Log.v(TAG, "onOpen : exit");
     }
 
     @Override
     public void onCreate( SQLiteDatabase db ) {
-        Log.d(TAG, "onCreate : enter");
-
         dropTables(db);
 
         createTableWorkItems( db );
@@ -65,26 +58,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createTableEpisodeDetailImages( db );
         createTableEpisodeGuests( db );
         createTableYoutube( db );
-
-        Log.d(TAG, "onCreate : exit");
     }
 
     @Override
     public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
-        Log.d( TAG, "onCreate : enter" );
-
         if( oldVersion < DATABASE_VERSION ) {
             Log.v(TAG, "onUpgrade : upgrading to db version " + DATABASE_VERSION);
 
         }
-
-
-        Log.d( TAG, "onCreate : exit" );
     }
 
     private void dropTables( SQLiteDatabase db ) {
-        Log.v( TAG, "dropTables : enter" );
-
         String dropWorkItem = WorkItemConstants.DROP_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "dropTable : dropWorkItem=" + dropWorkItem );
@@ -150,13 +134,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.v( TAG, "dropTable : dropYoutube=" + dropYoutube );
         }
         db.execSQL( dropYoutube );
-
-        Log.v( TAG, "dropTables : exit" );
     }
 
     private void createTableEndpoints( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableEndpoints : enter" );
-
         String sql = EndpointConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEndpoints : sql=" + sql );
@@ -171,13 +151,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.OVERVIEW.name(), EndpointConstants.OVERVIEW, EndpointConstants.DownloadType.ARRAY.name(), "", now.getMillis() } );
         db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.LIST.name(), EndpointConstants.LIST, EndpointConstants.DownloadType.ARRAY.name(), "", now.getMillis() } );
         db.execSQL( EndpointConstants.INSERT_ROW, new Object[] { EndpointConstants.Type.YOUTUBE.name(), EndpointConstants.YOUTUBE, EndpointConstants.DownloadType.OBJECT.name(), "", now.getMillis() } );
-
-        Log.v( TAG, "createTableEndpoints : exit" );
     }
 
     private void createTableWorkItems( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableWorkItems : enter" );
-
         String sql = WorkItemConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableWorkItems : sql=" + sql );
@@ -190,99 +166,65 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Broadcasting", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSON, EndpointConstants.Type.LIVE.name(), EndpointConstants.LIVE, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
         db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Recent Episodes", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSONARRAY, EndpointConstants.Type.RECENT.name(), EndpointConstants.RECENT, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
         db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Youtube Episodes", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSON, EndpointConstants.Type.YOUTUBE.name(), EndpointConstants.YOUTUBE, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
-
-        Log.v( TAG, "createTableWorkItems : exit" );
     }
 
     private void createTableShows( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableShows : enter" );
-
         String sql = ShowConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableShows : sql=" + sql );
         }
         db.execSQL( sql );
-
-        Log.v( TAG, "createTableShows : exit" );
     }
 
     private void createTableEpisodes( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableEpisodes : enter" );
-
         String sql = EpisodeConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodes : sql=" + sql );
         }
         db.execSQL(sql);
-
-        Log.v( TAG, "createTableEpisodes : exit" );
     }
 
     private void createTableEpisodeDetails( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableEpisodeDetails : enter" );
-
         String sql = DetailConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodeDetails : sql=" + sql );
         }
         db.execSQL( sql );
-
-        Log.v( TAG, "createTableEpisodeDetails : exit" );
     }
 
     private void createTableEpisodeDetailImages( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableEpisodeDetailImages : enter" );
-
         String sql = ImageConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodeDetailImages : sql=" + sql );
         }
         db.execSQL( sql );
-
-        Log.v( TAG, "createTableEpisodeDetailImages : exit" );
     }
 
     private void createTableGuests( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableGuests : enter" );
-
         String sql = GuestConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableGuests : sql=" + sql );
         }
         db.execSQL( sql );
-
-
-        Log.v( TAG, "createTableGuests : exit" );
     }
 
     private void createTableEpisodeGuests( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableEpisodeGuests : enter" );
-
         String sql = EpisodeGuestConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEpisodeGuests : sql=" + sql );
         }
         db.execSQL( sql );
-
-
-        Log.v( TAG, "createTableEpisodeGuests : exit" );
     }
 
     private void createTableEvents( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableEvents : enter" );
-
         String sql = EventConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableEvents : sql=" + sql );
         }
         db.execSQL( sql );
-
-        Log.v( TAG, "createTableEvents : exit" );
     }
 
     private void createTableLive( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableLive : enter" );
-
         String sql = LiveConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableLive : sql=" + sql );
@@ -291,20 +233,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         DateTime now = new DateTime( DateTimeZone.UTC );
         db.execSQL( LiveConstants.INSERT_ROW, new Object[] { "1", "0", now.getMillis() } );
-
-        Log.v(TAG, "createTableLive : exit");
     }
 
     private void createTableYoutube( SQLiteDatabase db ) {
-        Log.v( TAG, "createTableLive : enter" );
-
         String sql = YoutubeConstants.CREATE_TABLE;
         if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
             Log.v( TAG, "createTableYoutube : sql=" + sql );
         }
         db.execSQL( sql );
-
-        Log.v(TAG, "createTableYoutube : exit");
     }
-
 }

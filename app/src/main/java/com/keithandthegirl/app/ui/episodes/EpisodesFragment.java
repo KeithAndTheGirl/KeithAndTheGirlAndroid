@@ -29,8 +29,6 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        Log.v(TAG, "onCreateLoader : enter");
-
         String[] projection = { EpisodeConstants.TABLE_NAME + "." + EpisodeConstants._ID, EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_TITLE };
 
         String selection = EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_SHOWNAMEID + "=?";
@@ -38,32 +36,21 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
         String[] selectionArgs = new String[] { String.valueOf( args.getLong( SHOW_NAME_ID_KEY ) ) };
 
         CursorLoader cursorLoader = new CursorLoader( getActivity(), EpisodeConstants.CONTENT_URI, projection, selection, selectionArgs, EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_NUMBER + " DESC" );
-
-        Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        Log.v( TAG, "onLoadFinished : enter" );
-
         mAdapter.swapCursor( cursor );
-
-        Log.v( TAG, "onLoadFinished : exit" );
     }
 
     @Override
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v( TAG, "onLoaderReset : enter" );
-
         mAdapter.swapCursor( null );
-
-        Log.v( TAG, "onLoaderReset : exit" );
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated(savedInstanceState);
 
         getLoaderManager().initLoader( 0, getArguments(), this );
@@ -71,22 +58,15 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
         setListAdapter( mAdapter );
 
         getListView().setFastScrollEnabled( true );
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     public void updateEpisodesView( long showNameId ) {
-        Log.v( TAG, "updateEpisodesView : enter" );
-
         Bundle args = new Bundle();
         args.putLong( SHOW_NAME_ID_KEY, showNameId );
         getLoaderManager().restartLoader( 0, args, this );
-
-        Log.v( TAG, "updateEpisodesView : exit" );
     }
 
     private class EpisodeCursorAdapter extends CursorAdapter {
-
         private Context mContext;
         private LayoutInflater mInflater;
 
@@ -117,7 +97,6 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
 
             mHolder.name.setText( cursor.getString( cursor.getColumnIndex( EpisodeConstants.TABLE_NAME + "." + EpisodeConstants.FIELD_TITLE ) ) );
         }
-
     }
 
     private static class ViewHolder {
@@ -125,7 +104,5 @@ public class EpisodesFragment extends ListFragment implements LoaderManager.Load
         TextView name;
 
         ViewHolder() { }
-
     }
-
 }

@@ -21,18 +21,11 @@ public class KatgAlarmReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive( Context context, Intent intent ) {
-        Log.i( TAG, "onReceive : enter" );
-
         Intent service = new Intent( context, KatgSchedulingService.class );
-
         startWakefulService( context, service );
-
-        Log.i( TAG, "onReceive : exit" );
     }
 
     public void setAlarm( Context context ) {
-        Log.d( TAG, "setAlarm : enter" );
-
         mAlarmManager = (AlarmManager) context.getSystemService( Context.ALARM_SERVICE );
 
         Intent intent = new Intent( context, KatgAlarmReceiver.class );
@@ -45,13 +38,9 @@ public class KatgAlarmReceiver extends WakefulBroadcastReceiver {
         PackageManager pm = context.getPackageManager();
 
         pm.setComponentEnabledSetting( receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP );
-
-        Log.d( TAG, "setAlarm : exit" );
     }
 
     public void cancelAlarm( Context context ) {
-        Log.d( TAG, "cancelAlarm : enter" );
-
         if( null != mAlarmManager ) {
             mAlarmManager.cancel( mAlarmIntent );
         }
@@ -60,8 +49,5 @@ public class KatgAlarmReceiver extends WakefulBroadcastReceiver {
         PackageManager pm = context.getPackageManager();
 
         pm.setComponentEnabledSetting( receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
-
-        Log.d( TAG, "cancelAlarm : exit" );
     }
-
 }

@@ -65,7 +65,6 @@ public class EpisodeGuestImagesFragment extends Fragment {
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
 
@@ -74,8 +73,6 @@ public class EpisodeGuestImagesFragment extends Fragment {
             Log.v( TAG, "onCreate : mEpisodeId=" + mEpisodeId );
         }
         getActivity().getContentResolver().registerContentObserver( GuestConstants.CONTENT_URI, true, guestsObserver );
-
-        Log.v( TAG, "onCreate : exit") ;
     }
 
     @Override
@@ -86,7 +83,6 @@ public class EpisodeGuestImagesFragment extends Fragment {
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated( savedInstanceState );
 
         setRetainInstance( true );
@@ -104,21 +100,16 @@ public class EpisodeGuestImagesFragment extends Fragment {
             mGridView.setAdapter( mAdapter );
 
 //        }
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     @Override
     public void onDestroy() {
-        Log.v( TAG, "onDestroy : enter" );
         super.onDestroy();
 
         cursor.close();
         dbHelper.close();
 
         getActivity().getContentResolver().unregisterContentObserver( guestsObserver );
-
-        Log.v( TAG, "onDestroy : exit" );
     }
 
     private class EpisodeGuestCursorAdapter extends CursorAdapter {
@@ -135,30 +126,23 @@ public class EpisodeGuestImagesFragment extends Fragment {
 
         @Override
         public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-            Log.v( TAG, "newView : enter" );
-
             View view = mInflater.inflate( R.layout.episode_guest_grid_item, parent, false );
 
             ViewHolder refHolder = new ViewHolder();
             refHolder.guestImage = (ImageView) view.findViewById( R.id.episode_guest_grid_item_image );
-            refHolder.guestImage.setScaleType( ImageView.ScaleType.CENTER_CROP );
+//            refHolder.guestImage.setScaleType( ImageView.ScaleType.CENTER_CROP );
 
             view.setTag( refHolder );
-
-            Log.v( TAG, "newView : exit" );
             return view;
         }
 
         @Override
         public void bindView( View view, Context context, Cursor cursor ) {
-            Log.v( TAG, "bindView : enter" );
-
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
             String coverUrl = cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_PICTUREURL ) );
             Log.v(TAG, "bindView : coverUrl=" + coverUrl);
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mHolder.guestImage);
-            Log.v( TAG, "bindView : exit" );
         }
     }
 
@@ -194,9 +178,6 @@ public class EpisodeGuestImagesFragment extends Fragment {
                 }
 
             });
-
         }
-
     }
-
 }

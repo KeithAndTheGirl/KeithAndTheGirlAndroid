@@ -37,8 +37,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        Log.v(TAG, "onCreateLoader : enter");
-
         String[] projection = null;
 
         String selection = EventConstants.FIELD_ENDDATE + " > ?";
@@ -47,32 +45,21 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
         String[] selectionArgs = new String[] { String.valueOf( now.getMillis() ) };
 
         CursorLoader cursorLoader = new CursorLoader( getActivity(), EventConstants.CONTENT_URI, projection, selection, selectionArgs, EventConstants.FIELD_ENDDATE );
-
-        Log.v( TAG, "onCreateLoader : exit" );
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        Log.v( TAG, "onLoadFinished : enter" );
-
         mAdapter.swapCursor( cursor );
-
-        Log.v( TAG, "onLoadFinished : exit" );
     }
 
     @Override
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        Log.v( TAG, "onLoaderReset : enter" );
-
         mAdapter.swapCursor( null );
-
-        Log.v( TAG, "onLoaderReset : exit" );
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        Log.v( TAG, "onActivityCreated : enter" );
         super.onActivityCreated(savedInstanceState);
 
         setRetainInstance( true );
@@ -80,17 +67,11 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
         getLoaderManager().initLoader( 0, getArguments(), this );
         mAdapter = new EventCursorAdapter( getActivity() );
         setListAdapter( mAdapter );
-
-        Log.v( TAG, "onActivityCreated : exit" );
     }
 
     public void updateEventsView( long showNameId ) {
-        Log.v( TAG, "updateEventsView : enter" );
-
         Bundle args = new Bundle();
         getLoaderManager().restartLoader( 0, args, this );
-
-        Log.v( TAG, "updateEventsView : exit" );
     }
 
     private class EventCursorAdapter extends CursorAdapter {
@@ -106,7 +87,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
         @Override
         public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-
             View view = mInflater.inflate( R.layout.event_item_row, parent, false );
 
             ViewHolder refHolder = new ViewHolder();
@@ -155,7 +135,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     }
 
     private static class ViewHolder {
-
         TextView title;
         TextView startDate;
         TextView endDate;
@@ -163,7 +142,5 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
         TextView details;
 
         ViewHolder() { }
-
     }
-
 }

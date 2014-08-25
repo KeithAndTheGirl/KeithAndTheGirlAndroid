@@ -56,14 +56,11 @@ public class EpisodeFragment extends Fragment {
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         if( null != getArguments() ) {
             mEpisodeId = getArguments().getLong(EpisodeActivity.EPISODE_KEY);
         }
-
-        Log.v( TAG, "onCreate : exit" );
     }
 
     @Override

@@ -13,7 +13,6 @@ import com.squareup.picasso.Picasso;
  * Created by dmfrey on 3/19/14.
  */
 public class MainApplication extends Application {
-
     private static final String TAG = MainApplication.class.getSimpleName();
 
     // An account type, in the form of a domain name
@@ -24,17 +23,13 @@ public class MainApplication extends Application {
 
     @Override
     public void onCreate() {
-        Log.v( TAG, "onCreate : enter" );
         super.onCreate();
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setIndicatorsEnabled(true);
         }
-        Log.v( TAG, "onCreate : exit" );
     }
 
     public static Account CreateSyncAccount( Context context ) {
-        Log.v( TAG, "CreateSyncAccount : enter" );
-
         // Get an instance of the Android account manager
         AccountManager accountManager = (AccountManager) context.getSystemService( ACCOUNT_SERVICE );
         Account[] accounts = accountManager.getAccountsByType( AccountGeneral.ACCOUNT_TYPE );
@@ -67,12 +62,9 @@ public class MainApplication extends Application {
 
             }
 
-            Log.v( TAG, "CreateSyncAccount : exit" );
             return newAccount;
         }
 
-        Log.v( TAG, "CreateSyncAccount : exit, returning existing account" );
         return accounts[ 0 ];
     }
-
 }

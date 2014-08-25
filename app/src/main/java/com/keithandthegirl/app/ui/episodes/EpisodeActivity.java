@@ -81,7 +81,6 @@ public class EpisodeActivity extends AbstractBaseActivity {
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
-        Log.d(TAG, "onCreate : enter");
         super.onCreate(savedInstanceState);
 
         setContentView( R.layout.activity_episode );
@@ -98,13 +97,9 @@ public class EpisodeActivity extends AbstractBaseActivity {
 
             finish();
         }
-
-        Log.d( TAG, "onCreate : exit" );
     }
 
     private void updateView() {
-        Log.v( TAG, "updateView : enter" );
-
         ActionBar actionBar = getSupportActionBar();
 
         Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, mEpisodeId ), null, null, null, null );
@@ -253,8 +248,5 @@ public class EpisodeActivity extends AbstractBaseActivity {
             }
 
         });
-
-        Log.v( TAG, "updateView : exit" );
     }
-
 }

@@ -25,7 +25,6 @@ public class VideoPlayerActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
-        Log.d( TAG, "onCreate : enter" );
         super.onCreate( savedInstanceState );
 
         getWindow().setFormat( PixelFormat.TRANSLUCENT );
@@ -67,8 +66,5 @@ public class VideoPlayerActivity extends ActionBarActivity {
             }
 
         }
-
-        Log.d( TAG, "onCreate : exit" );
     }
-
 }
