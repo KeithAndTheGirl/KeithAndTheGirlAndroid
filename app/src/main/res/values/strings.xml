@@ -10,6 +10,7 @@
     <string name="action_bar_tab_events">Schedule</string>
     <string name="action_bar_tab_shows">Shows</string>
     <string name="action_bar_tab_guests">Guests</string>
+    <string name="action_bar_tab_live">Live</string>
     <string name="action_bar_tab_youtube">Youtube</string>
     <string name="action_bar_tab_about">About</string>
     <string name="episode_label">EPISODE</string>

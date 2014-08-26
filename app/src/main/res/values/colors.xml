@@ -168,6 +168,7 @@
     <color name="katg_refresh_2">#5574be66</color>
     <color name="katg_refresh_3">#2274be66</color>
     <color name="katg_refresh_4">#1174be66</color>
-
+    <color name="katg_tab_text_selected_color">#cecece</color>
+    <color name="katg_tab_text_unselected_color">#7e7e7e</color>
 
 </resources>

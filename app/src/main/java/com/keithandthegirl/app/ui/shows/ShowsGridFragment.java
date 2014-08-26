@@ -1,11 +1,8 @@
 package com.keithandthegirl.app.ui.shows;
 
-import android.annotation.TargetApi;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -34,10 +31,19 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
     ShowCursorAdapter mAdapter;
 
+    public static ShowsGridFragment newInstance() {
+        ShowsGridFragment fragment = new ShowsGridFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
-
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+        }
     }
 
     @Override
@@ -105,6 +111,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
         mAdapter.swapCursor( null );
     }
+
 
     private class ShowCursorAdapter extends CursorAdapter {
         private LayoutInflater mInflater;

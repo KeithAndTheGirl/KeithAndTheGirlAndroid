@@ -3,13 +3,13 @@ package com.keithandthegirl.app.ui.events;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +34,20 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     private static final String TAG = EventsFragment.class.getSimpleName();
 
     EventCursorAdapter mAdapter;
+
+    public static Fragment newInstance() {
+        EventsFragment fragment = new EventsFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+        }
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {

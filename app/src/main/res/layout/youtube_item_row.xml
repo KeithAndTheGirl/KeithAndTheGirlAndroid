@@ -35,7 +35,7 @@
 
     <ImageView
         android:id="@+id/youtube_select"
-        android:src="@drawable/btn_youtube_select"
+        android:src="@drawable/next_arrow"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_margin="10dp"

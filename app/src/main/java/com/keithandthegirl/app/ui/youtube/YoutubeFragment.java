@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,26 +29,12 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
     YoutubeCursorAdapter mAdapter;
 
-    @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        String[] projection = null;
+    public static Fragment newInstance() {
+        YoutubeFragment fragment = new YoutubeFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
 
-        String selection = null;
-
-        String[] selectionArgs = null;
-
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), YoutubeConstants.CONTENT_URI, projection, selection, selectionArgs, YoutubeConstants.FIELD_YOUTUBE_PUBLISHED + " DESC" );
-        return cursorLoader;
-    }
-
-    @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        mAdapter.swapCursor( cursor );
-    }
-
-    @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        mAdapter.swapCursor( null );
     }
 
     public YoutubeFragment() { }
@@ -56,6 +42,8 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
+        if (getArguments() != null) {
+        }
     }
 
     @Override
@@ -88,9 +76,30 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
         Intent intent = new Intent( getActivity(), YoutubeFragmentActivity.class );
         intent.putExtra( YoutubeFragmentActivity.YOUTUBE_VIDEO_KEY, youtubeId );
-        startActivity( intent );
+        startActivity(intent);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
+        String[] projection = null;
+
+        String selection = null;
+
+        String[] selectionArgs = null;
+
+        CursorLoader cursorLoader = new CursorLoader( getActivity(), YoutubeConstants.CONTENT_URI, projection, selection, selectionArgs, YoutubeConstants.FIELD_YOUTUBE_PUBLISHED + " DESC" );
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
+        mAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
+        mAdapter.swapCursor(null);
+    }
 
     private class YoutubeCursorAdapter extends CursorAdapter {
         private LayoutInflater mInflater;

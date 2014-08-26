@@ -12,11 +12,10 @@ import com.keithandthegirl.app.R;
  * Created by dmfrey on 4/17/14.
  */
 public class AboutFragment extends Fragment {
+    private static final String TAG = AboutFragment.class.getSimpleName();
 
     public static AboutFragment newInstance() {
-
         AboutFragment fragment = new AboutFragment();
-
         return fragment;
     }
 
@@ -33,7 +32,5 @@ public class AboutFragment extends Fragment {
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
         super.onActivityCreated( savedInstanceState );
-
     }
-
 }

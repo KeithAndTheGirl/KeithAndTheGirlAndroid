@@ -3,8 +3,8 @@ package com.keithandthegirl.app.ui.guests;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,24 +35,34 @@ public class GuestsFragment extends ListFragment {
     Cursor cursor;
     GuestCursorAdapter mAdapter;
 
+
+    public static Fragment newInstance() {
+        GuestsFragment fragment = new GuestsFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public GuestsFragment() { }
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+        }
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
-        super.onActivityCreated( savedInstanceState );
+        super.onActivityCreated(savedInstanceState);
 
-        setRetainInstance( true );
+        setRetainInstance(true);
 
         dbHelper = new DatabaseHelper( getActivity() );
         cursor = dbHelper.getReadableDatabase().rawQuery( RAW_GUESTS_QUERY, null );
 
         mAdapter = new GuestCursorAdapter( getActivity(), cursor );
-        setListAdapter( mAdapter );
+        setListAdapter(mAdapter);
     }
 
     @Override
