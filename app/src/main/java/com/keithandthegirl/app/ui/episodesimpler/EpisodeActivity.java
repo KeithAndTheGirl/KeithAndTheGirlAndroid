@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.FrameworkSampleSource;
@@ -25,8 +26,10 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     public static final String EPISODE_KEY = "EPISODE_KEY";
     private static final String TAG = EpisodeActivity.class.getSimpleName();
     private long mEpisodeId;
+    private LinearLayout mPlayerControls;
     private Button mPlayButton, mPauseButton, mBackButton, mSkipButton;
     private Uri mEpisodeFileUri;
+    private boolean mPublic;
 
     private ExoPlayer player;
     private int mCurrentPosition = 0;
@@ -48,6 +51,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                     .commit();
         }
 
+        mPlayerControls = (LinearLayout) findViewById( R.id.playbackLayout);
         mPlayButton = (Button) findViewById(R.id.play);
         mPlayButton.setEnabled(false);
         mPlayButton.setOnClickListener(new View.OnClickListener() {
@@ -163,10 +167,18 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     }
 
     @Override
-    public void onEpisodeLoaded(final Uri episodeUri, final int lastPlayed) {
-        mEpisodeFileUri = episodeUri;
-        mCurrentPosition = lastPlayed;
-        mPlayButton.setEnabled(true);
+    public void onEpisodeLoaded(final boolean isPublic, final Uri episodeUri, final int lastPlayed) {
+
+        mPublic = isPublic;
+
+        if( isPublic ) {
+            mPlayerControls.setVisibility( View.VISIBLE );
+            mEpisodeFileUri = episodeUri;
+            mCurrentPosition = lastPlayed;
+            mPlayButton.setEnabled(true);
+        } else {
+            mPlayerControls.setVisibility( View.GONE );
+        }
         // TODO Enable UI better now that we have episodeId
         // TODO also need to save it for config change
     }

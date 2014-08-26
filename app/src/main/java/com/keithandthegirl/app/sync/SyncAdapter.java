@@ -528,6 +528,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 List<Episode> recentEpisodes = katgService.recentEpisodes();
                 if( null != recentEpisodes && !recentEpisodes.isEmpty() ) {
 
+                    ContentValues values = new ContentValues();
+
+                    //Reset public episodes when updating recent
+                    values.put( EpisodeConstants.FIELD_PUBLIC, 0 );
+                    mContentResolver.update( EpisodeConstants.CONTENT_URI, values, EpisodeConstants.FIELD_SHOWNAMEID + " = ? AND " + EpisodeConstants.FIELD_PUBLIC + " = ?", new String[] { "1", "1" } );
+
                     processEpisodes( recentEpisodes, provider, job.getType() );
 
                 }
@@ -959,7 +965,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 values.put( EpisodeConstants.FIELD_LENGTH, episode.getLength() );
                 values.put( EpisodeConstants.FIELD_FILESIZE, episode.getFileSize() );
                 values.put( EpisodeConstants.FIELD_TYPE, episode.getType() );
-                values.put( EpisodeConstants.FIELD_PUBLIC, episode.isNotVip() ? 0 : 1 );
+                values.put( EpisodeConstants.FIELD_PUBLIC, episode.getVip() );
                 values.put( EpisodeConstants.FIELD_POSTED, episode.getPostedDate() );
                 values.put( EpisodeConstants.FIELD_TIMESTAMP, episode.getTimestamp() );
                 values.put( EpisodeConstants.FIELD_SHOWNAMEID, episode.getShowNameId() );

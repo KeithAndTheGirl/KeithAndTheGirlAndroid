@@ -151,11 +151,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeImagesGridView.setAdapter(mEpisodeImageAdapter);
         mEpisodeImagesGridView.setOnItemClickListener(this);
 
-        // if this is a config change we already have episode info loaded so update UI.
-        if (mEpisodeInfoHolder != null) {
-            updateUI(mEpisodeInfoHolder);
-        }
-
         mEpisodeDownloadButton = (Button) fragmentView.findViewById( R.id.episode_download );
         mEpisodeDownloadButton.setOnClickListener( new View.OnClickListener() {
 
@@ -210,6 +205,11 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         });
 
+        // if this is a config change we already have episode info loaded so update UI.
+        if (mEpisodeInfoHolder != null) {
+            updateUI(mEpisodeInfoHolder);
+        }
+
         return fragmentView;
     }
 
@@ -246,6 +246,12 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (episodeHolder == null) {
             return;
         } // early out if we haven't set data yet
+
+        if( episodeHolder.isEpisodePublic() ) {
+            mEpisodeDownloadButton.setVisibility(View.VISIBLE);
+        } else {
+            mEpisodeDownloadButton.setVisibility(View.GONE);
+        }
 
         Picasso.with(getActivity()).load(episodeHolder.getShowCoverImageUrl()).into(mEpisodeHeaderBackgroundImageView);
         mEpisodeDateTextView.setText(episodeHolder.getEpisodePosted());
@@ -377,7 +383,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                     episodeUri = Uri.parse( mEpisodeInfoHolder.getEpisodeFileUrl());
                 }
 
-                mEpisodeEventListener.onEpisodeLoaded(episodeUri, mEpisodeInfoHolder.getEpisodeLastPlayed());
+                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.isEpisodePublic(), episodeUri, mEpisodeInfoHolder.getEpisodeLastPlayed());
             }
 
             if(null == mEpisodeInfoHolder.getEpisodeDetailNotes() || "".equals(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
@@ -397,7 +403,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     public interface EpisodeEventListener {
-        void onEpisodeLoaded(Uri episodeUri, int lastPlayedPosition);
+        void onEpisodeLoaded(boolean isPublic, Uri episodeUri, int lastPlayedPosition);
         void onShowImageClicked(int position, List<String> imageUrls);
     }
 

@@ -78,7 +78,7 @@ public class Episode {
     private int type;
 
     @SerializedName( "Public" )
-    private boolean notVip;
+    private int vip;
 
     @SerializedName( "Timestamp" )
     private long timestamp;
@@ -91,7 +91,7 @@ public class Episode {
 
     public Episode() { }
 
-    public Episode( int showId, int number, String postedDate, String title, String videoFileUrl, String videoThumbnailUrl, String previewUrl, String fileUrl, int length, int fileSize, int type, boolean notVip, long timestamp, int showNameId ) {
+    public Episode( int showId, int number, String postedDate, String title, String videoFileUrl, String videoThumbnailUrl, String previewUrl, String fileUrl, int length, int fileSize, int type, int vip, long timestamp, int showNameId ) {
 
         this.showId = showId;
         this.number = number;
@@ -104,7 +104,7 @@ public class Episode {
         this.length = length;
         this.fileSize = fileSize;
         this.type = type;
-        this.notVip = notVip;
+        this.vip = vip;
         this.timestamp = timestamp;
         this.showNameId = showNameId;
 
@@ -202,12 +202,12 @@ public class Episode {
         this.type = type;
     }
 
-    public boolean isNotVip() {
-        return notVip;
+    public int getVip() {
+        return vip;
     }
 
-    public void setNotVip( boolean notVip ) {
-        this.notVip = notVip;
+    public void setVip( int vip ) {
+        this.vip = vip;
     }
 
     public long getTimestamp() {
@@ -248,7 +248,7 @@ public class Episode {
                 ", length=" + length +
                 ", fileSize=" + fileSize +
                 ", type=" + type +
-                ", notVip=" + notVip +
+                ", vip=" + vip +
                 ", timestamp=" + timestamp +
                 ", showNameId=" + showNameId +
                 ", guests=" + Arrays.toString(guests) +
