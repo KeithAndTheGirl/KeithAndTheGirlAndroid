@@ -123,10 +123,10 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
                 startActivity(preferencesIntent);
                 return true;
 
-            case R.id.action_login:
-                Intent vipIntent = new Intent(this, AuthenticatorActivity.class);
-                startActivity(vipIntent);
-                return true;
+//            case R.id.action_login:
+//                Intent vipIntent = new Intent(this, AuthenticatorActivity.class);
+//                startActivity(vipIntent);
+//                return true;
 
             case R.id.action_work_items:
                 Intent workItemsIntent = new Intent(this, WorkItemsActivity.class);

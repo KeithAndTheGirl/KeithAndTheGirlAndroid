@@ -9,10 +9,10 @@
         android:icon="@drawable/ic_live_mic_off"
         katg:showAsAction="always" />
 
-    <item android:id="@+id/action_login"
+    <!-- item android:id="@+id/action_login"
         android:title="@string/action_login"
         android:orderInCategory="300"
-        katg:showAsAction="never" />
+        katg:showAsAction="never" / -->
 
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
