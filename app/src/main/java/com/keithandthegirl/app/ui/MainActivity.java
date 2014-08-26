@@ -26,6 +26,8 @@ import com.keithandthegirl.app.ui.live.LiveFragment;
 import com.keithandthegirl.app.ui.shows.ShowsGridFragment;
 import com.keithandthegirl.app.ui.youtube.YoutubeFragment;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AbstractBaseActivity implements ActionBar.TabListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -143,98 +145,108 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
+    enum FragmentType {UNSET, SHOWS, LIVE, GUESTS, EVENTS, YOUTUBE, ABOUT}
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
+        private ArrayList<FragmentHolder> mFragmentList;
 
         public SectionsPagerAdapter(FragmentManager fm) {
-
             super(fm);
+            initializeSections();
+        }
 
+        private void initializeSections() {
+            mFragmentList = new ArrayList<FragmentHolder>();
+            mFragmentList.add(new FragmentHolder(FragmentType.SHOWS, R.string.action_bar_tab_shows, R.drawable.ic_tab_shows_on, R.drawable.ic_tab_shows_off));
+            mFragmentList.add(new FragmentHolder(FragmentType.LIVE, R.string.action_bar_tab_live, R.drawable.ic_tab_live_on, R.drawable.ic_tab_live_off));
+            mFragmentList.add(new FragmentHolder(FragmentType.GUESTS, R.string.action_bar_tab_guests, R.drawable.ic_tab_guest_on, R.drawable.ic_tab_guest_off));
+            mFragmentList.add(new FragmentHolder(FragmentType.EVENTS, R.string.action_bar_tab_events, R.drawable.ic_tab_calendar_on, R.drawable.ic_tab_calendar_off));
+            mFragmentList.add(new FragmentHolder(FragmentType.YOUTUBE, R.string.action_bar_tab_youtube, R.drawable.ic_tab_youtube_on, R.drawable.ic_tab_youtube_off));
+            mFragmentList.add(new FragmentHolder(FragmentType.ABOUT, R.string.action_bar_tab_about, R.drawable.ic_tab_about_on, R.drawable.ic_tab_about_off));
         }
 
         @Override
         public Fragment getItem(int position) {
-
-            switch (position) {
-                case 0:
+            FragmentHolder holder = mFragmentList.get(position);
+            switch (holder.mFragmentType) {
+                case SHOWS:
                     return ShowsGridFragment.newInstance();
-                case 1:
+                case LIVE:
                     return LiveFragment.newInstance();
-                case 2:
+                case GUESTS:
                     return GuestsFragment.newInstance();
-                case 3:
+                case EVENTS:
                     return EventsFragment.newInstance();
-                case 4:
+                case YOUTUBE:
                     return YoutubeFragment.newInstance();
-                case 5:
+                case ABOUT:
                     return AboutFragment.newInstance();
+                default:
+                    return null;
             }
-
-            return null;
         }
 
         @Override
         public int getCount() {
-            // Show 5 total pages.
-            return 6;
+            return mFragmentList.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-
-            switch (position) {
-                case 0:
-                    return getResources().getString(R.string.action_bar_tab_shows);
-                case 1:
-                    return getResources().getString(R.string.action_bar_tab_live);
-                case 2:
-                    return getResources().getString(R.string.action_bar_tab_guests);
-                case 3:
-                    return getResources().getString(R.string.action_bar_tab_events);
-                case 4:
-                    return getResources().getString(R.string.action_bar_tab_youtube);
-                case 5:
-                    return getResources().getString(R.string.action_bar_tab_about);
-            }
-
-            return null;
+            return getResources().getString(mFragmentList.get(position).getTitleStringId());
         }
 
         public Drawable getUnselectedIcon(int position) {
-
-            switch (position) {
-                case 0:
-                    return getResources().getDrawable(R.drawable.ic_tab_shows_off);
-                case 1:
-                    return getResources().getDrawable(R.drawable.ic_tab_live_off);
-                case 2:
-                    return getResources().getDrawable(R.drawable.ic_tab_guest_off);
-                case 3:
-                    return getResources().getDrawable(R.drawable.ic_tab_calendar_off);
-                case 4:
-                    return getResources().getDrawable(R.drawable.ic_tab_youtube_off);
-                case 5:
-                    return getResources().getDrawable(R.drawable.ic_tab_about_off);
-            }
-            return null;
+            return getResources().getDrawable(mFragmentList.get(position).getUnselectedIconId());
         }
 
         public Drawable getSelectedIcon(int position) {
+            return getResources().getDrawable(mFragmentList.get(position).getSelectedIconId());
+        }
+    }
 
-            switch (position) {
-                case 0:
-                    return getResources().getDrawable(R.drawable.ic_tab_shows_on);
-                case 1:
-                    return getResources().getDrawable(R.drawable.ic_tab_live_on);
-                case 2:
-                    return getResources().getDrawable(R.drawable.ic_tab_guest_on);
-                case 3:
-                    return getResources().getDrawable(R.drawable.ic_tab_calendar_on);
-                case 4:
-                    return getResources().getDrawable(R.drawable.ic_tab_youtube_on);
-                case 5:
-                    return getResources().getDrawable(R.drawable.ic_tab_about_on);
-            }
-            return null;
+    private class FragmentHolder {
+        private FragmentType mFragmentType;
+        private int mTitleStringId;
+        private int mSelectedIconId;
+        private int mUnselectedIconId;
+
+        public FragmentHolder(final FragmentType fragmentType, final int titleStringId, final int selectedIconId, final int unselectedIconId) {
+            mFragmentType = fragmentType;
+            mTitleStringId = titleStringId;
+            mSelectedIconId = selectedIconId;
+            mUnselectedIconId = unselectedIconId;
+        }
+
+        public FragmentType getFragmentType() {
+            return mFragmentType;
+        }
+
+        public void setFragmentType(final FragmentType fragmentType) {
+            mFragmentType = fragmentType;
+        }
+
+        public int getTitleStringId() {
+            return mTitleStringId;
+        }
+
+        public void setTitleStringId(final int titleStringId) {
+            mTitleStringId = titleStringId;
+        }
+
+        public int getSelectedIconId() {
+            return mSelectedIconId;
+        }
+
+        public void setSelectedIconId(final int selectedIconId) {
+            mSelectedIconId = selectedIconId;
+        }
+
+        public int getUnselectedIconId() {
+            return mUnselectedIconId;
+        }
+
+        public void setUnselectedIconId(final int unselectedIconId) {
+            mUnselectedIconId = unselectedIconId;
         }
     }
 }
