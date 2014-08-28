@@ -118,6 +118,7 @@
                 android:resource="@xml/syncadapter" />
         </service>
         <service android:name=".db.schedule.KatgSchedulingService" />
+        <service android:name=".services.media.AudioPlayerService" />
 
         <!-- KATG Providers -->
         <provider

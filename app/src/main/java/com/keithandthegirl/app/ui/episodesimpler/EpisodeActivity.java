@@ -1,38 +1,39 @@
 package com.keithandthegirl.app.ui.episodesimpler;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.FrameworkSampleSource;
-import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.services.media.AudioPlayerService;
+import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
 import com.keithandthegirl.app.ui.episodesimpler.gallery.EpisodeImageGalleryFragment;
 
 import java.util.List;
-import java.util.Observable;
 
-public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener {
+public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener, OnClickListener {
     public static final String EPISODE_KEY = "EPISODE_KEY";
     private static final String TAG = EpisodeActivity.class.getSimpleName();
     private long mEpisodeId;
     private LinearLayout mPlayerControls;
     private Button mPlayButton, mPauseButton, mBackButton, mSkipButton;
-    private Uri mEpisodeFileUri;
     private boolean mPublic;
 
-    private ExoPlayer player;
-    private int mCurrentPosition = 0;
+    private PlaybackBroadcastReceiver mPlaybackBroadcastReceiver = new PlaybackBroadcastReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,80 +55,32 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         mPlayerControls = (LinearLayout) findViewById( R.id.playbackLayout);
         mPlayButton = (Button) findViewById(R.id.play);
         mPlayButton.setEnabled(false);
-        mPlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-
-                FrameworkSampleSource sampleSource = new FrameworkSampleSource( EpisodeActivity.this, mEpisodeFileUri, null, 1 );
-
-                player = ExoPlayer.Factory.newInstance(1);
-                MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null, true);
-
-                player.prepare(audioRenderer);
-                player.seekTo(mCurrentPosition);
-                player.setPlayWhenReady(true);
-
-                mPlayButton.setVisibility( View.GONE );
-                mPauseButton.setVisibility( View.VISIBLE );
-                mPauseButton.setEnabled(true);
-                mBackButton.setEnabled(true);
-                mSkipButton.setEnabled(true);
-
-                updatePlaybackPosition( mCurrentPosition );
-            }
-        });
+        mPlayButton.setOnClickListener(this);
 
         mPauseButton = (Button) findViewById(R.id.pause);
         mPauseButton.setEnabled(false);
-        mPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-
-                player.setPlayWhenReady( false );
-                mCurrentPosition = player.getCurrentPosition();
-
-                mPlayButton.setVisibility( View.VISIBLE );
-                mPauseButton.setVisibility( View.GONE );
-                mPauseButton.setEnabled(false);
-                mBackButton.setEnabled(false);
-                mSkipButton.setEnabled(false);
-
-                updatePlaybackPosition( mCurrentPosition );
-
-            }
-        });
+        mPauseButton.setOnClickListener(this);
 
         mBackButton = (Button) findViewById(R.id.back);
         mBackButton.setEnabled(false);
-        mBackButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-
-                player.setPlayWhenReady( false );
-                mCurrentPosition = player.getCurrentPosition() - 30000;
-                player.seekTo( mCurrentPosition );
-                player.setPlayWhenReady( true );
-
-                updatePlaybackPosition( mCurrentPosition );
-
-            }
-        });
+        mBackButton.setOnClickListener(this);
 
         mSkipButton = (Button) findViewById(R.id.skip);
         mSkipButton.setEnabled(false);
-        mSkipButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
+        mSkipButton.setOnClickListener(this);
 
-                player.setPlayWhenReady( false );
-                mCurrentPosition = player.getCurrentPosition() + 30000;
-                player.seekTo( mCurrentPosition );
-                player.setPlayWhenReady( true );
+    }
 
-                updatePlaybackPosition( mCurrentPosition );
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-            }
-        });
+        IntentFilter playbackBroadcastIntentFilter = new IntentFilter(AudioPlayerService.EVENT_STATUS);
+        registerReceiver(mPlaybackBroadcastReceiver, playbackBroadcastIntentFilter);
+
+        Intent intent = new Intent(this, AudioPlayerService.class);
+        intent.setAction(AudioPlayerService.ACTION_IS_PLAYING);
+        startService(intent);
 
     }
 
@@ -135,16 +88,10 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     protected void onPause() {
         super.onPause();
 
-        if( null != player ) {
-            player.setPlayWhenReady( false );
-            mCurrentPosition = player.getCurrentPosition();
-
-            updatePlaybackPosition( mCurrentPosition );
-
-            player.stop();
-            player.release();
-
+        if( null != mPlaybackBroadcastReceiver ) {
+            unregisterReceiver(mPlaybackBroadcastReceiver);
         }
+
     }
 
     @Override
@@ -167,14 +114,12 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     }
 
     @Override
-    public void onEpisodeLoaded(final boolean isPublic, final Uri episodeUri, final int lastPlayed) {
+    public void onEpisodeLoaded(final EpisodeInfoHolder episodeInfoHolder) {
 
-        mPublic = isPublic;
+        mPublic = episodeInfoHolder.isEpisodePublic();
 
-        if( isPublic ) {
+        if( mPublic ) {
             mPlayerControls.setVisibility( View.VISIBLE );
-            mEpisodeFileUri = episodeUri;
-            mCurrentPosition = lastPlayed;
             mPlayButton.setEnabled(true);
         } else {
             mPlayerControls.setVisibility( View.GONE );
@@ -193,13 +138,79 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 .commit();
     }
 
-    private void updatePlaybackPosition( int playbackMs ) {
+    @Override
+    public void onClick(View v) {
 
-        ContentValues values = new ContentValues();
-        values.put(EpisodeConstants.FIELD_PLAYED, 1 );
-        values.put(EpisodeConstants.FIELD_LASTPLAYED, playbackMs );
+        Intent intent = null;
 
-        getContentResolver().update(ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, mEpisodeId ), values, null, null );
+        switch( v.getId() ) {
+
+            case R.id.play :
+                intent = new Intent(this, AudioPlayerService.class);
+                intent.setAction(AudioPlayerService.ACTION_PLAY);
+                intent.putExtra(AudioPlayerService.EXTRA_EPISODE_ID, mEpisodeId);
+
+                mPlayButton.setVisibility( View.GONE );
+                mPauseButton.setVisibility( View.VISIBLE );
+                mPauseButton.setEnabled(true);
+                mBackButton.setEnabled(true);
+                mSkipButton.setEnabled(true);
+                break;
+
+            case R.id.pause :
+                intent = new Intent(this, AudioPlayerService.class);
+                intent.setAction(AudioPlayerService.ACTION_PAUSE);
+
+                mPlayButton.setVisibility( View.VISIBLE );
+                mPauseButton.setVisibility( View.GONE );
+                mPauseButton.setEnabled(false);
+                mBackButton.setEnabled(false);
+                mSkipButton.setEnabled(false);
+                break;
+
+            case R.id.back :
+                intent = new Intent(this, AudioPlayerService.class);
+                intent.setAction(AudioPlayerService.ACTION_REW);
+                break;
+
+            case R.id.skip :
+                intent = new Intent(this, AudioPlayerService.class);
+                intent.setAction(AudioPlayerService.ACTION_FF);
+                break;
+
+        }
+
+        if(intent != null) {
+
+            intent.putExtra(AudioPlayerService.EXTRA_EPISODE_ID, mEpisodeId);
+
+            startService(intent);
+
+        }
 
     }
+
+    private void updateSeekBarPosition( int currentPosition ) {
+        // TODO: update seek bar position
+    }
+
+    private class PlaybackBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Received Playback Broadcast - " + intent.getAction());
+            if( intent.getAction().equals( AudioPlayerService.EVENT_STATUS ) ) {
+                int currentPosition = intent.getIntExtra( AudioPlayerService.EXTRA_CURRENT_POSITION, -1 );
+                updateSeekBarPosition( currentPosition );
+
+                boolean isPlaying = intent.getBooleanExtra( AudioPlayerService.EXTRA_IS_PLAYING, false );
+                if( isPlaying ) {
+                    mPlayButton.setVisibility( View.GONE );
+                    mPauseButton.setVisibility( View.VISIBLE );
+                    mPauseButton.setEnabled(true);
+                    mBackButton.setEnabled(true);
+                    mSkipButton.setEnabled(true);
+                }
+            }
+        }
+    };
 }

@@ -371,19 +371,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             updateUI(mEpisodeInfoHolder);
             if (mEpisodeEventListener != null) {
 
-                Uri episodeUri = null;
-                if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
-                    Log.i( TAG, "loading from file");
-
-                    File externalFile = new File(getActivity().getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
-                    episodeUri = Uri.fromFile( externalFile );
-                } else {
-                    Log.i( TAG, "streaming from url");
-
-                    episodeUri = Uri.parse( mEpisodeInfoHolder.getEpisodeFileUrl());
-                }
-
-                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder.isEpisodePublic(), episodeUri, mEpisodeInfoHolder.getEpisodeLastPlayed());
+                mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder);
             }
 
             if(null == mEpisodeInfoHolder.getEpisodeDetailNotes() || "".equals(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
@@ -403,7 +391,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     public interface EpisodeEventListener {
-        void onEpisodeLoaded(boolean isPublic, Uri episodeUri, int lastPlayedPosition);
+        void onEpisodeLoaded(EpisodeInfoHolder episodeInfoHolder);
         void onShowImageClicked(int position, List<String> imageUrls);
     }
 
