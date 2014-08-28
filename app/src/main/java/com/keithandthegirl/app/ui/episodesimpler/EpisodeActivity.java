@@ -116,6 +116,8 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     @Override
     public void onEpisodeLoaded(final EpisodeInfoHolder episodeInfoHolder) {
 
+        getActionBar().setTitle( episodeInfoHolder.getShowName() );
+
         mPublic = episodeInfoHolder.isEpisodePublic();
 
         if( mPublic ) {
