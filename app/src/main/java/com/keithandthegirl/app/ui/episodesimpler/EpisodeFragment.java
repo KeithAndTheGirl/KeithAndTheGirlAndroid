@@ -216,22 +216,20 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public void onResume() {
         super.onResume();
+
         IntentFilter syncCompleteIntentFilter = new IntentFilter(SyncAdapter.COMPLETE_ACTION);
         getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
 
-        getActivity().registerReceiver(mDownloadCompleteReceiver, mDownloadCompleteIntentFilter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
         if (null != mSyncCompleteReceiver) {
             getActivity().unregisterReceiver(mSyncCompleteReceiver);
         }
 
-        if (null != mDownloadCompleteReceiver) {
-            getActivity().unregisterReceiver(mDownloadCompleteReceiver);
-        }
     }
 
     @Override
@@ -430,35 +428,5 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             }
         }
     }
-
-    private String mDownloadCompleteIntentName = DownloadManager.ACTION_DOWNLOAD_COMPLETE;
-    private IntentFilter mDownloadCompleteIntentFilter = new IntentFilter(mDownloadCompleteIntentName);
-    private BroadcastReceiver mDownloadCompleteReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
-            if(id != mEpisodeInfoHolder.getEpisodeDownloadId()) {
-                return;
-            }
-
-            DownloadManager mgr = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-            DownloadManager.Query query = new DownloadManager.Query();
-//            Uri uri = mgr.getUriForDownloadedFile(id);
-//            Log.i( TAG, "download uri=" + uri.getEncodedPath() );
-
-            mEpisodeInfoHolder.setEpisodeDownloadId(-1);
-            ContentValues values = new ContentValues();
-            values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, -1);
-            values.put(EpisodeConstants.FIELD_DOWNLOADED, 1);
-            getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
-
-            getLoaderManager().restartLoader(1, null, EpisodeFragment.this);
-
-            Log.i( TAG, "Episode Downloaded!" );
-        }
-
-    };
 
 }
