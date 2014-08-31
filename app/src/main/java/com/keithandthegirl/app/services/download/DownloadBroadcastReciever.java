@@ -49,7 +49,6 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
         }
 
         if( DownloadManager.ACTION_NOTIFICATION_CLICKED.equals( intent.getAction() ) ) {
-            Log.i( TAG, "onRecieve : downloadId=" + intent.getLongExtra( DownloadManager.EXTRA_DOWNLOAD_ID, -1 ) );
             Log.i( TAG, "onRecieve : ids=" + Arrays.toString( intent.getLongArrayExtra( DownloadManager.EXTRA_NOTIFICATION_CLICK_DOWNLOAD_IDS ) ) );
             long[] ids = intent.getLongArrayExtra( DownloadManager.EXTRA_NOTIFICATION_CLICK_DOWNLOAD_IDS );
             if( ids.length == 1 ) {

@@ -1,7 +1,6 @@
 package com.keithandthegirl.app.ui.episodesimpler;
 
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -11,13 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +24,9 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
-import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.db.model.ImageConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
@@ -49,7 +41,6 @@ import com.squareup.picasso.Picasso;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,8 +77,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private View mEpisodeDetailsLayout;
     private View mEpisodeGuestsLayout;
     private View mEpisodeImagesLayout;
-
-    private Button mEpisodeDownloadButton;
 
     private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
 
@@ -151,60 +140,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeImagesGridView.setAdapter(mEpisodeImageAdapter);
         mEpisodeImagesGridView.setOnItemClickListener(this);
 
-        mEpisodeDownloadButton = (Button) fragmentView.findViewById( R.id.episode_download );
-        mEpisodeDownloadButton.setOnClickListener( new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-//                final File file = new File(Environment.getExternalStoragePublicDirectory(null), mEpisodeInfoHolder.getEpisodeFilename());
-                DownloadManager mgr = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-                boolean isDownloading = false;
-                DownloadManager.Query query = new DownloadManager.Query();
-                query.setFilterByStatus(
-                        DownloadManager.STATUS_PAUSED|
-                                DownloadManager.STATUS_PENDING|
-                                DownloadManager.STATUS_RUNNING|
-                                DownloadManager.STATUS_SUCCESSFUL);
-                Cursor cur = mgr.query(query);
-                int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-                for(cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                    isDownloading = isDownloading || (mEpisodeInfoHolder.getEpisodeFilename() == cur.getString(col));
-                }
-                cur.close();
-
-                if( !isDownloading ) {
-
-                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mEpisodeInfoHolder.getEpisodeFileUrl()));
-
-                    // only download via Any Newtwork Connection
-                    // TODO: Setup preferences to allow user to decide if Mobile or WIFI networks should be used for downloads
-                    //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
-                    request.setTitle(mEpisodeInfoHolder.getShowPrefix() + ":" + mEpisodeInfoHolder.getEpisodeNumber());
-                    request.setDescription(mEpisodeInfoHolder.getEpisodeTitle());
-
-                    // show download status in notification bar
-                    request.setVisibleInDownloadsUi(true);
-                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    request.setDestinationInExternalFilesDir(getActivity(), null, mEpisodeInfoHolder.getEpisodeFilename());
-
-                    // enqueue this request
-                    DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-                    long downloadId = downloadManager.enqueue(request);
-
-                    if (downloadId > 0) {
-                        mEpisodeInfoHolder.setEpisodeDownloadId(downloadId);
-                        ContentValues values = new ContentValues();
-                        values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, downloadId);
-                        values.put(EpisodeConstants.FIELD_DOWNLOADED, 0);
-                        getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
-                    }
-
-                }
-            }
-
-        });
-
         // if this is a config change we already have episode info loaded so update UI.
         if (mEpisodeInfoHolder != null) {
             updateUI(mEpisodeInfoHolder);
@@ -244,12 +179,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (episodeHolder == null) {
             return;
         } // early out if we haven't set data yet
-
-        if( episodeHolder.isEpisodePublic() ) {
-            mEpisodeDownloadButton.setVisibility(View.VISIBLE);
-        } else {
-            mEpisodeDownloadButton.setVisibility(View.GONE);
-        }
 
         Picasso.with(getActivity()).load(episodeHolder.getShowCoverImageUrl()).into(mEpisodeHeaderBackgroundImageView);
         mEpisodeDateTextView.setText(episodeHolder.getEpisodePosted());

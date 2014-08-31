@@ -1,11 +1,13 @@
 package com.keithandthegirl.app.ui.episodesimpler;
 
+import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +25,8 @@ import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
 import com.keithandthegirl.app.ui.episodesimpler.gallery.EpisodeImageGalleryFragment;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener, OnClickListener {
@@ -31,7 +35,12 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     private long mEpisodeId;
     private LinearLayout mPlayerControls;
     private Button mPlayButton, mPauseButton, mBackButton, mSkipButton;
-    private boolean mPublic;
+
+    private EpisodeInfoHolder mEpisodeInfoHolder;
+
+    private MenuItem mDownloadMenuItem, mDeleteMenuItem;
+
+    private DownloadManager mDownloadManager;
 
     private PlaybackBroadcastReceiver mPlaybackBroadcastReceiver = new PlaybackBroadcastReceiver();
 
@@ -51,6 +60,8 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                     .addToBackStack(null)
                     .commit();
         }
+
+        mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         mPlayerControls = (LinearLayout) findViewById( R.id.playbackLayout);
         mPlayButton = (Button) findViewById(R.id.play);
@@ -97,6 +108,12 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.episode, menu);
+
+        mDownloadMenuItem = menu.findItem( R.id.action_download );
+        mDeleteMenuItem = menu.findItem( R.id.action_delete );
+
+        swapMenuItems();
+
         return true;
     }
 
@@ -105,9 +122,18 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch( item.getItemId() ) {
+
+            case R.id.action_download :
+                queueDownload();
+                break;
+
+            case R.id.action_delete :
+                deleteEpisode();
+                break;
+
+            case R.id.action_settings :
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -116,11 +142,11 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     @Override
     public void onEpisodeLoaded(final EpisodeInfoHolder episodeInfoHolder) {
 
-        getActionBar().setTitle( episodeInfoHolder.getShowName() );
+        mEpisodeInfoHolder = episodeInfoHolder;
 
-        mPublic = episodeInfoHolder.isEpisodePublic();
+        getActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
 
-        if( mPublic ) {
+        if( mEpisodeInfoHolder.isEpisodePublic() ) {
             mPlayerControls.setVisibility( View.VISIBLE );
             mPlayButton.setEnabled(true);
         } else {
@@ -128,6 +154,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         }
         // TODO Enable UI better now that we have episodeId
         // TODO also need to save it for config change
+
     }
 
     @Override
@@ -189,6 +216,125 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
             startService(intent);
 
         }
+
+    }
+
+    private void swapMenuItems() {
+
+        if( null == mEpisodeInfoHolder ) {
+
+            mDownloadMenuItem.setVisible( false );
+            mDownloadMenuItem.setEnabled( false );
+            mDeleteMenuItem.setVisible( false );
+            mDeleteMenuItem.setEnabled( false );
+
+            return;
+        }
+
+        boolean isDownloadedOrDownloading = mEpisodeInfoHolder.isEpisodeDownloaded() || isDownloading();
+        Log.i( TAG, "swapMenuItems : isDownloadedOrDownloading=" + isDownloadedOrDownloading );
+
+        mDownloadMenuItem.setVisible( !isDownloadedOrDownloading );
+        mDownloadMenuItem.setEnabled( !isDownloadedOrDownloading );
+        mDeleteMenuItem.setVisible( isDownloadedOrDownloading );
+        mDeleteMenuItem.setEnabled( isDownloadedOrDownloading );
+
+    }
+
+    private boolean isDownloading() {
+
+        if( null == mEpisodeInfoHolder ) {
+            return false;
+        }
+
+        boolean isDownloading = false;
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterByStatus(
+                DownloadManager.STATUS_PAUSED|
+                        DownloadManager.STATUS_PENDING|
+                        DownloadManager.STATUS_RUNNING|
+                        DownloadManager.STATUS_SUCCESSFUL);
+        Cursor cur = mDownloadManager.query(query);
+        int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+        for(cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+            isDownloading = isDownloading || (mEpisodeInfoHolder.getEpisodeFilename() == cur.getString(col));
+        }
+        cur.close();
+
+        return isDownloading;
+    }
+
+    private void queueDownload() {
+        Log.i( TAG, "queueDownload : enter" );
+
+        if( null == mEpisodeInfoHolder ) {
+            return;
+        }
+
+        if( !isDownloading() ) {
+
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mEpisodeInfoHolder.getEpisodeFileUrl()));
+
+            // only download via Any Newtwork Connection
+            // TODO: Setup preferences to allow user to decide if Mobile or WIFI networks should be used for downloads
+            //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+            request.setTitle(mEpisodeInfoHolder.getShowPrefix() + ":" + mEpisodeInfoHolder.getEpisodeNumber());
+            request.setDescription(mEpisodeInfoHolder.getEpisodeTitle());
+
+            // show download status in notification bar
+            request.setVisibleInDownloadsUi(true);
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setDestinationInExternalFilesDir(this, null, mEpisodeInfoHolder.getEpisodeFilename());
+            request.setMimeType( null );
+
+            // enqueue this request
+            long downloadId = mDownloadManager.enqueue(request);
+
+            if (downloadId > 0) {
+
+                mEpisodeInfoHolder.setEpisodeDownloadId(downloadId);
+                mEpisodeInfoHolder.setEpisodeDownloaded( true );
+
+                swapMenuItems();
+
+                ContentValues values = new ContentValues();
+                values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, downloadId);
+                values.put(EpisodeConstants.FIELD_DOWNLOADED, 0);
+                getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
+            }
+
+        }
+
+    }
+
+    private void deleteEpisode() {
+        Log.i( TAG, "deleteEpisode : enter" );
+
+        if( null == mEpisodeInfoHolder ) {
+            return;
+        }
+
+        mDownloadManager.remove( mEpisodeInfoHolder.getEpisodeDownloadId() );
+
+        File externalFile = new File(getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
+        Log.i( TAG, "deleteEpisode : externalFile=" + externalFile.getAbsolutePath() );
+        if( externalFile.exists() ) {
+            boolean deleted = externalFile.delete();
+            if( deleted ) {
+                Log.i( TAG, "deleteEpisode : externalFile deleted!" );
+
+            }
+        }
+
+        mEpisodeInfoHolder.setEpisodeDownloadId( -1 );
+        mEpisodeInfoHolder.setEpisodeDownloaded( false );
+
+        swapMenuItems();
+
+        ContentValues values = new ContentValues();
+        values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, -1);
+        values.put(EpisodeConstants.FIELD_DOWNLOADED, 0);
+        getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
 
     }
 
