@@ -307,6 +307,8 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
             if( downloaded == 1) {
                 mHolder.downloaded.setText("Downloaded");
+            } else {
+                mHolder.downloaded.setText("Not Downloaded");
             }
 
             if( lastPlayed > 0 ) {
