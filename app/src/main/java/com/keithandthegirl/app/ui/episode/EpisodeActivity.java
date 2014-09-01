@@ -31,7 +31,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_episodesimpler);
+        setContentView(R.layout.activity_episode);
 
         Bundle extras = getIntent().getExtras();
         if (extras.containsKey(EPISODE_KEY)) {

@@ -1,52 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.keithandthegirl.app.ui.episode.EpisodeActivity"
+    tools:ignore="MergeRootFrame">
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context="com.keithandthegirl.app.ui.episodes.EpisodeActivity"
-            tools:ignore="MergeRootFrame">
-
-    <LinearLayout
-        android:orientation="vertical"
+    <include
+        layout="@layout/view_playback_transport_control"
+        android:id="@+id/playbackLayout"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_alignParentBottom="true"/>
 
-        <FrameLayout
-            android:id="@+id/episode_header"
-            android:layout_width="match_parent"
-            android:layout_height="130dp" />
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/playbackLayout"/>
 
-        <Button
-            android:id="@+id/episode_play"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Play" />
-
-        <FrameLayout
-            android:id="@+id/episode_guests"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_margin="10dp" />
-
-        <FrameLayout
-            android:id="@+id/episode_guest_images"
-            android:layout_width="match_parent"
-            android:layout_height="90dp"
-            android:layout_margin="10dp" />
-
-        <FrameLayout
-            android:id="@+id/episode_details_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp" />
-
-        <FrameLayout
-            android:id="@+id/episode_images"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp" />
-
-    </LinearLayout>
-
-</ScrollView>
+</RelativeLayout>
