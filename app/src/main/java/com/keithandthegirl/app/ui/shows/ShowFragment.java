@@ -316,6 +316,8 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
                 double percent = ( (double)lastPlayed / (double)(length * 1000) );
 
                 mHolder.played.setText(MessageFormat.format("{0,number,percent}", percent) + " Played");
+            } else {
+                mHolder.played.setText("Not Played");
             }
         }
     }
