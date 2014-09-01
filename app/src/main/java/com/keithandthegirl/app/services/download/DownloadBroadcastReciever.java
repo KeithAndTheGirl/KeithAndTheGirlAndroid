@@ -68,9 +68,12 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
                         OutputStream os = null;
                         try {
 
+                            String tmpFilename = Uri.parse(uriString).getLastPathSegment();
                             String path = Uri.parse(uriString).getPath();
                             File inFile = new File(path);
-                            byte[] bytes = FileUtils.readFileToByteArray( inFile );
+                            File tmpFile = File.createTempFile( tmpFilename, null );
+                            tmpFile.deleteOnExit();
+                            FileUtils.copyFile( inFile, tmpFile );
 
                             ContentValues values = new ContentValues();
                             values.put( EpisodeConstants.FIELD_DOWNLOAD_ID, -1 );
@@ -81,7 +84,7 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
                             mgr.remove(downloadId);
 
                             File outFile = new File(path);
-                            FileUtils.writeByteArrayToFile( outFile, bytes );
+                            FileUtils.copyFile( tmpFile, outFile );
 
                             EpisodeInfoHolder episodeHolder = loadEpisode( context, episodeId );
                             NotificationCompat.Builder mBuilder =
