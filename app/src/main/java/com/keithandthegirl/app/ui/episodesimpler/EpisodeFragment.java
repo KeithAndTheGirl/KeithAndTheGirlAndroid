@@ -1,6 +1,7 @@
 package com.keithandthegirl.app.ui.episodesimpler;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -11,8 +12,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
@@ -41,6 +46,7 @@ import com.squareup.picasso.Picasso;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,6 +84,10 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private View mEpisodeGuestsLayout;
     private View mEpisodeImagesLayout;
 
+    private MenuItem mDownloadMenuItem, mDeleteMenuItem;
+
+    private DownloadManager mDownloadManager;
+
     private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
 
     /**
@@ -105,9 +115,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (getArguments() != null) {
             mEpisodeId = getArguments().getLong(ARG_EPISODE_ID);
         }
-        // only load the data once and set retain instance
-        getLoaderManager().initLoader(1, null, this);
-        setRetainInstance(true);
+
+        mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
 
         mEpisodeGuestImagesList = new ArrayList<String>();
         mEpisodeGuestImageAdapter = new EpisodeGuestImageAdapter(getActivity(), mEpisodeGuestImagesList);
@@ -140,12 +149,24 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeImagesGridView.setAdapter(mEpisodeImageAdapter);
         mEpisodeImagesGridView.setOnItemClickListener(this);
 
+        return fragmentView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        setHasOptionsMenu(true);
+
+        // only load the data once and set retain instance
+        getLoaderManager().initLoader(1, null, this);
+//        setRetainInstance(true);
+
         // if this is a config change we already have episode info loaded so update UI.
         if (mEpisodeInfoHolder != null) {
             updateUI(mEpisodeInfoHolder);
         }
 
-        return fragmentView;
     }
 
     @Override
@@ -173,6 +194,211 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (activity instanceof EpisodeEventListener) {
             mEpisodeEventListener = (EpisodeEventListener) activity;
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        inflater.inflate(R.menu.episode, menu);
+
+        mDownloadMenuItem = menu.findItem( R.id.action_download );
+        mDeleteMenuItem = menu.findItem( R.id.action_delete );
+
+        swapMenuItems();
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch( item.getItemId() ) {
+
+            case R.id.action_download :
+                queueDownload();
+                break;
+
+            case R.id.action_delete :
+                deleteEpisode();
+                break;
+
+            case R.id.action_settings :
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void swapMenuItems() {
+
+        if( null == mDownloadMenuItem || null == mDeleteMenuItem ) {
+            return;
+        }
+
+        if( null == mEpisodeInfoHolder ) {
+
+            mDownloadMenuItem.setVisible( false );
+            mDownloadMenuItem.setEnabled( false );
+            mDeleteMenuItem.setVisible( false );
+            mDeleteMenuItem.setEnabled( false );
+
+            return;
+        }
+
+        if( !mEpisodeInfoHolder.isEpisodePublic() ) {
+            return;
+        }
+
+        if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
+
+            mDownloadMenuItem.setVisible( false );
+            mDownloadMenuItem.setEnabled( false );
+            mDeleteMenuItem.setVisible( true );
+            mDeleteMenuItem.setEnabled( true );
+
+            return;
+        } else {
+
+            if (mEpisodeInfoHolder.getEpisodeDownloadId() != -1) {
+
+                mDownloadMenuItem.setVisible(false);
+                mDownloadMenuItem.setEnabled(false);
+                mDeleteMenuItem.setVisible(true);
+                mDeleteMenuItem.setEnabled(true);
+
+                return;
+            } else {
+
+                mDownloadMenuItem.setVisible(true);
+                mDownloadMenuItem.setEnabled(true);
+                mDeleteMenuItem.setVisible(false);
+                mDeleteMenuItem.setEnabled(false);
+
+                return;
+            }
+
+        }
+
+    }
+
+    private boolean isDownloading() {
+
+        if( null == mEpisodeInfoHolder ) {
+            return false;
+        }
+
+        boolean isDownloading = false;
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterByStatus(
+                DownloadManager.STATUS_PAUSED|
+                        DownloadManager.STATUS_PENDING|
+                        DownloadManager.STATUS_RUNNING);
+        Cursor cur = mDownloadManager.query(query);
+        int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+        for(cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+
+            if( cur.getString(col).indexOf( mEpisodeInfoHolder.getEpisodeFilename() ) != -1 ) {
+
+                switch (cur.getInt(cur.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
+                    case DownloadManager.STATUS_FAILED:
+                        isDownloading = false;
+                        break;
+                    case DownloadManager.STATUS_PAUSED:
+                        isDownloading = false;
+                        break;
+                    case DownloadManager.STATUS_PENDING:
+                        isDownloading = false;
+                        break;
+                    case DownloadManager.STATUS_RUNNING:
+                        isDownloading = true;
+                        break;
+                    case DownloadManager.STATUS_SUCCESSFUL:
+                        isDownloading = false;
+                        break;
+                }
+
+            }
+        }
+        cur.close();
+
+        return isDownloading;
+    }
+
+    private void queueDownload() {
+
+        if( null == mEpisodeInfoHolder ) {
+            return;
+        }
+
+        if( !isDownloading() ) {
+
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mEpisodeInfoHolder.getEpisodeFileUrl()));
+
+            // only download via Any Newtwork Connection
+            // TODO: Setup preferences to allow user to decide if Mobile or WIFI networks should be used for downloads
+            //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+            request.setTitle(mEpisodeInfoHolder.getShowPrefix() + ":" + mEpisodeInfoHolder.getEpisodeNumber());
+            request.setDescription(mEpisodeInfoHolder.getEpisodeTitle());
+
+            // show download status in notification bar
+            request.setVisibleInDownloadsUi(true);
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setDestinationInExternalFilesDir(getActivity(), null, mEpisodeInfoHolder.getEpisodeFilename());
+            request.setMimeType( null );
+
+            // enqueue this request
+            long downloadId = mDownloadManager.enqueue(request);
+
+            if (downloadId > 0) {
+
+                mEpisodeInfoHolder.setEpisodeDownloadId(downloadId);
+                mEpisodeInfoHolder.setEpisodeDownloaded(false);
+
+                swapMenuItems();
+
+                ContentValues values = new ContentValues();
+                values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, downloadId);
+                values.put(EpisodeConstants.FIELD_DOWNLOADED, 0);
+                getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
+            }
+
+        }
+
+    }
+
+    private void deleteEpisode() {
+
+        if( null == mEpisodeInfoHolder ) {
+            return;
+        }
+
+        if( isDownloading() ) {
+
+            mDownloadManager.remove(mEpisodeInfoHolder.getEpisodeDownloadId());
+
+        } else {
+
+            File externalFile = new File(getActivity().getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
+            if (externalFile.exists()) {
+                boolean deleted = externalFile.delete();
+//                if (deleted) {
+//                    Log.i(TAG, "deleteEpisode : externalFile deleted!");
+//
+//                }
+            }
+
+        }
+
+        mEpisodeInfoHolder.setEpisodeDownloadId(-1);
+        mEpisodeInfoHolder.setEpisodeDownloaded(false);
+
+        ContentValues values = new ContentValues();
+        values.put(EpisodeConstants.FIELD_DOWNLOAD_ID, -1);
+        values.put(EpisodeConstants.FIELD_DOWNLOADED, 0);
+        getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
+
+        swapMenuItems();
+
     }
 
     private void updateUI(EpisodeInfoHolder episodeHolder) {
@@ -224,6 +450,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mEpisodeShowNotesWebView.setBackgroundColor(0);
         }
         mMainViewSwitcher.setDisplayedChild(VIEW_EPISODE_DETAILS);
+
+        swapMenuItems();
     }
 
     @Override
