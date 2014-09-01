@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.keithandthegirl.app.ui.episodesimpler.EpisodeActivity" >
+    tools:context="com.keithandthegirl.app.ui.episode.EpisodeActivity" >
 
     <item android:id="@+id/action_download"
         android:title="Download"
@@ -9,7 +9,7 @@
         android:orderInCategory="100"
         android:enabled="false"
         android:visible="false"
-        app:showAsAction="always" />
+        android:showAsAction="always" />
 
     <item android:id="@+id/action_delete"
         android:title="Delete"
@@ -17,10 +17,10 @@
         android:orderInCategory="100"
         android:enabled="false"
         android:visible="false"
-        app:showAsAction="always" />
+        android:showAsAction="always" />
 
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 </menu>

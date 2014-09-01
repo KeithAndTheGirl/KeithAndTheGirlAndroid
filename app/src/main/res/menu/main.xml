@@ -7,7 +7,7 @@
         android:title="@string/action_broadcasting"
         android:orderInCategory="100"
         android:icon="@drawable/ic_live_mic_off"
-        katg:showAsAction="always" />
+        android:showAsAction="always" />
 
     <!-- item android:id="@+id/action_login"
         android:title="@string/action_login"
@@ -17,11 +17,11 @@
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="400"
-        katg:showAsAction="never" />
+        android:showAsAction="never" />
 
     <item android:id="@+id/action_work_items"
         android:title="@string/action_work_items"
         android:orderInCategory="500"
-        katg:showAsAction="never" />
+        android:showAsAction="never" />
 
 </menu>

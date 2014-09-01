@@ -1,11 +1,4 @@
-package com.keithandthegirl.app.ui.episodesimpler;
-
-import android.content.ContentUris;
-import android.database.Cursor;
-
-import com.keithandthegirl.app.db.model.DetailConstants;
-import com.keithandthegirl.app.db.model.EpisodeConstants;
-import com.keithandthegirl.app.db.model.ShowConstants;
+package com.keithandthegirl.app.ui.episode;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.episodesimpler;
+package com.keithandthegirl.app.ui.episode;
 
 import android.content.Context;
 import android.view.LayoutInflater;

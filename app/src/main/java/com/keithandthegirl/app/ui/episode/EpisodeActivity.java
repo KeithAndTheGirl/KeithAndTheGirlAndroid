@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.episodesimpler;
+package com.keithandthegirl.app.ui.episode;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.services.media.AudioPlayerService;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
-import com.keithandthegirl.app.ui.episodesimpler.gallery.EpisodeImageGalleryFragment;
+import com.keithandthegirl.app.ui.gallery.EpisodeImageGalleryFragment;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         }
 
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, EpisodeFragment.newInstance(mEpisodeId))
                     .addToBackStack(null)
                     .commit();
@@ -108,7 +108,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     @Override
     public void onShowImageClicked(final int position, final List<String> imageUrls) {
         String[] strings = imageUrls.toArray(new String[imageUrls.size()]);
-        getFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.container, EpisodeImageGalleryFragment.newInstance(position, strings), EpisodeImageGalleryFragment.STACK_NAME)
                 .addToBackStack(null)

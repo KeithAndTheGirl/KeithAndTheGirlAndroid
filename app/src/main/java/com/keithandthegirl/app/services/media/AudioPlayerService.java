@@ -15,15 +15,11 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.webkit.URLUtil;
 
-import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
-import com.keithandthegirl.app.db.model.ShowConstants;
-import com.keithandthegirl.app.ui.episodesimpler.EpisodeInfoHolder;
+import com.keithandthegirl.app.ui.episode.EpisodeInfoHolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class AudioPlayerService extends Service implements
         MediaPlayer.OnPreparedListener,

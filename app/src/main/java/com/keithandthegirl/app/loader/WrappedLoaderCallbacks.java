@@ -1,7 +1,6 @@
 package com.keithandthegirl.app.loader;
 
-
-import android.app.LoaderManager;
+import android.support.v4.app.LoaderManager;
 
 /**
  * Created by Jeff on 11/11/13.

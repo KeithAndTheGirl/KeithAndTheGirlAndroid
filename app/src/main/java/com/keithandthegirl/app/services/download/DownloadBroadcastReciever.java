@@ -19,8 +19,8 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
-import com.keithandthegirl.app.ui.episodesimpler.EpisodeActivity;
-import com.keithandthegirl.app.ui.episodesimpler.EpisodeInfoHolder;
+import com.keithandthegirl.app.ui.episode.EpisodeActivity;
+import com.keithandthegirl.app.ui.episode.EpisodeInfoHolder;
 
 import org.apache.commons.io.FileUtils;
 

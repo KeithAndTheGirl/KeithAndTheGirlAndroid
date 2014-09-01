@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.episodesimpler.gallery;
+package com.keithandthegirl.app.ui.gallery;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -9,8 +9,6 @@ import android.widget.ImageView;
 
 import com.keithandthegirl.app.R;
 import com.squareup.picasso.Picasso;
-
-import java.util.zip.Inflater;
 
 /**
  * Created by Jeff on 8/17/2014.

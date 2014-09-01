@@ -19,33 +19,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
-import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
-import com.keithandthegirl.app.ui.episodesimpler.EpisodeActivity;
+import com.keithandthegirl.app.ui.episode.EpisodeActivity;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *

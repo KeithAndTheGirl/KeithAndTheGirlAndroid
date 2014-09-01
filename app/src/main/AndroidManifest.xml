@@ -41,10 +41,6 @@
                 android:value="MainActivity" />
         </activity>
         <activity
-            android:name=".ui.episodes.EpisodeActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
             android:name=".ui.WorkItemsActivity"
             android:label="@string/title_activity_workitems"
             android:parentActivityName=".ui.MainActivity" >
@@ -82,7 +78,7 @@
             android:label="@string/app_name"
             android:theme="@style/PlayerTheme"/>
         <activity
-            android:name=".ui.episodesimpler.EpisodeActivity"
+            android:name=".ui.episode.EpisodeActivity"
             android:label="@string/title_activity_episode" />
 
         <!-- KATG Receivers -->

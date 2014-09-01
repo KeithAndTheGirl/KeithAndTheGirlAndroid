@@ -19,70 +19,70 @@
 
 <resources>
 
-    <style name="Theme.Katg" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <item name="actionBarItemBackground">@drawable/selectable_background_katg</item>
-        <item name="popupMenuStyle">@style/PopupMenu.Katg</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Katg</item>
-        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Katg</item>
-        <item name="actionDropDownStyle">@style/DropDownNav.Katg</item>
-        <item name="actionBarStyle">@style/ActionBar.Solid.Katg</item>
-        <item name="actionModeBackground">@drawable/cab_background_top_katg</item>
-        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_katg</item>
-        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Katg</item>
-
+    <style name="Theme.Katg" parent="@android:style/Theme.Holo.Light.DarkActionBar">
+        <item name="android:actionBarItemBackground">@drawable/selectable_background_katg</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Katg</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Katg</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Katg</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.Katg</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Katg</item>
+        <item name="android:actionModeBackground">@drawable/cab_background_top_katg</item>
+        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_katg</item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Katg</item>
+        
                 <!-- Light.DarkActionBar specific -->
-        <item name="actionBarWidgetTheme">@style/Theme.Katg.Widget</item>
+        <item name="android:actionBarWidgetTheme">@style/Theme.Katg.Widget</item>
 
                 <!-- KATG specific -->
-        <item name="actionBarTabTextStyle">@style/ActionBarTabTitleText.Katg</item>
+        <item name="android:actionBarTabTextStyle">@style/ActionBarTabTitleText.Katg</item>
 
     </style>
 
-    <style name="ActionBar.Solid.Katg" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@drawable/ab_solid_katg</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_katg</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_katg</item>
-        <item name="progressBarStyle">@style/ProgressBar.Katg</item>
+    <style name="ActionBar.Solid.Katg" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/ab_solid_katg</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_katg</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_katg</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Katg</item>
     </style>
 
-    <style name="ActionBar.Transparent.Katg" parent="@style/Widget.AppCompat.ActionBar">
-        <item name="background">@drawable/ab_transparent_katg</item>
-        <item name="progressBarStyle">@style/ProgressBar.Katg</item>
+    <style name="ActionBar.Transparent.Katg" parent="@android:style/Widget.Holo.ActionBar">
+        <item name="android:background">@drawable/ab_transparent_katg</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Katg</item>
     </style>
-	
-    <style name="PopupMenu.Katg" parent="@style/Widget.AppCompat.PopupMenu">	
+
+    <style name="PopupMenu.Katg" parent="@android:style/Widget.Holo.ListPopupWindow">
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_katg</item>	
     </style>
-	
-    <style name="DropDownListView.Katg" parent="@style/Widget.AppCompat.ListView.DropDown">
+
+    <style name="DropDownListView.Katg" parent="@android:style/Widget.Holo.ListView.DropDown">
         <item name="android:listSelector">@drawable/selectable_background_katg</item>
     </style>
 
-    <style name="ActionBarTabStyle.Katg" parent="@style/Widget.AppCompat.ActionBar.TabView">
+    <style name="ActionBarTabStyle.Katg" parent="@android:style/Widget.Holo.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_ab_katg</item>
     </style>
-	
-    <style name="DropDownNav.Katg" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
+
+    <style name="DropDownNav.Katg" parent="@android:style/Widget.Holo.Spinner">
         <item name="android:background">@drawable/spinner_background_ab_katg</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_katg</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_katg</item>
     </style>
     
-    <style name="ProgressBar.Katg" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+    <style name="ProgressBar.Katg" parent="@android:style/Widget.Holo.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/progress_horizontal_katg</item>
     </style>
     
-    <style name="ActionButton.CloseMode.Katg" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
+    <style name="ActionButton.CloseMode.Katg" parent="@android:style/Widget.Holo.ActionButton.CloseMode">
         <item name="android:background">@drawable/btn_cab_done_katg</item>
     </style>
-    
+
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.Katg.Widget" parent="@style/Theme.AppCompat">
-        <item name="popupMenuStyle">@style/PopupMenu.Katg</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Katg</item>
+    <style name="Theme.Katg.Widget" parent="@android:style/Theme.Holo">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Katg</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Katg</item>
     </style>
 
-    <style name="ActionBarTabTitleText.Katg" parent="@style/Widget.AppCompat.ActionBar.TabText">
+    <style name="ActionBarTabTitleText.Katg" parent="@android:style/Widget.ActionBar.TabText">
         <item name="android:textColor">@drawable/ab_tab_text</item>
     </style>
 

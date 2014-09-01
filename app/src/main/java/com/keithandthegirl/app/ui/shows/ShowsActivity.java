@@ -1,5 +1,6 @@
 package com.keithandthegirl.app.ui.shows;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -7,7 +8,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +42,7 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
         }
 
         // Set up the action bar to show a dropdown list.
-        final ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
@@ -68,7 +68,7 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
             Log.v(TAG, "onRestoreInstanceState : savedInstanceState contains selected navigation item");
 
-            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
+            getActionBar().setSelectedNavigationItem(savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
 
         }
     }
@@ -76,7 +76,7 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // Serialize the current dropdown position.
-        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getSupportActionBar().getSelectedNavigationIndex());
+        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar().getSelectedNavigationIndex());
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
 
-        final ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getActionBar();
         actionBar.setSelectedNavigationItem(mSelectedNavigationItem);
     }
 
