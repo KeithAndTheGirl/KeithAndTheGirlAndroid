@@ -25,7 +25,7 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
         if (BuildConfig.DEBUG) {
-            Picasso.with(this).setIndicatorsEnabled(true);
+            Picasso.with(this).setIndicatorsEnabled(false);
         }
     }
 
