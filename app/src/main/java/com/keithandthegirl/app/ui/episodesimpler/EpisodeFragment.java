@@ -246,6 +246,19 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
 
         if( !mEpisodeInfoHolder.isEpisodePublic() ) {
+
+            if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
+                mDownloadMenuItem.setVisible( false );
+                mDownloadMenuItem.setEnabled( false );
+                mDeleteMenuItem.setVisible( true );
+                mDeleteMenuItem.setEnabled( true );
+            } else {
+                mDownloadMenuItem.setVisible( false );
+                mDownloadMenuItem.setEnabled( false );
+                mDeleteMenuItem.setVisible( false );
+                mDeleteMenuItem.setEnabled( false );
+            }
+
             return;
         }
 
