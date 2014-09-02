@@ -1,5 +1,6 @@
 package com.keithandthegirl.app.ui.episode;
 
+import android.animation.Animator;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -57,13 +58,27 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                     .commit();
         }
 
-
         final View transportLayout = findViewById(R.id.playbackLayout);
         ImageView imageView = (ImageView) findViewById(R.id.thumb);
         imageView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                transportLayout.animate().translationY(getResources().getDimension(R.dimen.transport_view_height));
+                transportLayout.animate().translationY(getResources().getDimension(R.dimen.transport_view_height)).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(final Animator animation) {}
+
+                    @Override
+                    public void onAnimationEnd(final Animator animation) {
+                        findViewById(R.id.container).requestLayout();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(final Animator animation) {}
+
+                    @Override
+                    public void onAnimationRepeat(final Animator animation) {}
+                });
+
             }
         });
 
@@ -97,18 +112,6 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         intent.setAction(AudioPlayerService.ACTION_IS_PLAYING);
         startService(intent);
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        // I don't know why FragmentActivity, the super of this activity handles the backstack
-        // differently than a regular Activity but this code pops the gallery fragment off the stack
-        // when it's there and calls super when it isn't -Jeff
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

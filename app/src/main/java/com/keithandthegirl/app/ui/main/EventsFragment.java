@@ -3,7 +3,6 @@ package com.keithandthegirl.app.ui.main;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -35,7 +34,7 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
     EventCursorAdapter mAdapter;
 
-    public static Fragment newInstance() {
+    public static EventsFragment newInstance() {
         EventsFragment fragment = new EventsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -75,9 +74,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
         super.onActivityCreated(savedInstanceState);
-
-        setRetainInstance( true );
-
         getLoaderManager().initLoader( 0, getArguments(), this );
         mAdapter = new EventCursorAdapter( getActivity() );
         setListAdapter( mAdapter );

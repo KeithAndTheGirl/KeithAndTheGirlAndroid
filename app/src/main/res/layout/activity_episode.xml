@@ -1,7 +1,8 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.keithandthegirl.app.ui.episode.EpisodeActivity"
     tools:ignore="MergeRootFrame">
 
@@ -9,13 +10,13 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/transport_view_height"/>
+        android:layout_weight="1"
+        android:layout_marginBottom="@dimen/transport_thumb_margin_adjust"/>
 
     <include
         layout="@layout/view_playback_transport_control"
         android:id="@+id/playbackLayout"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_gravity="bottom"/>
+        android:layout_height="wrap_content"/>
 
-</FrameLayout>
+</LinearLayout>
