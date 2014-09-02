@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -30,7 +29,7 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
 
     YoutubeCursorAdapter mAdapter;
 
-    public static Fragment newInstance() {
+    public static YoutubeFragment newInstance() {
         YoutubeFragment fragment = new YoutubeFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -53,7 +52,7 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getListView().setFastScrollEnabled(true);
-        setRetainInstance(true);
+//        setRetainInstance(true);
     }
 
     @Override

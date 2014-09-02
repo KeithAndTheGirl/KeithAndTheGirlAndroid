@@ -68,7 +68,6 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        setRetainInstance(true);
     }
 
     @Override

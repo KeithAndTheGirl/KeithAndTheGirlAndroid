@@ -34,7 +34,6 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         boolean neverRun = false;
@@ -45,7 +44,6 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
         cursor.close();
 
         if (neverRun) {
-
             Bundle settingsBundle = new Bundle();
             settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
             settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
@@ -72,12 +70,10 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
         // tab. We can also use ActionBar.Tab#select() to do this if we have
         // a reference to the Tab.
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
             }
-
         });
 
         // For each of the sections in the app, add a tab to the action bar.
@@ -99,14 +95,6 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
                             .setCustomView(view)
                             .setTabListener(this)
             );
-
-            //            actionBar.addTab(
-//                    actionBar.newTab()
-//                            .setText( mSectionsPagerAdapter.getPageTitle( i ) )
-//                            .setIcon( mSectionsPagerAdapter.getUnselectedIcon( i ) )
-//                            .setTabListener( this )
-//            );
-
         }
     }
 

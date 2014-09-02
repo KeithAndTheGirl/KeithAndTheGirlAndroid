@@ -10,7 +10,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -201,7 +201,6 @@
                 android:layout_gravity="end"
                 android:background="@drawable/abc_menu_dropdown_panel_holo_light"
                 tools:src="@drawable/katg_show"/>
-
 
         </FrameLayout>
     </ScrollView>

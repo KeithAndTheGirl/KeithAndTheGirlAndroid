@@ -17,7 +17,7 @@
         android:layout_height="fill_parent"
         android:gravity="center_horizontal"
         android:maxLines="1"
-        android:textColor="@android:color/black"
+        android:textColor="@color/katg_tab_text_unselected_color"
         android:textSize="6sp"
         android:textAllCaps="true"
         android:text="test" />

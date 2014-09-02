@@ -55,8 +55,6 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     public void onActivityCreated( Bundle savedInstanceState ) {
         super.onActivityCreated( savedInstanceState );
 
-        setRetainInstance( true );
-
         getLoaderManager().initLoader( 0, getArguments(), this );
 
         mAdapter = new ShowCursorAdapter( getActivity() );
