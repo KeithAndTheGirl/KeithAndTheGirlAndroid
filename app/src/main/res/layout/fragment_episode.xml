@@ -1,146 +1,216 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.keithandthegirl.app.ui.episodes.EpisodeFragment">
+    tools:context="com.keithandthegirl.app.ui.episode.EpisodeFragment">
 
-    <RelativeLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="125dp"
-        android:gravity="center">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/episode_heading"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="matrix"
-            android:layout_centerInParent="true" />
+            android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp">
-
-            <TextView
-                android:id="@+id/episode_date"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textColor="@color/katg_episode_light"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:text="date" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/episode_number"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@android:color/black"
-                android:textColor="@color/katg_show_title"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:text="number"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:padding="3dp" />
+                <!--header-->
+                <LinearLayout
+                    android:id="@+id/headerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/episode_details_header"
+                    android:orientation="horizontal"
+                    android:background="@color/katg_main_background">
 
-            <TextView
-                android:id="@+id/episode_title"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:text="title" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:orientation="vertical">
 
-        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/episodeNumberLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginBottom="4dp"
+                            android:orientation="horizontal">
 
-    </RelativeLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/katg_show_title"
+                                android:layout_marginRight="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:text="Episode:"/>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+                            <TextView
+                                android:id="@+id/episodeNumberTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/katg_show_title"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                tools:text="9999"/>
 
-        <TextView
-            android:layout_width="60dp"
-            android:layout_height="match_parent"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:text="@string/episode_guests_label" />
+                            <Button
+                                android:id="@+id/episode_download"
+                                android:layout_width="110dp"
+                                android:layout_height="wrap_content"
+                                android:text="Download" />
+                        </LinearLayout>
 
-        <TextView
-            android:id="@+id/episode_guest_names"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:text="@string/episode_no_guests" />
+                        <TextView
+                            android:id="@+id/episodeDateTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:layout_above="@id/episodeNumberLayout"
+                            android:textColor="@color/katg_episode_light"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            tools:text="12/12/2020" />
 
-    </LinearLayout>
+                        <TextView
+                            android:id="@+id/episodeTitleTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@android:color/white"
+                            android:textSize="24sp"
+                            tools:text="Keith and The Girl's First Silent Film" />
 
-    <LinearLayout
-        android:id="@+id/episode_guests"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+                    </RelativeLayout>
 
-    </LinearLayout>
+                </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/episode_status"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:background="@color/katg_show_status">
+                <!--guests-->
+                <LinearLayout
+                    android:id="@+id/guestsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/episode_played"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight=".5"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/episode_not_played"
-            />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:layout_marginRight="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:text="Guests:"/>
 
-        <TextView
-            android:id="@+id/episode_downloaded"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight=".5"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/episode_not_downloaded"
-            />
+                    <TextView
+                        android:id="@+id/episodeGuestsTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:text="Daniel Frey, Jeff Alexander, Stuart Kuredjian"/>
 
-    </LinearLayout>
+                </LinearLayout>
 
-</LinearLayout>
+                <!--guest images-->
+                <FrameLayout
+                    android:id="@+id/guestImagesLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:layout_height="75dp">
+
+                    <com.keithandthegirl.app.ui.custom.ExpandedHeightGridView
+                              android:id="@+id/episodeGuestImagesGridView"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:columnWidth="@dimen/episode_guest_image_size"
+                              android:numColumns="auto_fit"
+                              android:stretchMode="columnWidth"
+                              android:gravity="center"
+                              android:isScrollContainer="false"
+                              tools:listitem="@layout/gridview_item_guest_image"/>
+
+                </FrameLayout>
+
+                <!--episode details text-->
+                <LinearLayout android:id="@+id/episodeDetailsLayout"
+                              android:orientation="vertical"
+                              android:layout_width="match_parent"
+                              android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="@string/episode_description_label" />
+
+                    <WebView
+                        android:id="@+id/episodeShowNotesWebView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:text="@string/episode_description_no_details"
+                        android:background="@color/Transparent"
+                        tools:layout_height="100dp"/>
+
+                </LinearLayout>
+
+                <!--episode images-->
+                <LinearLayout
+                    android:id="@+id/episodeImagesLayout"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="@string/episode_images_label" />
+
+                    <com.keithandthegirl.app.ui.custom.ExpandedHeightGridView
+                        android:id="@+id/episodeImagesGridView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnWidth="150dp"
+                        android:numColumns="auto_fit"
+                        android:verticalSpacing="@dimen/episode_images_gridview_vertical_spacing"
+                        android:horizontalSpacing="@dimen/episode_images_gridview_horizontal_spacing"
+                        android:stretchMode="columnWidth"
+                        android:scrollbars="none"
+                        android:isScrollContainer="true"
+                        android:gravity="center"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/episodeHeaderBackgroundImageView"
+                android:layout_width="@dimen/episode_show_image"
+                android:layout_height="@dimen/episode_show_image"
+                android:scaleType="centerCrop"
+                android:layout_marginTop="50dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="end"
+                android:background="@drawable/abc_menu_dropdown_panel_holo_light"
+                tools:src="@drawable/katg_show"/>
+
+
+        </FrameLayout>
+    </ScrollView>
+
+    <include layout="@layout/view_progress_container" />
+
+</ViewSwitcher>

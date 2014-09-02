@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.live;
+package com.keithandthegirl.app.ui.main;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -124,7 +124,6 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
             int days = (int) (delta / DAY_MILLIS);
             int hours = (int) ((delta % DAY_MILLIS) / HOUR_MILLIS);
             if (hours > 0) {
-//                resultString = String.format("<big>%d</big> days <big>%d</big> hours <big>%d</big> minutes", days, hours);
                 resultString = String.format("<big>%d</big> days <big>%d</big> hours", days, hours);
             } else {
                 resultString = String.format("<big>%d</big> days", days);

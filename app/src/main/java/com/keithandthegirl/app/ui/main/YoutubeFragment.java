@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.youtube;
+package com.keithandthegirl.app.ui.main;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.YoutubeConstants;
+import com.keithandthegirl.app.ui.youtube.YoutubeFragmentActivity;
 import com.squareup.picasso.Picasso;
 
 /**

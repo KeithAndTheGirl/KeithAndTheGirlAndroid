@@ -122,7 +122,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
     }
 
-
     @Override
     public void onPause() {
         super.onPause();

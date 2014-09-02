@@ -1,8 +1,6 @@
 package com.keithandthegirl.app.ui;
 
-
 import android.accounts.Account;
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -140,7 +138,6 @@ public abstract class AbstractBaseActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressLint("NewApi")
     private class BroadcastingObserver extends ContentObserver {
         private final String TAG = BroadcastingObserver.class.getSimpleName();
 
@@ -150,7 +147,7 @@ public abstract class AbstractBaseActivity extends FragmentActivity {
 
         @Override
         public void onChange(boolean selfChange) {
-            super.onChange(selfChange, null);
+                super.onChange(selfChange);
         }
 
         @Override

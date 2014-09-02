@@ -26,7 +26,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -37,7 +36,7 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
 
     private static final String TAG = DownloadBroadcastReciever.class.getSimpleName();
 
-    public static int notificatinId = 1;
+    public static int sNotificationId = 1;
 
     @Override
     public void onReceive( Context context, Intent intent ) {
@@ -65,9 +64,7 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
                     if (DownloadManager.STATUS_SUCCESSFUL == cur.getInt(columnIndex)) {
                         String uriString = cur.getString(cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
 
-                        OutputStream os = null;
                         try {
-
                             String tmpFilename = Uri.parse(uriString).getLastPathSegment();
                             String path = Uri.parse(uriString).getPath();
                             File inFile = new File(path);
@@ -103,7 +100,7 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
                             PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
                             mBuilder.setContentIntent(resultPendingIntent);
                             NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                            mNotificationManager.notify( notificatinId, mBuilder.build() );
+                            mNotificationManager.notify(sNotificationId, mBuilder.build() );
 
                         } catch( IOException e ) {
                             Log.e(TAG, "onReceive : error reading file", e);

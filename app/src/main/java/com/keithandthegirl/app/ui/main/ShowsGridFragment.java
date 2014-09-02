@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.shows;
+package com.keithandthegirl.app.ui.main;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +9,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.ShowConstants;
-import com.keithandthegirl.app.utils.Utils;
+import com.keithandthegirl.app.ui.shows.ShowsActivity;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -62,9 +61,9 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
         mAdapter = new ShowCursorAdapter( getActivity() );
 
-        final GridView mGridView = (GridView) getActivity().findViewById( R.id.shows_gridview );
-        mGridView.setAdapter( mAdapter );
-        mGridView.setOnItemClickListener( this );
+        final GridView gridView = (GridView) getActivity().findViewById( R.id.shows_gridview );
+        gridView.setAdapter(mAdapter);
+        gridView.setOnItemClickListener(this);
     }
 
     @Override
@@ -73,23 +72,20 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         mAdapter.notifyDataSetChanged();
     }
 
-//    @TargetApi( Build.VERSION_CODES.JELLY_BEAN )
     @Override
     public void onItemClick( AdapterView<?> parent, View v, int position, long id ) {
-        Log.v( TAG, "onItemClick : enter - position=" + position + ", id=" + id );
-
         final Intent i = new Intent( getActivity(), ShowsActivity.class );
         i.putExtra( ShowsActivity.SHOW_NAME_POSITION_KEY, position );
-        if( Utils.hasJellyBean() ) {
-            // makeThumbnailScaleUpAnimation() looks kind of ugly here as the loading spinner may
-            // show plus the thumbnail image in GridView is cropped. so using
-            // makeScaleUpAnimation() instead.
-            // TODO This options wasn't being used... I disabled it Jeff
-//            ActivityOptions options = ActivityOptions.makeScaleUpAnimation( v, 0, 0, v.getWidth(), v.getHeight() );
+//        if( Utils.hasJellyBean() ) {
+//            // makeThumbnailScaleUpAnimation() looks kind of ugly here as the loading spinner may
+//            // show plus the thumbnail image in GridView is cropped. so using
+//            // makeScaleUpAnimation() instead.
+//            // TODO This options wasn't being used... I disabled it Jeff
+////            ActivityOptions options = ActivityOptions.makeScaleUpAnimation( v, 0, 0, v.getWidth(), v.getHeight() );
+//            startActivity( i );
+//        } else {
             startActivity( i );
-        } else {
-            startActivity( i );
-        }
+//        }
     }
 
     @Override
@@ -165,3 +161,4 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         ViewHolder() { }
     }
 }
+

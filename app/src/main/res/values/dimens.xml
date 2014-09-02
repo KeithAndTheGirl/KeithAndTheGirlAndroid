@@ -18,5 +18,6 @@
     <dimen name="episode_guest_image_size">75dp</dimen>
     <dimen name="episode_image_size">150dp</dimen>
     <dimen name="episode_show_image">100dp</dimen>
+    <dimen name="transport_view_height">90dp</dimen>
 
 </resources>

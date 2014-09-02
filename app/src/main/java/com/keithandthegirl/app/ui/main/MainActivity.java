@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui;
+package com.keithandthegirl.app.ui.main;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -19,12 +19,7 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
-import com.keithandthegirl.app.ui.about.AboutFragment;
-import com.keithandthegirl.app.ui.events.EventsFragment;
-import com.keithandthegirl.app.ui.guests.GuestsFragment;
-import com.keithandthegirl.app.ui.live.LiveFragment;
-import com.keithandthegirl.app.ui.shows.ShowsGridFragment;
-import com.keithandthegirl.app.ui.youtube.YoutubeFragment;
+import com.keithandthegirl.app.ui.AbstractBaseActivity;
 
 import java.util.ArrayList;
 
@@ -62,6 +57,7 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
         alarm.setAlarm(this);
 
         final ActionBar actionBar = getActionBar();
+        assert actionBar != null;
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Create the adapter that will return a fragment for each of the three
@@ -167,7 +163,7 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
         @Override
         public Fragment getItem(int position) {
             FragmentHolder holder = mFragmentList.get(position);
-            switch (holder.mFragmentType) {
+            switch (holder.getFragmentType()) {
                 case SHOWS:
                     return ShowsGridFragment.newInstance();
                 case LIVE:

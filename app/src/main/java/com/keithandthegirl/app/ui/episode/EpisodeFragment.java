@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -116,6 +117,9 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
 
         mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+        // only load the data once and set retain instance
+        getLoaderManager().initLoader(1, null, this);
+        setRetainInstance(true);
 
         mEpisodeGuestImagesList = new ArrayList<String>();
         mEpisodeGuestImageAdapter = new EpisodeGuestImageAdapter(getActivity(), mEpisodeGuestImagesList);
@@ -126,7 +130,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.fragment_episodesimpler, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_episode, container, false);
 
         mMainViewSwitcher = (ViewSwitcher) fragmentView;
         mMainViewSwitcher.setDisplayedChild(VIEW_PROGRESS);
@@ -174,7 +178,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         IntentFilter syncCompleteIntentFilter = new IntentFilter(SyncAdapter.COMPLETE_ACTION);
         getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
-
     }
 
     @Override
@@ -184,7 +187,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (null != mSyncCompleteReceiver) {
             getActivity().unregisterReceiver(mSyncCompleteReceiver);
         }
-
     }
 
     @Override
@@ -423,7 +425,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeNumberTextView.setText(String.valueOf(episodeHolder.getEpisodeNumber()));
         mEpisodeTitleTextView.setText(episodeHolder.getEpisodeTitle());
 
-        if (!StringUtils.isNullOrEmpty(episodeHolder.getGuestNames())) {
+        if (StringUtils.isNullOrEmpty(episodeHolder.getGuestNames())) {
             mEpisodeGuestsLayout.setVisibility(View.GONE);
         } else {
             mEpisodeGuestsLayout.setVisibility(View.VISIBLE);
@@ -537,11 +539,10 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mEpisodeInfoHolder = wrappedData.getWrappedData();
             updateUI(mEpisodeInfoHolder);
             if (mEpisodeEventListener != null) {
-
                 mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder);
             }
 
-            if(null == mEpisodeInfoHolder.getEpisodeDetailNotes() || "".equals(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
+            if(StringUtils.isNullOrEmpty(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
                 scheduleWorkItem(mEpisodeInfoHolder.getShowName());
             }
         }
@@ -557,13 +558,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
     }
 
-    public interface EpisodeEventListener {
-        void onEpisodeLoaded(EpisodeInfoHolder episodeInfoHolder);
-        void onShowImageClicked(int position, List<String> imageUrls);
-    }
-
     private void scheduleWorkItem( String showName ) {
-
         ContentValues values = new ContentValues();
         values.put( WorkItemConstants.FIELD_NAME, showName + " " + mEpisodeId + " details" );
         values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ON_DEMAND.name() );
@@ -598,4 +593,63 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
     }
 
+    private class EpisodeGuestImageAdapter extends ArrayAdapter<String> {
+        public EpisodeGuestImageAdapter(final Context context, final List<String> objects) {
+            super(context, -1, objects);
+        }
+
+        @Override
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+            String guestImageUrl = getItem(position);
+
+            if (convertView == null) {
+                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+                convertView = layoutInflater.inflate(R.layout.gridview_item_guest_image, parent, false);
+
+                ViewHolder viewHolder = new ViewHolder();
+                viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
+                convertView.setTag(viewHolder);
+            }
+            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
+            Picasso.with(getContext()).load(guestImageUrl).into(viewHolder.imageView);
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+            ImageView imageView;
+        }
+    }
+
+    private class EpisodeImageAdapter extends ArrayAdapter<String> {
+        public EpisodeImageAdapter(final Context context, final List<String> objects) {
+            super(context, -1, objects);
+        }
+
+        @Override
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+            String guestImageUrl = getItem(position);
+
+            if (convertView == null) {
+                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+                convertView = layoutInflater.inflate(R.layout.gridview_item_image, parent, false);
+                ViewHolder viewHolder = new ViewHolder();
+                viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
+                convertView.setTag(viewHolder);
+            }
+            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
+            Picasso.with(getContext()).load(guestImageUrl).into(viewHolder.imageView);
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+            ImageView imageView;
+        }
+    }
+
+    public interface EpisodeEventListener {
+        void onEpisodeLoaded(EpisodeInfoHolder episodeInfoHolder);
+        void onShowImageClicked(int position, List<String> imageUrls);
+    }
 }

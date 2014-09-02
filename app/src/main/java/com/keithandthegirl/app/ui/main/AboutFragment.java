@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.about;
+package com.keithandthegirl.app.ui.main;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

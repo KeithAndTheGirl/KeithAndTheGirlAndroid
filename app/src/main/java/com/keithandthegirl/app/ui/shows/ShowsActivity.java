@@ -18,7 +18,8 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
 
-public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnNavigationListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnNavigationListener,
+                                                                   LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = ShowsActivity.class.getSimpleName();
 
     public static final String SHOW_NAME_POSITION_KEY = "showNamePositionId";
@@ -43,6 +44,7 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
 
         // Set up the action bar to show a dropdown list.
         final ActionBar actionBar = getActionBar();
+        assert actionBar != null;
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
@@ -64,12 +66,12 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         // Restore the previously serialized current dropdown position.
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
             Log.v(TAG, "onRestoreInstanceState : savedInstanceState contains selected navigation item");
-
+            assert getActionBar() != null;
             getActionBar().setSelectedNavigationItem(savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
-
         }
     }
 
@@ -97,17 +99,15 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
         String selection = null;
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader(this, ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER);
-
-        return cursorLoader;
+        return new CursorLoader(this, ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
 
-        final ActionBar actionBar = getActionBar();
-        actionBar.setSelectedNavigationItem(mSelectedNavigationItem);
+        assert getActionBar() != null;
+        getActionBar().setSelectedNavigationItem(mSelectedNavigationItem);
     }
 
     @Override

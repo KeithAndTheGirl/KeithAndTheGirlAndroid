@@ -246,7 +246,6 @@ public class PreferencesActivity extends PreferenceActivity {
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
-    @TargetApi( Build.VERSION_CODES.HONEYCOMB )
     public static class GeneralPreferenceFragment extends PreferenceFragment {
 
         @Override
@@ -263,7 +262,6 @@ public class PreferencesActivity extends PreferenceActivity {
      * This fragment shows vip preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
-    @TargetApi( Build.VERSION_CODES.HONEYCOMB )
     public static class VipPreferenceFragment extends PreferenceFragment {
 
         @Override

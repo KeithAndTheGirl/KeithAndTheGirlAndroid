@@ -1,23 +1,31 @@
 package com.keithandthegirl.app.ui.episode;
 
+import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.services.media.AudioPlayerService;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
 import com.keithandthegirl.app.ui.gallery.EpisodeImageGalleryFragment;
+import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener, OnClickListener {
+public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener,
+                                                                     OnClickListener {
     public static final String EPISODE_KEY = "EPISODE_KEY";
     private static final String TAG = EpisodeActivity.class.getSimpleName();
     private long mEpisodeId;
@@ -38,12 +46,26 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
             mEpisodeId = extras.getLong(EPISODE_KEY);
         }
 
+        final ActionBar actionBar = getActionBar();
+        assert actionBar != null;
+        // Show the Up button in the action bar.
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, EpisodeFragment.newInstance(mEpisodeId))
-                    .addToBackStack(null)
                     .commit();
         }
+
+
+        final View transportLayout = findViewById(R.id.playbackLayout);
+        ImageView imageView = (ImageView) findViewById(R.id.thumb);
+        imageView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                transportLayout.animate().translationY(getResources().getDimension(R.dimen.transport_view_height));
+            }
+        });
 
         mPlayerControls = (LinearLayout) findViewById( R.id.playbackLayout);
         mPlayButton = (Button) findViewById(R.id.play);
@@ -78,20 +100,52 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     }
 
     @Override
+    public void onBackPressed() {
+        // I don't know why FragmentActivity, the super of this activity handles the backstack
+        // differently than a regular Activity but this code pops the gallery fragment off the stack
+        // when it's there and calls super when it isn't -Jeff
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.episode, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0 ) {
+                    getSupportFragmentManager().popBackStack();
+                } else {
+                    NavUtils.navigateUpFromSameTask(this);
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
     protected void onPause() {
         super.onPause();
 
         if( null != mPlaybackBroadcastReceiver ) {
             unregisterReceiver(mPlaybackBroadcastReceiver);
         }
-
     }
 
     @Override
     public void onEpisodeLoaded(final EpisodeInfoHolder episodeInfoHolder) {
-
         mEpisodeInfoHolder = episodeInfoHolder;
-
+        assert getActionBar() != null;
+        getActionBar().setTitle(episodeInfoHolder.getShowName());
         getActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
 
         if( mEpisodeInfoHolder.isEpisodePublic() ) {
@@ -107,17 +161,21 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
     @Override
     public void onShowImageClicked(final int position, final List<String> imageUrls) {
-        String[] strings = imageUrls.toArray(new String[imageUrls.size()]);
+
+        ArrayList<ImageGalleryInfoHolder> infoHolderList = new ArrayList<ImageGalleryInfoHolder>();
+        for (String string : imageUrls) {
+            infoHolderList.add(new ImageGalleryInfoHolder(string, ""));
+        }
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, EpisodeImageGalleryFragment.newInstance(position, strings), EpisodeImageGalleryFragment.STACK_NAME)
-                .addToBackStack(null)
+                .replace(R.id.container, EpisodeImageGalleryFragment.newInstance(position, infoHolderList))
+                .addToBackStack(EpisodeImageGalleryFragment.STACK_NAME)
                 .commit();
     }
 
     @Override
     public void onClick(View v) {
-
         Intent intent = null;
 
         switch( v.getId() ) {
@@ -154,17 +212,12 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 intent = new Intent(this, AudioPlayerService.class);
                 intent.setAction(AudioPlayerService.ACTION_FF);
                 break;
-
         }
 
         if(intent != null) {
-
             intent.putExtra(AudioPlayerService.EXTRA_EPISODE_ID, mEpisodeId);
-
             startService(intent);
-
         }
-
     }
 
     private void updateSeekBarPosition( int currentPosition ) {
@@ -188,5 +241,5 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 }
             }
         }
-    };
+    }
 }

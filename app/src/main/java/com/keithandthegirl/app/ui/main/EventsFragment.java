@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.events;
+package com.keithandthegirl.app.ui.main;
 
 import android.content.Context;
 import android.database.Cursor;

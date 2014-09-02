@@ -1,65 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical"    
+              android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="80dp"
-              android:background="@color/katg_green">
+              android:layout_height="wrap_content"
+              android:background="@color/Transparent">
+
+    <ImageView
+        android:id="@+id/thumb"
+        android:layout_width="80dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center_horizontal"
+        android:clickable="true"
+        android:background="@color/TransparentLight"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="@dimen/transport_view_height"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/back"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:background="@color/Transparent"
-            android:text="Back"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:background="@color/katg_green">
 
-        <Button
-            android:id="@+id/play"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="6"
-            android:background="@color/Transparent"
-            android:text="Play"/>
+            <Button
+                android:id="@+id/back"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@color/Transparent"
+                android:text="Back"/>
 
-        <Button
-            android:id="@+id/pause"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="6"
-            android:background="@color/Transparent"
-            android:visibility="gone"
-            android:text="Pause"/>
+            <Button
+                android:id="@+id/play"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                android:background="@color/Transparent"
+                android:text="Play"/>
 
-        <Button
-            android:id="@+id/skip"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:background="@color/Transparent"
-            android:text="Skip"/>
+            <Button
+                android:id="@+id/pause"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                android:background="@color/Transparent"
+                android:visibility="gone"
+                android:text="Pause"/>
 
+            <Button
+                android:id="@+id/skip"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@color/Transparent"
+                android:text="Skip"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:background="@color/katg_green">
+
+            <SeekBar
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center"
+                android:text="Seek Bar"/>
+
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:background="@drawable/seekbar_back">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:gravity="center"
-            android:text="Seek Bar"/>
-
-    </LinearLayout>
-
 </LinearLayout>

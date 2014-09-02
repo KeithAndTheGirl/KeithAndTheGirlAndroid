@@ -1,21 +1,21 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.keithandthegirl.app.ui.episode.EpisodeActivity"
     tools:ignore="MergeRootFrame">
 
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/transport_view_height"/>
+
     <include
         layout="@layout/view_playback_transport_control"
         android:id="@+id/playbackLayout"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_alignParentBottom="true"/>
+        android:layout_gravity="bottom"/>
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/playbackLayout"/>
-
-</RelativeLayout>
+</FrameLayout>
