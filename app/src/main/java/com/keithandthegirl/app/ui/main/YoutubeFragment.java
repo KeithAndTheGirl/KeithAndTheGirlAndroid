@@ -35,109 +35,96 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-
     }
 
     public YoutubeFragment() { }
 
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+        getLoaderManager().initLoader(0, getArguments(), this);
+        mAdapter = new YoutubeCursorAdapter(getActivity());
+        setListAdapter(mAdapter);
     }
 
     @Override
-    public void onActivityCreated( Bundle savedInstanceState ) {
-        super.onActivityCreated( savedInstanceState );
-
-        setRetainInstance( true );
-
-        getLoaderManager().initLoader( 0, getArguments(), this );
-        mAdapter = new YoutubeCursorAdapter( getActivity() );
-        setListAdapter( mAdapter );
-
-        getListView().setFastScrollEnabled( true );
-
+    public void onViewCreated(final View view, final Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getListView().setFastScrollEnabled(true);
+        setRetainInstance(true);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        mAdapter.notifyDataSetChanged();
-    }
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        // use the cursor from the adapter to get item data. But don't close the cursor the cursorLoader
+        // is responsible for that.
+        Cursor c = ((YoutubeCursorAdapter) l.getAdapter()).getCursor();
+        c.moveToPosition(position);
 
-    @Override
-    public void onListItemClick( ListView l, View v, int position, long id ) {
-        Cursor c = ( (YoutubeCursorAdapter) l.getAdapter() ).getCursor();
-        c.moveToPosition( position );
+        String youtubeId = c.getString(c.getColumnIndex(YoutubeConstants.FIELD_YOUTUBE_ID));
 
-        String youtubeId = c.getString( c.getColumnIndex( YoutubeConstants.FIELD_YOUTUBE_ID ) );
-        c.close();
-
-        Intent intent = new Intent( getActivity(), YoutubeFragmentActivity.class );
-        intent.putExtra( YoutubeFragmentActivity.YOUTUBE_VIDEO_KEY, youtubeId );
+        Intent intent = new Intent(getActivity(), YoutubeFragmentActivity.class);
+        intent.putExtra(YoutubeFragmentActivity.YOUTUBE_VIDEO_KEY, youtubeId);
         startActivity(intent);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
+    public Loader<Cursor> onCreateLoader(int i, Bundle args) {
         String[] projection = null;
-
         String selection = null;
-
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), YoutubeConstants.CONTENT_URI, projection, selection, selectionArgs, YoutubeConstants.FIELD_YOUTUBE_PUBLISHED + " DESC" );
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), YoutubeConstants.CONTENT_URI, projection, selection, selectionArgs, YoutubeConstants.FIELD_YOUTUBE_PUBLISHED + " DESC");
         return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
     }
 
     @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mAdapter.swapCursor(null);
     }
 
     private class YoutubeCursorAdapter extends CursorAdapter {
         private LayoutInflater mInflater;
 
-        public YoutubeCursorAdapter( Context context ) {
-            super( context, null, false );
-            mInflater = LayoutInflater.from( context );
+        public YoutubeCursorAdapter(Context context) {
+            super(context, null, false);
+            mInflater = LayoutInflater.from(context);
         }
 
         @Override
-        public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-
-            View view = mInflater.inflate( R.layout.youtube_item_row, parent, false );
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = mInflater.inflate(R.layout.youtube_item_row, parent, false);
 
             ViewHolder refHolder = new ViewHolder();
-            refHolder.thumbnail = (ImageView) view.findViewById( R.id.youtube_thumbnail );
-            refHolder.title = (TextView) view.findViewById( R.id.youtube_title );
-            refHolder.select = (ImageView) view.findViewById( R.id.youtube_select );
+            refHolder.thumbnail = (ImageView) view.findViewById(R.id.youtube_thumbnail);
+            refHolder.title = (TextView) view.findViewById(R.id.youtube_title);
+            refHolder.select = (ImageView) view.findViewById(R.id.youtube_select);
 
-            view.setTag( refHolder );
+            view.setTag(refHolder);
 
             return view;
         }
 
         @Override
-        public void bindView( View view, Context context, Cursor cursor ) {
+        public void bindView(View view, Context context, Cursor cursor) {
 
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( YoutubeConstants.FIELD_YOUTUBE_TITLE ) ) );
+            mHolder.title.setText(cursor.getString(cursor.getColumnIndex(YoutubeConstants.FIELD_YOUTUBE_TITLE)));
 
-            String thumbnail = cursor.getString( cursor.getColumnIndex( YoutubeConstants.FIELD_YOUTUBE_THUMBNAIL ) );
-            if( null != thumbnail && !"".equals( thumbnail ) ) {
+            String thumbnail = cursor.getString(cursor.getColumnIndex(YoutubeConstants.FIELD_YOUTUBE_THUMBNAIL));
+            if (null != thumbnail && !"".equals(thumbnail)) {
                 mHolder.thumbnail.setVisibility(View.VISIBLE);
                 Picasso.with(getActivity()).load(thumbnail).fit().centerCrop().into(mHolder.thumbnail);
             } else {
-                mHolder.thumbnail.setVisibility( View.GONE );
+                mHolder.thumbnail.setVisibility(View.GONE);
             }
         }
     }
@@ -148,6 +135,7 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         TextView title;
         ImageView select;
 
-        ViewHolder() { }
+        ViewHolder() {
+        }
     }
 }
