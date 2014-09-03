@@ -803,6 +803,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void processEvents( Events events, ContentProviderClient provider, Job job ) throws RemoteException {
+
+        provider.delete( EventConstants.CONTENT_URI, null, null );
+
         DateTime lastRun = new DateTime( DateTimeZone.UTC );
         ContentValues update = new ContentValues();
         update.put( WorkItemConstants._ID, job.getId() );
