@@ -23,5 +23,6 @@
     <!--// these 2 should be the same but negative-->
     <dimen name="transport_thumb_height">20dp</dimen>
     <dimen name="transport_thumb_margin_adjust">-20dp</dimen>
+    <dimen name="about_text_size">14sp</dimen>
 
 </resources>

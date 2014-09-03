@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/about_the_show"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/White"
+            android:textSize="@dimen/about_text_size"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="80dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginTop="36dp"
+            android:text="Keith and the Girl is a free comedy talk show hosted by Keith Malley and Chemda. Topics include current events, pop culture, politics, and even intimate details of their lives. A new hour-long show is posted each weekday."/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/facebookButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:src="@drawable/ic_about_facebook"/>
+
+            <ImageButton
+                android:id="@+id/twitterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Transparent"
+                android:src="@drawable/ic_about_twitter"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

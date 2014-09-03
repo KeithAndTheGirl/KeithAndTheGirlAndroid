@@ -134,7 +134,6 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/about_keith"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/White"
+            android:textSize="@dimen/about_text_size"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="After a mere year performing stand-up comedy, Keith Malley was the 2004 grand prize winner at the prestigious World Comedy Laugh Off in New York City. He immediately recorded his debut CD/DVD Coming of Age and vowed to record a new one-take only CD/DVD each and every birthday with all new material. He has just released his tenth CD/DVD which has reached #1 in iTunes in multiple countries."/>
+
+        <Button
+            android:id="@+id/moreKeithButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/Transparent"
+            android:textColor="@color/katg_green"
+            android:padding="16dp"
+            android:layout_gravity="center_horizontal"
+            android:text="More of Keith"/>
+
+    </LinearLayout>
+</FrameLayout>

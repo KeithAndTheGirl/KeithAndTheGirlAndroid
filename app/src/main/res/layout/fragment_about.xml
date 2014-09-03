@@ -2,18 +2,26 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    tools:context="com.keithandthegirl.app.ui.main.YoutubeFragment">
+    tools:context="com.keithandthegirl.app.ui.main.AboutFragment">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="0dp"
-        android:weightSum="1"
-        android:background="@drawable/aboutjpg">
+        android:layout_height="wrap_content">
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@color/katg_main_background"
+            android:src="@drawable/about_header"/>
+
+        <include layout="@layout/layout_about_the_show"/>
+        <include layout="@layout/layout_about_keith"/>
+        <include layout="@layout/layout_about_chemda"/>
+        <include layout="@layout/layout_about_podcast_guide" />
     </LinearLayout>
 
 </ScrollView>

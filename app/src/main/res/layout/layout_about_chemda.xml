@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/about_chemda"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/White"
+            android:textSize="@dimen/about_text_size"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Chemda was born in Israel and has lived in New York City since she was 4 years old. She currently lives in Queens with her fiance, actor Lauren Hennessy. She is a talk show host, writer and singer. In addition to Keith and The Girl, Chemda is host of the What's My Name Show found on the KATG network. Along with Keith, Chemda’s first published book, What Do We Do Now? (A relationship advice book) was released March, 2010 and went into its second printing within one week of its release."/>
+
+        <Button
+            android:id="@+id/moreChemdaButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/Transparent"
+            android:textColor="@color/katg_green"
+            android:padding="16dp"
+            android:layout_gravity="center_horizontal"
+            android:text="More of Chemda"/>
+
+    </LinearLayout>
+
+</FrameLayout>
