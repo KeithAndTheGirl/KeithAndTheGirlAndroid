@@ -7,10 +7,10 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.ui.custom.TouchImageView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class EpisodeImageGalleryFragment extends Fragment {
             LayoutInflater layoutInflater = LayoutInflater.from(container.getContext());
             ViewPager viewPager = (ViewPager)container;
             View view = layoutInflater.inflate(R.layout.view_pager_episode_gallery_image, container, false);
-            ImageView imageView = (ImageView) view.findViewById(R.id.galleryImageView);
+            TouchImageView imageView = (TouchImageView) view.findViewById(R.id.galleryImageView);
             String url = mImageHolderList.get(position).getImageUrl();
             Picasso.with(container.getContext()).load(url).into(imageView);
             TextView captionTextView = (TextView) view.findViewById(R.id.imageText);
