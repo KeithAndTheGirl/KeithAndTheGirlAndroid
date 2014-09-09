@@ -36,16 +36,12 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
     public static EventsFragment newInstance() {
         EventsFragment fragment = new EventsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
     }
 
     @Override
@@ -67,21 +63,16 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     }
 
     @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
+     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
         mAdapter.swapCursor( null );
     }
 
     @Override
     public void onActivityCreated( Bundle savedInstanceState ) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader( 0, getArguments(), this );
         mAdapter = new EventCursorAdapter( getActivity() );
         setListAdapter( mAdapter );
-    }
-
-    public void updateEventsView( long showNameId ) {
-        Bundle args = new Bundle();
-        getLoaderManager().restartLoader( 0, args, this );
+        getLoaderManager().initLoader( 0, null, this );
     }
 
     private class EventCursorAdapter extends CursorAdapter {
@@ -124,10 +115,16 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
             if( start > 0 ) {
                 mHolder.startDate.setText( mFormatter.print(start) );
+                mHolder.startDate.setVisibility(View.VISIBLE);
+            } else {
+                mHolder.startDate.setVisibility(View.GONE);
             }
 
             if( end > 0 ) {
                 mHolder.endDate.setText( mFormatter.print(end) );
+                mHolder.endDate.setVisibility(View.VISIBLE);
+            } else {
+                mHolder.endDate.setVisibility(View.GONE);
             }
 
             mHolder.location.setText( cursor.getString( cursor.getColumnIndex( EventConstants.FIELD_LOCATION ) ) );
@@ -138,6 +135,10 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
                 mHolder.details.setMovementMethod( LinkMovementMethod.getInstance() );
                 mHolder.details.setText( Html.fromHtml( details ) );
+                mHolder.details.setVisibility(View.VISIBLE);
+            } else {
+                mHolder.details.setText( "" );
+                mHolder.details.setVisibility(View.GONE);
             }
 
         }

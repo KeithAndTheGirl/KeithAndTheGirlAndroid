@@ -1,5 +1,8 @@
 package com.keithandthegirl.app.services.media;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -12,21 +15,25 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.webkit.URLUtil;
 
+import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.ui.episode.EpisodeActivity;
 import com.keithandthegirl.app.ui.episode.EpisodeInfoHolder;
 
 import java.io.File;
 import java.io.IOException;
 
-public class AudioPlayerService extends Service implements
-        MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener {
+public class AudioPlayerService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener {
 
     public static final String TAG = AudioPlayerService.class.getName();
 
+    public static final int NOTIFICATION_ID = 2;
     public static final String EXTRA_EPISODE_ID = "EPISODE_ID";
     public static final String EXTRA_CURRENT_POSITION = "CURRENT_POSITION";
     public static final String EXTRA_SEEK_POSITION = "SEEK_POSITION";
@@ -53,6 +60,15 @@ public class AudioPlayerService extends Service implements
     private long mEpisodeId;
     private EpisodeInfoHolder mEpisodeInfo;
 
+    private NotificationManager mNotificationManager = null;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mNotificationManager = (NotificationManager) getSystemService( NOTIFICATION_SERVICE );
+    }
+
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (intent.getAction().equals(ACTION_PLAY)) {
@@ -61,6 +77,7 @@ public class AudioPlayerService extends Service implements
             this.prepareMediaPlayer();
         } else if (intent.getAction().equals(ACTION_STOP)) {
             this.stopSelf();
+            mNotificationManager.cancel( NOTIFICATION_ID );
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
             this.pauseMediaPlayer();
         } else if (intent.getAction().equals(ACTION_SEEK)) {
@@ -93,6 +110,8 @@ public class AudioPlayerService extends Service implements
     @Override
     public void onDestroy() {
 
+        mNotificationManager.cancel( NOTIFICATION_ID );
+
         if (mMediaPlayer != null){
             mMediaPlayer.release();
             mMediaPlayer = null;
@@ -115,6 +134,44 @@ public class AudioPlayerService extends Service implements
         return null;
     }
 
+    private void createNotification() {
+
+        if( null == mEpisodeInfo ) {
+            return;
+        }
+
+        Intent episodeIntent = new Intent( getApplicationContext(), EpisodeActivity.class );
+        episodeIntent.putExtra( EpisodeActivity.EPISODE_KEY, mEpisodeId );
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create( getApplicationContext() );
+        stackBuilder.addParentStack( EpisodeActivity.class );
+        stackBuilder.addNextIntent( episodeIntent );
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent( 0, PendingIntent.FLAG_UPDATE_CURRENT );
+
+        Notification notification = new NotificationCompat
+            .Builder( getApplicationContext() )
+                .setSmallIcon( R.drawable.ic_launcher )
+                .setContentTitle( "Playing " + mEpisodeInfo.getShowPrefix() + " : " + mEpisodeInfo.getEpisodeNumber() )
+                .setContentText( mEpisodeInfo.getEpisodeTitle() )
+                .setOngoing( true )
+                .setContentIntent( resultPendingIntent )
+//                .addAction(
+//                        R.drawable.,
+//                        "New",
+//                        getPendingIntent(this.getShowAdvertisingIntent(this.getLaunchNewGmailEmailIntent(labelData)))
+//                )
+//                .addAction(
+//                        R.drawable.ic_menu_preferences,
+//                        getString(R.string.notification_action_settings_title),
+//                        getPendingIntent(this.getLaunchSettingsIntent()))
+                .build();
+
+
+        startForeground( NOTIFICATION_ID, notification );
+
+        mNotificationManager.notify( NOTIFICATION_ID, notification );
+    }
+
     private void loadEpisode() {
 
         if( mEpisodeId == -1 ) {
@@ -126,8 +183,8 @@ public class AudioPlayerService extends Service implements
         Cursor cursor = getContentResolver().query(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), null, null, null, null);
         if (cursor.moveToNext()) {
             episodeHolder = new EpisodeInfoHolder();
-//            episodeHolder.setEpisodeNumber(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
-//            episodeHolder.setEpisodeTitle(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
+            episodeHolder.setEpisodeNumber(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
+            episodeHolder.setEpisodeTitle(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
 //            episodeHolder.setEpisodePreviewUrl(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_PREVIEWURL)));
             episodeHolder.setEpisodeFileUrl(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_FILEURL)));
             episodeHolder.setEpisodeFilename(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_FILENAME)));
@@ -144,7 +201,7 @@ public class AudioPlayerService extends Service implements
 //            episodeHolder.setEpisodeDetailNotes(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_NOTES)));
 //            episodeHolder.setEpisodeDetailForumUrl(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_FORUMURL)));
 //            episodeHolder.setShowName(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_NAME)));
-//            episodeHolder.setShowPrefix(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_PREFIX)));
+            episodeHolder.setShowPrefix(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_PREFIX)));
 //            episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_VIP)) == 1 ? true : false);
 //            episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_COVERIMAGEURL_200)));
 //            episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_FORUMURL)));
@@ -254,6 +311,8 @@ public class AudioPlayerService extends Service implements
 
             mMediaPlayer.prepareAsync();
 
+            createNotification();
+
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -261,11 +320,15 @@ public class AudioPlayerService extends Service implements
     }
 
     private void pauseMediaPlayer() {
+
         if(mMediaPlayer == null) return;
 
         if(!mMediaPlayer.isPlaying()) return;
 
         try{
+            mNotificationManager.cancel( NOTIFICATION_ID );
+            stopForeground( true );
+
             updateLastPlayed();
 
             mMediaPlayer.stop();
@@ -279,6 +342,7 @@ public class AudioPlayerService extends Service implements
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
+
     }
 
     private void seekMediaPlayer(int position){
