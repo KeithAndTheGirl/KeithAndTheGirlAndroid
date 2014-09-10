@@ -20,11 +20,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-//import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.internal.bind.DateTypeAdapter;
 import com.keithandthegirl.app.db.model.Detail;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EndpointConstants;
@@ -59,14 +57,14 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
-import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
+
+//import android.util.Log;
 
 /**
  * Handle the transfer of data between a server and an
@@ -464,7 +462,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 List<Episode> episodes = katgService.listEpisodes( showNameId, showId, number );
 
-                processEpisodes( episodes, provider, job.getType() );
+                processEpisodes( episodes, provider, job.getType(), job.getStatus(), showNameId );
             }
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
@@ -534,7 +532,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     values.put( EpisodeConstants.FIELD_PUBLIC, 0 );
                     mContentResolver.update( EpisodeConstants.CONTENT_URI, values, EpisodeConstants.FIELD_SHOWNAMEID + " = ? AND " + EpisodeConstants.FIELD_PUBLIC + " = ?", new String[] { "1", "1" } );
 
-                    processEpisodes( recentEpisodes, provider, job.getType() );
+                    processEpisodes( recentEpisodes, provider, job.getType(), job.getStatus(), 1 );
 
                 }
 
@@ -930,7 +928,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void processEpisodes( List<Episode> episodes, ContentProviderClient provider, EndpointConstants.Type type ) {
+    private void processEpisodes( List<Episode> episodes, ContentProviderClient provider, EndpointConstants.Type type, WorkItemConstants.Status status, int showNameId ) {
         try {
             int loaded = 0;
             List<Integer> detailsQueue = new ArrayList<Integer>();
@@ -939,6 +937,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String[] projection = new String[] { EpisodeConstants._ID, EpisodeConstants.FIELD_DOWNLOADED, EpisodeConstants.FIELD_PLAYED, EpisodeConstants.FIELD_LASTPLAYED };
 
             ContentValues values;
+
+            int newSinceLastRun = 0;
 
             for( Episode episode : episodes ) {
                 //Log.v( TAG, "processEpisodes : episode=" + episode.toString() );
@@ -1007,6 +1007,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .withYieldAllowed( true )
                                     .build()
                     );
+
+                    if( !status.equals( WorkItemConstants.Status.NEVER ) ) {
+                        newSinceLastRun++;
+                    }
 
                 }
                 cursor.close();
@@ -1116,6 +1120,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 }
             }
+
+            values = new ContentValues();
+            values.put( ShowConstants.FIELD_EPISODE_COUNT_NEW, newSinceLastRun );
+
+            ops.add(
+                    ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, showNameId ) )
+                            .withValues( values )
+                            .withYieldAllowed( true )
+                            .build()
+            );
 
             if( !ops.isEmpty() ) {
                 //Log.v( TAG, "processEpisodes : applying final batch for transactions" );
