@@ -1,6 +1,6 @@
 package com.keithandthegirl.app.ui.episode;
 
-import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -63,21 +63,10 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         imageView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                transportLayout.animate().translationY(getResources().getDimension(R.dimen.transport_view_height)).setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(final Animator animation) {}
-
-                    @Override
-                    public void onAnimationEnd(final Animator animation) {
-                        findViewById(R.id.container).requestLayout();
-                    }
-
-                    @Override
-                    public void onAnimationCancel(final Animator animation) {}
-
-                    @Override
-                    public void onAnimationRepeat(final Animator animation) {}
-                });
+                View container = findViewById(R.id.container);
+                int transportViewHeight = (int) getResources().getDimension(R.dimen.transport_view_height);
+                transportLayout.animate().translationY(transportViewHeight);
+                ValueAnimator.ofInt(container.getHeight(), container.getHeight() + transportViewHeight );
 
             }
         });

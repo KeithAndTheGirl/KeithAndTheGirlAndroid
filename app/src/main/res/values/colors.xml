@@ -169,5 +169,7 @@
     <color name="katg_refresh_4">#1174be66</color>
     <color name="katg_tab_text_selected_color">#cecece</color>
     <color name="katg_tab_text_unselected_color">#7e7e7e</color>
+    <color name="katg_vip_badge_start">#50A1E6</color>
+    <color name="katg_vip_badge_end">#3973B9</color>
 
 </resources>

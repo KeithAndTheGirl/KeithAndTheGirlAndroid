@@ -235,11 +235,12 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         TextView number;
         TextView showDate;
         TextView title;
-        ImageView details;
+//        ImageView details;
         TextView played;
         TextView downloaded;
         TextView guestsTextView;
         TextView duration;
+        public View minutesLayout;
 
         ViewHolder() {
         }
@@ -264,11 +265,12 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             refHolder.number = (TextView) view.findViewById(R.id.episode_number);
             refHolder.showDate = (TextView) view.findViewById(R.id.episode_date);
             refHolder.title = (TextView) view.findViewById(R.id.episode_title);
-            refHolder.details = (ImageView) view.findViewById(R.id.episode_details);
+//            refHolder.details = (ImageView) view.findViewById(R.id.episode_details);
             refHolder.played = (TextView) view.findViewById(R.id.episode_played);
             refHolder.downloaded = (TextView) view.findViewById(R.id.episode_downloaded);
             refHolder.guestsTextView = (TextView) view.findViewById(R.id.guestsTextView);
             refHolder.duration = (TextView) view.findViewById(R.id.episode_duration);
+            refHolder.minutesLayout = view.findViewById(R.id.minutesLayout);
 
             view.setTag(refHolder);
 
@@ -295,7 +297,13 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             } else {
                 mHolder.guestsTextView.setVisibility( View.GONE);
             }
-            mHolder.duration.setText( ((int)(length/60)) + " minutes");
+            int minutes = length/60;
+            if (minutes > 0) {
+                mHolder.minutesLayout.setVisibility(View.VISIBLE);
+                mHolder.duration.setText(String.valueOf(minutes));
+            } else {
+                mHolder.minutesLayout.setVisibility(View.GONE);
+            }
 
             if( downloaded == 1) {
                 mHolder.downloaded.setText("Downloaded");
