@@ -81,11 +81,12 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private ExpandedHeightGridView mEpisodeImagesGridView;
     private WebView mEpisodeShowNotesWebView;
     private View mEpisodeDetailsLayout;
-    private View mEpisodeGuestsLayout;
+    private View mEpisodeGuestNamessLayout;
     private View mEpisodeImagesLayout;
+    private View mGuestImagesLayout;
 
-    private MenuItem mDownloadMenuItem, mDeleteMenuItem;
-
+    private MenuItem mDownloadMenuItem;
+    private MenuItem mDeleteMenuItem;
     private DownloadManager mDownloadManager;
 
     private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
@@ -136,7 +137,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mMainViewSwitcher.setDisplayedChild(VIEW_PROGRESS);
 
         mEpisodeDetailsLayout = fragmentView.findViewById(R.id.episodeDetailsLayout);
-        mEpisodeGuestsLayout = fragmentView.findViewById(R.id.guestsLayout);
+        mEpisodeGuestNamessLayout = fragmentView.findViewById(R.id.guestNamesLayout);
+        mGuestImagesLayout = fragmentView.findViewById(R.id.guestImagesLayout);
         mEpisodeImagesLayout = fragmentView.findViewById(R.id.episodeImagesLayout);
 
         mEpisodeHeaderBackgroundImageView = (ImageView) fragmentView.findViewById(R.id.episodeHeaderBackgroundImageView);
@@ -199,7 +201,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         inflater.inflate(R.menu.episode, menu);
 
         mDownloadMenuItem = menu.findItem( R.id.action_download );
@@ -212,7 +213,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch( item.getItemId() ) {
 
             case R.id.action_download :
@@ -231,13 +231,11 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     private void swapMenuItems() {
-
         if( null == mDownloadMenuItem || null == mDeleteMenuItem ) {
             return;
         }
 
         if( null == mEpisodeInfoHolder ) {
-
             mDownloadMenuItem.setVisible( false );
             mDownloadMenuItem.setEnabled( false );
             mDeleteMenuItem.setVisible( false );
@@ -247,7 +245,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
 
         if( !mEpisodeInfoHolder.isEpisodePublic() ) {
-
             if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
                 mDownloadMenuItem.setVisible( false );
                 mDownloadMenuItem.setEnabled( false );
@@ -264,7 +261,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
 
         if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
-
             mDownloadMenuItem.setVisible( false );
             mDownloadMenuItem.setEnabled( false );
             mDeleteMenuItem.setVisible( true );
@@ -426,28 +422,28 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeTitleTextView.setText(episodeHolder.getEpisodeTitle());
 
         if (StringUtils.isNullOrEmpty(episodeHolder.getGuestNames())) {
-            mEpisodeGuestsLayout.setVisibility(View.GONE);
+            mEpisodeGuestNamessLayout.setVisibility(View.GONE);
         } else {
-            mEpisodeGuestsLayout.setVisibility(View.VISIBLE);
+            mEpisodeGuestNamessLayout.setVisibility(View.VISIBLE);
             mEpisodeGuestsTextView.setText(episodeHolder.getGuestNames());
         }
 
         if (episodeHolder.getEpisodeGuestImages().size() > 0) {
-            mEpisodeImagesLayout.setVisibility(View.VISIBLE);
+            mGuestImagesLayout.setVisibility(View.VISIBLE);
             mEpisodeGuestImagesList.clear();
             mEpisodeGuestImagesList.addAll(episodeHolder.getEpisodeGuestImages());
             mEpisodeGuestImageAdapter.notifyDataSetChanged();
         } else {
-            mEpisodeImagesLayout.setVisibility(View.GONE);
+            mGuestImagesLayout.setVisibility(View.GONE);
         }
 
         if (episodeHolder.getEpisodeImages().size() > 0) {
-            mEpisodeImagesGridView.setVisibility(View.VISIBLE);
+            mEpisodeImagesLayout.setVisibility(View.VISIBLE);
             mEpisodeImagesList.clear();
             mEpisodeImagesList.addAll(episodeHolder.getEpisodeImages());
             mEpisodeImageAdapter.notifyDataSetChanged();
         } else {
-            mEpisodeImagesGridView.setVisibility(View.GONE);
+            mEpisodeImagesLayout.setVisibility(View.GONE);
         }
 
         if (StringUtils.isNullOrEmpty(episodeHolder.getEpisodeDetailNotes())) {
