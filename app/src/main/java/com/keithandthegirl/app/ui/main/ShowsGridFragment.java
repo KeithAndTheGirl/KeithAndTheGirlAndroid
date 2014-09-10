@@ -88,7 +88,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_PREFIX, ShowConstants.FIELD_COVERIMAGEURL_200, ShowConstants.FIELD_VIP };
+        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_PREFIX, ShowConstants.FIELD_COVERIMAGEURL_200, ShowConstants.FIELD_VIP, ShowConstants.FIELD_EPISODE_COUNT_NEW };
         String selection = null;
         String[] selectionArgs = null;
 
@@ -125,7 +125,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
             refHolder.vip = (TextView) view.findViewById( R.id.show_grid_item_vip );
             refHolder.name = (TextView) view.findViewById( R.id.show_grid_item_name );
-
+            refHolder.newShowTextView = (TextView) view.findViewById(R.id.newShowTextView);
             view.setTag( refHolder );
             return view;
         }
@@ -138,7 +138,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
             String prefix = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_PREFIX ) );
             String coverUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_COVERIMAGEURL_200 ) );
             boolean vip = cursor.getLong( cursor.getColumnIndex( ShowConstants.FIELD_VIP ) ) == 0 ? false : true;
-
+            long newShows = cursor.getInt(cursor.getColumnIndex(ShowConstants.FIELD_EPISODE_COUNT_NEW));
             mHolder.name.setText( name );
 
             if( vip ) {
@@ -147,6 +147,12 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
                 mHolder.vip.setVisibility( View.GONE );
             }
 
+            if ( newShows > 0) {
+                mHolder.newShowTextView.setVisibility(View.VISIBLE);
+                mHolder.newShowTextView.setText(String.valueOf(newShows));
+            } else {
+                mHolder.newShowTextView.setVisibility(View.GONE);
+            }
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mHolder.coverImage);
         }
     }
@@ -155,6 +161,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         ImageView coverImage;
         TextView vip;
         TextView name;
+        TextView newShowTextView;
 
         ViewHolder() { }
     }
