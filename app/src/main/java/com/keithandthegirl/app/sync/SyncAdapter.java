@@ -464,7 +464,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 List<Episode> episodes = katgService.listEpisodes( showNameId, showId, number );
 
-                processEpisodes( episodes, provider, job.getType() );
+                processEpisodes( episodes, provider, job.getType(), job.getStatus(), showNameId );
             }
 
             update.put( WorkItemConstants.FIELD_ETAG, job.getEtag() );
@@ -534,7 +534,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     values.put( EpisodeConstants.FIELD_PUBLIC, 0 );
                     mContentResolver.update( EpisodeConstants.CONTENT_URI, values, EpisodeConstants.FIELD_SHOWNAMEID + " = ? AND " + EpisodeConstants.FIELD_PUBLIC + " = ?", new String[] { "1", "1" } );
 
-                    processEpisodes( recentEpisodes, provider, job.getType() );
+                    processEpisodes( recentEpisodes, provider, job.getType(), job.getStatus(), 1 );
 
                 }
 
@@ -930,7 +930,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void processEpisodes( List<Episode> episodes, ContentProviderClient provider, EndpointConstants.Type type ) {
+    private void processEpisodes( List<Episode> episodes, ContentProviderClient provider, EndpointConstants.Type type, WorkItemConstants.Status status, int showNameId ) {
         try {
             int loaded = 0;
             List<Integer> detailsQueue = new ArrayList<Integer>();
@@ -939,6 +939,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String[] projection = new String[] { EpisodeConstants._ID, EpisodeConstants.FIELD_DOWNLOADED, EpisodeConstants.FIELD_PLAYED, EpisodeConstants.FIELD_LASTPLAYED };
 
             ContentValues values;
+
+            int newSinceLastRun = 0;
 
             for( Episode episode : episodes ) {
                 //Log.v( TAG, "processEpisodes : episode=" + episode.toString() );
@@ -1007,6 +1009,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .withYieldAllowed( true )
                                     .build()
                     );
+
+                    if( !status.equals( WorkItemConstants.Status.NEVER ) ) {
+                        newSinceLastRun++;
+                    }
 
                 }
                 cursor.close();
@@ -1116,6 +1122,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 }
             }
+
+            values = new ContentValues();
+            values.put( ShowConstants.FIELD_EPISODE_COUNT_NEW, newSinceLastRun );
+
+            ops.add(
+                    ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, showNameId ) )
+                            .withValues( values )
+                            .withYieldAllowed( true )
+                            .build()
+            );
 
             if( !ops.isEmpty() ) {
                 //Log.v( TAG, "processEpisodes : applying final batch for transactions" );
