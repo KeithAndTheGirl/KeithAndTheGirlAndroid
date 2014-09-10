@@ -145,6 +145,7 @@
             android:authorities="com.keithandthegirl.provider"
             android:exported="true"
             android:syncable="true" />
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="48dbf78187c50c1b67191d33e57b549d459cca14"/>
 
     </application>
 

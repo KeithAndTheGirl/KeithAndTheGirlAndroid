@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.ShowConstants;
@@ -34,6 +35,7 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
         setContentView(R.layout.activity_main);
 
         boolean neverRun = false;
