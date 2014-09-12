@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.keithandthegirl.app.account.AccountGeneral;
 import com.squareup.picasso.Picasso;
 
@@ -24,6 +25,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Crashlytics.start(this);
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setIndicatorsEnabled(false);
         }
