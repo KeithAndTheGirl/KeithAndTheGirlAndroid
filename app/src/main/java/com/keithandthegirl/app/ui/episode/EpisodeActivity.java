@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.services.media.AudioPlayerService;
@@ -26,12 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener,
-                                                                     OnClickListener {
+                                                                     OnClickListener, OnSeekBarChangeListener {
     public static final String EPISODE_KEY = "EPISODE_KEY";
     private static final String TAG = EpisodeActivity.class.getSimpleName();
     private long mEpisodeId;
     private LinearLayout mPlayerControls;
     private Button mPlayButton, mPauseButton, mBackButton, mSkipButton;
+    private SeekBar mSeekBar;
 
     private EpisodeInfoHolder mEpisodeInfoHolder;
 
@@ -88,6 +92,9 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         mSkipButton.setEnabled(false);
         mSkipButton.setOnClickListener(this);
 
+        mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
+        mSeekBar.setOnSeekBarChangeListener( this );
+        mSeekBar.setEnabled( false );
     }
 
     @Override
@@ -142,6 +149,10 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         if( mEpisodeInfoHolder.isEpisodePublic() ) {
             mPlayerControls.setVisibility( View.VISIBLE );
             mPlayButton.setEnabled(true);
+
+            mSeekBar.setMax(mEpisodeInfoHolder.getEpisodeLength() * 1000);
+            mSeekBar.setProgress(mEpisodeInfoHolder.getEpisodeLastPlayed());
+            onProgressChanged( mSeekBar, mEpisodeInfoHolder.getEpisodeLastPlayed(), false );
         } else {
             mPlayerControls.setVisibility( View.GONE );
         }
@@ -181,6 +192,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 mPauseButton.setEnabled(true);
                 mBackButton.setEnabled(true);
                 mSkipButton.setEnabled(true);
+                mSeekBar.setEnabled(true);
                 break;
 
             case R.id.pause :
@@ -192,6 +204,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 mPauseButton.setEnabled(false);
                 mBackButton.setEnabled(false);
                 mSkipButton.setEnabled(false);
+                mSeekBar.setEnabled(false);
                 break;
 
             case R.id.back :
@@ -211,8 +224,34 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         }
     }
 
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        Log.i(TAG, "onProgressChanged : progress=" + progress + " of " + mSeekBar.getMax());
+
+        mSeekBar.setProgress( progress );
+
+        if( fromUser ) {
+            Intent intent = new Intent(this, AudioPlayerService.class);
+            intent.setAction(AudioPlayerService.ACTION_SEEK);
+            intent.putExtra(AudioPlayerService.EXTRA_SEEK_POSITION, progress);
+            startService(intent);
+
+        }
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
     private void updateSeekBarPosition( int currentPosition ) {
-        // TODO: update seek bar position
+        onProgressChanged( mSeekBar, currentPosition, false );
     }
 
     private class PlaybackBroadcastReceiver extends BroadcastReceiver {

@@ -76,17 +76,17 @@ public class AudioPlayerService extends Service implements MediaPlayer.OnPrepare
             loadEpisode();
             this.prepareMediaPlayer();
         } else if (intent.getAction().equals(ACTION_STOP)) {
-            this.stopSelf();
+            stopSelf();
             mNotificationManager.cancel( NOTIFICATION_ID );
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
-            this.pauseMediaPlayer();
+            pauseMediaPlayer();
         } else if (intent.getAction().equals(ACTION_SEEK)) {
             int position = intent.getIntExtra(EXTRA_SEEK_POSITION, -1);
-            if(position != -1) this.seekMediaPlayer(position);
+            if(position != -1) seekMediaPlayer(position);
         } else if (intent.getAction().equals(ACTION_FF)) {
-            this.ffMediaPlayer();
+            ffMediaPlayer();
         } else if (intent.getAction().equals(ACTION_REW)) {
-            this.rewMediaPlayer();
+            rewMediaPlayer();
         } else if (intent.getAction().equals(ACTION_IS_PLAYING)) {
             isPlaying();
         }
