@@ -209,8 +209,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             DateTime now = new DateTime( DateTimeZone.UTC );
 
+            String[] projection = null;
+            String selection = WorkItemConstants.FIELD_LAST_RUN + " = -1 OR " + WorkItemConstants.FIELD_LAST_RUN + " < ?";
+            String[] selectionArgs = new String[] { String.valueOf(now.getMillis())};
+
             List<Job> jobs = new ArrayList<Job>();
-            Cursor cursor = provider.query( WorkItemConstants.CONTENT_URI, null, null, null, null );
+            Cursor cursor = provider.query( WorkItemConstants.CONTENT_URI, projection, selection, selectionArgs, null );
             while( cursor.moveToNext() ) {
                 Job job = new Job();
 
@@ -243,7 +247,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     lastRun = new DateTime( lastRunMs );
                 }
 
-                //Log.i( TAG, "onPerformSync : job=" + job.toString() );
+//                Log.i(TAG, "onPerformSync : job=" + job.toString());
 
                 switch( wtype ) {
                     case ON_DEMAND:
@@ -323,28 +327,28 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             for( Job job : jobs ) {
                 switch( job.getType() ) {
                     case OVERVIEW:
-                        //Log.i( TAG, "executeJobs : refreshing shows" );
+//                        Log.i( TAG, "executeJobs : refreshing shows" );
 
                         getShows( provider, job );
                         break;
                     case EVENTS:
-                        //Log.i( TAG, "executeJobs : refreshing events" );
+//                        Log.i( TAG, "executeJobs : refreshing events" );
 
                         getEvents( provider, job );
                         break;
                     case LIVE:
-                        //Log.i( TAG, "executeJobs : refreshing live status" );
+//                        Log.i( TAG, "executeJobs : refreshing live status" );
 
                         getLives( provider, job );
                         break;
                     case LIST:
-                        //Log.i( TAG, "executeJobs : refreshing episode list" );
+//                        Log.i( TAG, "executeJobs : refreshing episode list" );
 
                         getEpisodes( provider, job );
                         break;
 
                     case RECENT:
-                        //Log.i( TAG, "executeJobs : refreshing recent episodes" );
+//                        Log.i( TAG, "executeJobs : refreshing recent episodes" );
 
                         getRecentEpisodes( provider, job );
 
@@ -358,14 +362,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
 
                     case DETAILS:
-                        //Log.i( TAG, "executeJobs : refreshing episode details" );
+//                        Log.i( TAG, "executeJobs : refreshing episode details" );
 
                         getEpisodeDetails( provider, job );
 
                         break;
 
                     case YOUTUBE:
-                        //Log.i( TAG, "executeJobs : refreshing youtube episodes" );
+//                        Log.i( TAG, "executeJobs : refreshing youtube episodes" );
 
                         getYoutubeEpisodes( provider, job );
 
@@ -383,7 +387,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         try {
 
             if( wifiConnected || mobileConnected ) {
-                //Log.v( TAG, "getShows : network is available" );
+//                Log.v( TAG, "getShows : network is available" );
 
                 List<Show> shows = katgService.seriesOverview();
                 if( null != shows && !shows.isEmpty() ) {
@@ -392,10 +396,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 }
 
+            } else {
+//                Log.v( TAG, "getShows : network is NOT available" );
             }
 
         } catch( Exception e ) {
-            //Log.e(TAG, "getShows : error", e);
+//            Log.e(TAG, "getShows : error", e);
         }
     }
 
@@ -629,7 +635,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             ContentValues values;
 
             for( Show show : shows ) {
-                //Log.v( TAG, "processShows : show=" + show.toString() );
+//                Log.v( TAG, "processShows : show=" + show.toString() );
 
                 values = new ContentValues();
                 values.put( ShowConstants._ID, show.getShowNameId() );
@@ -677,44 +683,61 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 if( show.getShowNameId() ==  1 ) {
                     //Log.v( TAG, "processShows : adding one time update for katg main show" );
 
-                    values = new ContentValues();
-                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + show.getName() );
-                    values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ONCE.name() );
-                    values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name() );
-                    values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name() );
-                    values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST );
-                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + show.getShowNameId() );
-                    values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+                    int number = show.getEpisodeNumberMax() - 100;
+                    String parameter = "?shownameid=" + show.getShowNameId() + "&number=" + number;
+                    DateTime nextRun = new DateTime(DateTimeZone.UTC);
+                    nextRun = nextRun.plusHours(1);
+                    while( number > -1 ) {
+                        values = new ContentValues();
+                        values.put(WorkItemConstants.FIELD_NAME, "Refresh " + show.getName() + " - > " + number);
+                        values.put(WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ONCE.name());
+                        values.put(WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name());
+                        values.put(WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name());
+                        values.put(WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST);
+                        values.put(WorkItemConstants.FIELD_PARAMETERS, parameter);
+                        values.put(WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime(DateTimeZone.UTC).getMillis());
 
-                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ENDPOINT + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + show.getShowNameId() }, null );
-                    if( cursor.moveToNext() ) {
-                        //Log.v( TAG, "processShows : updating daily show" );
+                        cursor = provider.query(WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ENDPOINT + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{EndpointConstants.LIST, parameter}, null);
+                        if (cursor.moveToNext()) {
+//                            Log.v( TAG, "processShows : updating once show" );
 
-                        values.put( WorkItemConstants.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
+//                            values.put(WorkItemConstants.FIELD_LAST_RUN, new DateTime(DateTimeZone.UTC).getMillis());
+//
+//                            Long id = cursor.getLong(cursor.getColumnIndexOrThrow(WorkItemConstants._ID));
+//                            ops.add(
+//                                    ContentProviderOperation.newUpdate(ContentUris.withAppendedId(WorkItemConstants.CONTENT_URI, id))
+//                                            .withValues(values)
+//                                            .withYieldAllowed(true)
+//                                            .build()
+//                            );
+                        } else {
+//                            Log.v( TAG, "processShows : adding once show" );
 
-                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItemConstants._ID ) );
-                        ops.add(
-                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, id ) )
-                                        .withValues( values )
-                                        .withYieldAllowed( true )
-                                        .build()
-                        );
-                    } else {
-                        //Log.v( TAG, "processShows : adding daily show" );
+                            values.put(WorkItemConstants.FIELD_LAST_RUN, nextRun.getMillis());
+                            values.put(WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name());
 
-                        values.put( WorkItemConstants.FIELD_LAST_RUN, -1 );
-                        values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
+                            ops.add(
+                                    ContentProviderOperation.newInsert(WorkItemConstants.CONTENT_URI)
+                                            .withValues(values)
+                                            .withYieldAllowed(true)
+                                            .build()
+                            );
+                        }
+                        cursor.close();
+                        count++;
 
-                        ops.add(
-                                ContentProviderOperation.newInsert( WorkItemConstants.CONTENT_URI )
-                                        .withValues( values )
-                                        .withYieldAllowed( true )
-                                        .build()
-                        );
+                        if( number == 0 ) {
+                            break;
+                        }
+
+                        number = number - 100;
+                        if( number < 0 ) number = 0;
+
+                        parameter = "?shownameid=" + show.getShowNameId() + "&number=" + number;
+                        nextRun = nextRun.plusMinutes(15);
+
                     }
-                    count++;
                 }
-                cursor.close();
 
                 if( !"KATG".equals( show.getPrefix() ) ) {
                     //Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
@@ -941,7 +964,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             int newSinceLastRun = 0;
 
             for( Episode episode : episodes ) {
-                //Log.v( TAG, "processEpisodes : episode=" + episode.toString() );
+//                Log.v( TAG, "processEpisodes : episode=" + episode.toString() );
 
                 detailsQueue.add( episode.getShowId() );
 

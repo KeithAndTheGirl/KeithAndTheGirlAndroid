@@ -124,7 +124,7 @@ public class WorkFragment extends ListFragment implements LoaderManager.LoaderCa
 
             long instant = cursor.getLong( cursor.getColumnIndex( WorkItemConstants.FIELD_LAST_RUN ) );
             if( instant < 0 ) {
-                mHolder.lastRun.setText( "" );
+                mHolder.lastRun.setText( String.valueOf( instant ) );
             } else {
                 DateTime lastRun = new DateTime( instant );
                 mHolder.lastRun.setText( fmt.print( lastRun ) );
