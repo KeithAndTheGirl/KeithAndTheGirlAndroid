@@ -18,85 +18,93 @@
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
     <application
-        android:name=".MainApplication"
+        android:name="com.keithandthegirl.app.MainApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_short_name"
         android:theme="@style/Theme.Katg" >
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="48dbf78187c50c1b67191d33e57b549d459cca14" />
+
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name="com.keithandthegirl.app.ui.intro.IntroActivity"
+            android:label="@string/title_activity_intro" >
+        </activity>
+
+        <activity
+            android:name="com.keithandthegirl.app.ui.main.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.shows.ShowsActivity"
+            android:name="com.keithandthegirl.app.ui.shows.ShowsActivity"
             android:label="@string/title_activity_shows"
-            android:parentActivityName=".ui.main.MainActivity" >
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
         <activity
-            android:name=".ui.WorkItemsActivity"
+            android:name="com.keithandthegirl.app.ui.WorkItemsActivity"
             android:label="@string/title_activity_workitems"
-            android:parentActivityName=".ui.main.MainActivity" >
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
         <activity
-            android:name=".ui.youtube.VideoPlayerActivity"
+            android:name="com.keithandthegirl.app.ui.youtube.VideoPlayerActivity"
             android:label="@string/title_activity_video_player"
-            android:parentActivityName=".ui.main.MainActivity" >
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
         </activity>
         <activity
-            android:name=".ui.youtube.YoutubeFragmentActivity"
+            android:name="com.keithandthegirl.app.ui.youtube.YoutubeFragmentActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name=".ui.PreferencesActivity"
+            android:name="com.keithandthegirl.app.ui.PreferencesActivity"
             android:label="@string/title_activity_preferences"
-            android:parentActivityName=".ui.main.MainActivity" >
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithandthegirl.app.ui.MainActivity" />
         </activity>
         <activity
-            android:name=".ui.AuthenticatorActivity"
+            android:name="com.keithandthegirl.app.ui.AuthenticatorActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
-        <activity android:name=".ui.player.SimplePlayerActivity"
+        <activity
+            android:name="com.keithandthegirl.app.ui.player.SimplePlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/PlayerTheme"/>
+            android:theme="@style/PlayerTheme" />
         <activity
-            android:name=".ui.episode.EpisodeActivity"
+            android:name="com.keithandthegirl.app.ui.episode.EpisodeActivity"
             android:label="@string/title_activity_episode" >
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.shows.ShowsActivity" />
-
         </activity>
 
         <!-- KATG Receivers -->
-        <receiver android:name=".db.schedule.KatgAlarmReceiver" />
+        <receiver android:name="com.keithandthegirl.app.db.schedule.KatgAlarmReceiver" />
         <receiver
-            android:name=".db.schedule.KatgBootReceiver"
+            android:name="com.keithandthegirl.app.db.schedule.KatgBootReceiver"
             android:enabled="false" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".ui.widget.ShowNextEventWidget" >
+        <receiver android:name="com.keithandthegirl.app.ui.widget.ShowNextEventWidget" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -105,7 +113,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info_show_next_live_event" />
         </receiver>
-        <receiver android:name=".services.download.DownloadBroadcastReciever">
+        <receiver android:name="com.keithandthegirl.app.services.download.DownloadBroadcastReciever" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
@@ -114,7 +122,7 @@
 
         <!-- KATG Services -->
         <service
-            android:name=".account.AuthenticatorService"
+            android:name="com.keithandthegirl.app.account.AuthenticatorService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -125,7 +133,7 @@
                 android:resource="@xml/authenticator" />
         </service>
         <service
-            android:name=".sync.SyncService"
+            android:name="com.keithandthegirl.app.sync.SyncService"
             android:exported="true"
             android:process=":sync" >
             <intent-filter>
@@ -136,16 +144,15 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-        <service android:name=".db.schedule.KatgSchedulingService" />
-        <service android:name=".services.media.AudioPlayerService" />
+        <service android:name="com.keithandthegirl.app.db.schedule.KatgSchedulingService" />
+        <service android:name="com.keithandthegirl.app.services.media.AudioPlayerService" />
 
         <!-- KATG Providers -->
         <provider
-            android:name=".db.KatgProvider"
+            android:name="com.keithandthegirl.app.db.KatgProvider"
             android:authorities="com.keithandthegirl.provider"
             android:exported="true"
             android:syncable="true" />
-        <meta-data android:name="com.crashlytics.ApiKey" android:value="48dbf78187c50c1b67191d33e57b549d459cca14"/>
 
     </application>
 

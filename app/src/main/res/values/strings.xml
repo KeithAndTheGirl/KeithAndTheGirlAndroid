@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Keith and the Girl Comedy Podcast</string>
     <string name="app_short_name">KATG</string>
     <string name="action_login">VIP</string>
@@ -36,11 +37,14 @@
     <string name="about_the_show_chemda_2">In addition to Keith and the Girl, Chemda is host of the What\'s My Name Show found on the KATG network. Along with Keith, Chemda\'s first published book, What Do We Do Now? (A relationship advice book) was released March, 2010 and went into its second printing within one week of its release.</string>
     <string name="about_the_show_chemda_button">More on Chemda</string>
     <string name="title_activity_video_player">VideoPlayerActivity</string>
-    <string name="hello_world">Hello world!</string>
     <string name="playerfragment_text">This is a YouTubePlayerFragment!</string>
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
     <string name="add_widget">Add widget</string>
     <string name="failed">Playback failed</string>
     <string name="title_activity_episode">EpisodeActivity</string>
     <string name="loading">Loading…</string>
+    <string name="loading_shows">Loading Shows…</string>
+    <string name="title_activity_intro">IntroActivity</string>
+    <string name="hello_world">Hello world!</string>
+
 </resources>

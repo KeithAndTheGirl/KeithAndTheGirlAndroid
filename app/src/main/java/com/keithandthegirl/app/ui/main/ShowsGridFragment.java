@@ -29,6 +29,7 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     private static final String TAG = ShowsGridFragment.class.getSimpleName();
 
     ShowCursorAdapter mAdapter;
+    private View mProgressView;
 
     public static ShowsGridFragment newInstance() {
         ShowsGridFragment fragment = new ShowsGridFragment();
@@ -48,6 +49,8 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
         final View rootView = inflater.inflate( R.layout.fragment_shows, container, false );
+        mProgressView = rootView.findViewById(R.id.progressContainer);
+        mProgressView.setVisibility(View.VISIBLE);
         return rootView;
     }
 
@@ -98,7 +101,10 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        mAdapter.swapCursor( cursor );
+        if (cursor.getCount() > 0) {
+            mProgressView.setVisibility(View.GONE);
+        }
+        mAdapter.swapCursor(cursor);
     }
 
     @Override
