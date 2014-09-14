@@ -680,107 +680,75 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
                 count++;
 
-                if( show.getShowNameId() ==  1 ) {
-                    //Log.v( TAG, "processShows : adding one time update for katg main show" );
+                String name = "Load " + show.getName();
+                String parameters = "?shownameid=" + show.getShowNameId() + "&number=" + (show.getEpisodeNumberMax() - 50 );
 
-                    int number = show.getEpisodeNumberMax() - 100;
-                    String parameter = "?shownameid=" + show.getShowNameId() + "&number=" + number;
-                    DateTime nextRun = new DateTime(DateTimeZone.UTC);
-                    nextRun = nextRun.plusHours(1);
-                    while( number > -1 ) {
-                        values = new ContentValues();
-                        values.put(WorkItemConstants.FIELD_NAME, "Refresh " + show.getName() + " - > " + number);
-                        values.put(WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ONCE.name());
-                        values.put(WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name());
-                        values.put(WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name());
-                        values.put(WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST);
-                        values.put(WorkItemConstants.FIELD_PARAMETERS, parameter);
-                        values.put(WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime(DateTimeZone.UTC).getMillis());
+                values = new ContentValues();
+                values.put( WorkItemConstants.FIELD_NAME, name );
+                values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.ON_DEMAND.name() );
+                values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name() );
+                values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name() );
+                values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST );
+                values.put( WorkItemConstants.FIELD_PARAMETERS, parameters );
+                values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                        cursor = provider.query(WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ENDPOINT + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{EndpointConstants.LIST, parameter}, null);
-                        if (cursor.moveToNext()) {
-//                            Log.v( TAG, "processShows : updating once show" );
+                cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_NAME + " = ? AND " + WorkItemConstants.FIELD_FREQUENCY + " = ?", new String[] { name, WorkItemConstants.Frequency.ON_DEMAND.name() }, null );
+                if( cursor.moveToNext() ) {
+                    //Log.v( TAG, "processShows : update loading initial data" );
 
-//                            values.put(WorkItemConstants.FIELD_LAST_RUN, new DateTime(DateTimeZone.UTC).getMillis());
-//
-//                            Long id = cursor.getLong(cursor.getColumnIndexOrThrow(WorkItemConstants._ID));
-//                            ops.add(
-//                                    ContentProviderOperation.newUpdate(ContentUris.withAppendedId(WorkItemConstants.CONTENT_URI, id))
-//                                            .withValues(values)
-//                                            .withYieldAllowed(true)
-//                                            .build()
-//                            );
-                        } else {
-//                            Log.v( TAG, "processShows : adding once show" );
+                    values.put( WorkItemConstants.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                            values.put(WorkItemConstants.FIELD_LAST_RUN, nextRun.getMillis());
-                            values.put(WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name());
+                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItemConstants._ID ) );
+                    ops.add(
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, id ) )
+                                    .withValues( values )
+                                    .withYieldAllowed( true )
+                                    .build()
+                    );
+                } else {
+                    //Log.v( TAG, "processShows : adding loading initial data" );
 
-                            ops.add(
-                                    ContentProviderOperation.newInsert(WorkItemConstants.CONTENT_URI)
-                                            .withValues(values)
-                                            .withYieldAllowed(true)
-                                            .build()
-                            );
-                        }
-                        cursor.close();
-                        count++;
-
-                        if( number == 0 ) {
-                            break;
-                        }
-
-                        number = number - 100;
-                        if( number < 0 ) number = 0;
-
-                        parameter = "?shownameid=" + show.getShowNameId() + "&number=" + number;
-                        nextRun = nextRun.plusMinutes(15);
-
-                    }
-                }
-
-                if( !"KATG".equals( show.getPrefix() ) ) {
-                    //Log.v( TAG, "processShows : adding daily updates for spinoff shows" );
-
-                    values = new ContentValues();
-                    values.put( WorkItemConstants.FIELD_NAME, "Refresh " + show.getName() );
-                    values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.DAILY.name() );
-                    values.put( WorkItemConstants.FIELD_DOWNLOAD, WorkItemConstants.Download.JSONARRAY.name() );
-                    values.put( WorkItemConstants.FIELD_ENDPOINT, EndpointConstants.Type.LIST.name() );
-                    values.put( WorkItemConstants.FIELD_ADDRESS, EndpointConstants.LIST );
-                    values.put( WorkItemConstants.FIELD_PARAMETERS, "?shownameid=" + show.getShowNameId() );
+                    values.put( WorkItemConstants.FIELD_LAST_RUN, -1 );
                     values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
-                    values.put( WorkItemConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-                    cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_ADDRESS + " = ? and " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[] { EndpointConstants.LIST, "?shownameid=" + show.getShowNameId() }, null );
-                    if( cursor.moveToNext() ) {
-                        //Log.v( TAG, "processShows : updating daily spinoff show" );
-
-                        values.put( WorkItemConstants.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).getMillis() );
-
-                        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItemConstants._ID ) );
-                        ops.add(
-                                ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, id ) )
-                                        .withValues( values )
-                                        .withYieldAllowed( true )
-                                        .build()
-                        );
-                    } else {
-                        //Log.v( TAG, "processShows : adding daily spinoff show" );
-
-                        values.put( WorkItemConstants.FIELD_LAST_RUN, -1 );
-                        values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
-
-                        ops.add(
-                                ContentProviderOperation.newInsert( WorkItemConstants.CONTENT_URI )
-                                        .withValues( values )
-                                        .withYieldAllowed( true )
-                                        .build()
-                        );
-                    }
-                    count++;
+                    ops.add(
+                            ContentProviderOperation.newInsert( WorkItemConstants.CONTENT_URI )
+                                    .withValues( values )
+                                    .withYieldAllowed( true )
+                                    .build()
+                    );
                 }
-                cursor.close();
+                count++;
+
+                name = "Load " + show.getName();
+                values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.DAILY.name() );
+                values.put( WorkItemConstants.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).plusDays(1).withTimeAtStartOfDay().getMillis() );
+
+                cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_NAME + " = ? AND " + WorkItemConstants.FIELD_FREQUENCY + " = ?", new String[] { name, WorkItemConstants.Frequency.DAILY.name() }, null );
+                if( cursor.moveToNext() ) {
+                    //Log.v( TAG, "processShows : update loading initial data" );
+
+                    Long id = cursor.getLong( cursor.getColumnIndexOrThrow( WorkItemConstants._ID ) );
+                    ops.add(
+                            ContentProviderOperation.newUpdate( ContentUris.withAppendedId( WorkItemConstants.CONTENT_URI, id ) )
+                                    .withValues( values )
+                                    .withYieldAllowed( true )
+                                    .build()
+                    );
+                } else {
+                    //Log.v( TAG, "processShows : adding loading initial data" );
+
+                    values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name() );
+
+                    ops.add(
+                            ContentProviderOperation.newInsert( WorkItemConstants.CONTENT_URI )
+                                    .withValues( values )
+                                    .withYieldAllowed( true )
+                                    .build()
+                    );
+                }
+                count++;
+
                 if( count > 100 ) {
                     //Log.v( TAG, "processShows : applying batch for '" + count + "' transactions" );
 
