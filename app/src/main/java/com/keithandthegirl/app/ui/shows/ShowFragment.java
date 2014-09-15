@@ -1,6 +1,7 @@
 package com.keithandthegirl.app.ui.shows;
 
 import android.accounts.Account;
+import android.support.v4.app.ListFragment;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -33,6 +34,7 @@ import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
 import com.keithandthegirl.app.ui.episode.EpisodeActivity;
+import com.paging.listview.PagingListView;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
@@ -172,13 +174,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         ContentValues values = new ContentValues();
         values.put(WorkItemConstants.FIELD_LAST_RUN, now.getMillis());
 
-        int updated = -1;
-
-        if (mShowNameId == 1) {
-            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ?", new String[]{EndpointConstants.RECENT});
-        } else {
-            updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{EndpointConstants.LIST, "?shownameid=" + mShowNameId});
-        }
+        int updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_FREQUENCY + " = ? AND " + WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{WorkItemConstants.Frequency.ON_DEMAND.name(), EndpointConstants.LIST, "?shownameid=" + mShowNameId + "&limit=50"});
         Log.i(TAG, "onRefresh : updated=" + updated);
     }
 
@@ -200,6 +196,8 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         setRefreshing(false);
         mAdapter.swapCursor(cursor);
         getListView().setFastScrollEnabled(true);
+
+        Log.i( TAG, "onLoadFinished : cursor count=" + cursor.getCount() );
     }
 
     @Override

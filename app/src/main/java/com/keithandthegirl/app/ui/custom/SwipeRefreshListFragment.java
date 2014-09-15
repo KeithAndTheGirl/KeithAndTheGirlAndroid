@@ -1,24 +1,14 @@
 package com.keithandthegirl.app.ui.custom;
 
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-
-import com.keithandthegirl.app.db.KatgProvider;
-import com.keithandthegirl.app.db.model.LiveConstants;
-import com.keithandthegirl.app.sync.SyncAdapter;
 
 /**
  * Created by Jeff on 6/30/14.

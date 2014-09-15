@@ -31,7 +31,7 @@ public interface KatgService {
     List<Episode> recentEpisodes();
 
     @GET( "/shows/list/" )
-    List<Episode> listEpisodes( @Query( "shownameid" ) int showNameId, @Query( "showid" ) int showId, @Query( "number" ) int number );
+    List<Episode> listEpisodes( @Query( "shownameid" ) int showNameId, @Query( "showid" ) int showId, @Query( "number" ) int number, @Query( "limit" ) int limit );
 
     @GET( "/shows/series-overview" )
     List<Show> seriesOverview();
