@@ -214,7 +214,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String[] selectionArgs = new String[] { String.valueOf(now.getMillis())};
 
             List<Job> jobs = new ArrayList<Job>();
-            Cursor cursor = provider.query( WorkItemConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+            //Cursor cursor = provider.query( WorkItemConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+            Cursor cursor = provider.query( WorkItemConstants.CONTENT_URI, null, null, null, null );
             while( cursor.moveToNext() ) {
                 Job job = new Job();
 
@@ -456,7 +457,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 Uri uri = Uri.parse( job.getUrl() );
                 int showNameId = Integer.parseInt( uri.getQueryParameter( "shownameid" ) );
-                int showId = -1, number = -1;
+                int showId = -1, number = -1, limit = -1;
 
                 try {
                     showId = Integer.parseInt( uri.getQueryParameter( "showid" ) );
@@ -466,7 +467,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     number = Integer.parseInt(uri.getQueryParameter( "number" ) );
                 } catch( NumberFormatException e ) { }
 
-                List<Episode> episodes = katgService.listEpisodes( showNameId, showId, number );
+                try {
+                    limit = Integer.parseInt(uri.getQueryParameter( "limit" ) );
+                } catch( NumberFormatException e ) { }
+
+                List<Episode> episodes = katgService.listEpisodes( showNameId, showId, number, limit );
 
                 processEpisodes( episodes, provider, job.getType(), job.getStatus(), showNameId );
             }
@@ -681,7 +686,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 count++;
 
                 String name = "Load " + show.getName();
-                String parameters = "?shownameid=" + show.getShowNameId() + "&number=" + (show.getEpisodeNumberMax() - 50 );
+                String parameters = "?shownameid=" + show.getShowNameId() + "&limit=50";
 
                 values = new ContentValues();
                 values.put( WorkItemConstants.FIELD_NAME, name );
@@ -720,9 +725,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
                 count++;
 
-                name = "Load " + show.getName();
+                name = "Refresh " + show.getName();
+                parameters = "?shownameid=" + show.getShowNameId() + "&limit=10";
+                values.put( WorkItemConstants.FIELD_NAME, name );
                 values.put( WorkItemConstants.FIELD_FREQUENCY, WorkItemConstants.Frequency.DAILY.name() );
+                values.put( WorkItemConstants.FIELD_PARAMETERS, parameters );
                 values.put( WorkItemConstants.FIELD_LAST_RUN, new DateTime( DateTimeZone.UTC ).plusDays(1).withTimeAtStartOfDay().getMillis() );
+                values.put( WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.OK.name() );
 
                 cursor = provider.query( WorkItemConstants.CONTENT_URI, null, WorkItemConstants.FIELD_NAME + " = ? AND " + WorkItemConstants.FIELD_FREQUENCY + " = ?", new String[] { name, WorkItemConstants.Frequency.DAILY.name() }, null );
                 if( cursor.moveToNext() ) {

@@ -28,7 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
     private static final String DATABASE_NAME = "katgdb";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     public DatabaseHelper( Context context ) {
         super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -62,10 +62,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
+
         if( oldVersion < DATABASE_VERSION ) {
             Log.v(TAG, "onUpgrade : upgrading to db version " + DATABASE_VERSION);
 
+            db.execSQL( WorkItemConstants.DROP_TABLE );
+            createTableWorkItems( db );
         }
+
     }
 
     private void dropTables( SQLiteDatabase db ) {
@@ -161,11 +165,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
 
         DateTime now = new DateTime( DateTimeZone.UTC );
-        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Shows", WorkItemConstants.Frequency.WEEKLY, WorkItemConstants.Download.JSONARRAY, EndpointConstants.Type.OVERVIEW.name(), EndpointConstants.OVERVIEW, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Shows", WorkItemConstants.Frequency.DAILY, WorkItemConstants.Download.JSONARRAY, EndpointConstants.Type.OVERVIEW.name(), EndpointConstants.OVERVIEW, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
         db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Events", WorkItemConstants.Frequency.DAILY, WorkItemConstants.Download.JSON, EndpointConstants.Type.EVENTS.name(), EndpointConstants.EVENTS, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
         db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Broadcasting", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSON, EndpointConstants.Type.LIVE.name(), EndpointConstants.LIVE, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
-        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Recent Episodes", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSONARRAY, EndpointConstants.Type.RECENT.name(), EndpointConstants.RECENT, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
-        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Youtube Episodes", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSON, EndpointConstants.Type.YOUTUBE.name(), EndpointConstants.YOUTUBE, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
+//        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Recent Episodes", WorkItemConstants.Frequency.HOURLY, WorkItemConstants.Download.JSONARRAY, EndpointConstants.Type.RECENT.name(), EndpointConstants.RECENT, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
+        db.execSQL( WorkItemConstants.INSERT_ROW, new Object[] { "Refresh Youtube Episodes", WorkItemConstants.Frequency.DAILY, WorkItemConstants.Download.JSON, EndpointConstants.Type.YOUTUBE.name(), EndpointConstants.YOUTUBE, "", "", -1, WorkItemConstants.Status.NEVER.name(), now.getMillis() } );
     }
 
     private void createTableShows( SQLiteDatabase db ) {
