@@ -1008,9 +1008,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                                     .build()
                     );
 
-                    if( !status.equals( WorkItemConstants.Status.NEVER ) ) {
+//                    if( !status.equals( WorkItemConstants.Status.NEVER ) ) {
                         newSinceLastRun++;
-                    }
+//                    }
 
                 }
                 cursor.close();
