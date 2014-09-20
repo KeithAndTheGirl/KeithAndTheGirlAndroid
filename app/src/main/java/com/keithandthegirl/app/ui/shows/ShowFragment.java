@@ -172,6 +172,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         now = now.minusDays(1);
 
         ContentValues values = new ContentValues();
+        values.put(WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name());
         values.put(WorkItemConstants.FIELD_LAST_RUN, now.getMillis());
 
         int updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_FREQUENCY + " = ? AND " + WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{WorkItemConstants.Frequency.ON_DEMAND.name(), EndpointConstants.LIST, "?shownameid=" + mShowNameId + "&limit=50"});
