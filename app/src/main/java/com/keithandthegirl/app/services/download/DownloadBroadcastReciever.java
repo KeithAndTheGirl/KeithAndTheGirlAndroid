@@ -53,8 +53,8 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
             if( episodeId != -1 ) {
 
                 DownloadManager mgr = (DownloadManager) context.getSystemService( Context.DOWNLOAD_SERVICE );
-                Uri uri = mgr.getUriForDownloadedFile( downloadId );
-                Log.i( TAG, "onRecieve : download uri=" + uri.getEncodedPath() );
+//                Uri uri = mgr.getUriForDownloadedFile( downloadId );
+//                Log.i( TAG, "onRecieve : download uri=" + uri.getEncodedPath() );
 
                 DownloadManager.Query query = new DownloadManager.Query();
                 query.setFilterById(downloadId);

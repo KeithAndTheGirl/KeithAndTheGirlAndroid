@@ -166,7 +166,6 @@ public class AudioPlayerService extends Service implements MediaPlayer.OnPrepare
 //                        getPendingIntent(this.getLaunchSettingsIntent()))
                 .build();
 
-
         startForeground( NOTIFICATION_ID, notification );
 
         mNotificationManager.notify( NOTIFICATION_ID, notification );

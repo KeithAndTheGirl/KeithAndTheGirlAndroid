@@ -119,6 +119,14 @@
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
+        <receiver android:name="com.keithandthegirl.app.services.media.MediaIntentReceiver">
+            <intent-filter>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
 
         <!-- KATG Services -->
         <service
@@ -146,6 +154,21 @@
         </service>
         <service android:name="com.keithandthegirl.app.db.schedule.KatgSchedulingService" />
         <service android:name="com.keithandthegirl.app.services.media.AudioPlayerService" />
+        <service android:exported="false" android:name="com.keithandthegirl.app.services.media.MediaService">
+            <intent-filter>
+                <action android:name="com.keithandthegirl.app.services.media.action.TOGGLE_PLAYBACK" />
+                <action android:name="com.keithandthegirl.app.services.media.action.PLAY" />
+                <action android:name="com.keithandthegirl.app.services.media.action.PAUSE" />
+                <action android:name="com.keithandthegirl.app.services.media.action.SKIP" />
+                <action android:name="com.keithandthegirl.app.services.media.action.REWIND" />
+                <action android:name="com.keithandthegirl.app.services.media.action.STOP" />
+                <action android:name="com.keithandthegirl.app.services.media.action.STATUS" />
+                <action android:name="com.keithandthegirl.app.services.media.action.SEEK" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.keithandthegirl.app.services.media.action.URL" />
+            </intent-filter>
+        </service>
 
         <!-- KATG Providers -->
         <provider

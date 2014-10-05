@@ -35,11 +35,20 @@
                 android:text="Back"/>
 
             <Button
+                android:id="@+id/initialize"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                android:background="@color/Transparent"
+                android:text="Play"/>
+
+            <Button
                 android:id="@+id/play"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="6"
                 android:background="@color/Transparent"
+                android:visibility="gone"
                 android:text="Play"/>
 
             <Button
@@ -50,6 +59,15 @@
                 android:background="@color/Transparent"
                 android:visibility="gone"
                 android:text="Pause"/>
+
+            <Button
+                android:id="@+id/stop"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                android:background="@color/Transparent"
+                android:visibility="gone"
+                android:text="Stop"/>
 
             <Button
                 android:id="@+id/skip"
