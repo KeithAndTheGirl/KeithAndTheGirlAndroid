@@ -14,16 +14,24 @@ import android.widget.Toast;
  * declaring it in a &lt;receiver&gt; tag in AndroidManifest.xml.
  */
 public class MediaIntentReceiver extends BroadcastReceiver {
+
+    private static final String TAG = MediaIntentReceiver.class.getSimpleName();
+
     @Override
     public void onReceive(Context context, Intent intent) {
+
         if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
 //            Toast.makeText(context, "Headphones disconnected.", Toast.LENGTH_SHORT).show();
             // send an intent to our MusicService to telling it to pause the audio
             context.startService(new Intent(MediaService.ACTION_PAUSE));
         } else if (intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)) {
+
             KeyEvent keyEvent = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
             if (keyEvent.getAction() != KeyEvent.ACTION_DOWN)
                 return;
+
+            Log.i( TAG, "onReceive : keyEvent=" + keyEvent.getKeyCode() );
+
             switch (keyEvent.getKeyCode()) {
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
@@ -39,11 +47,19 @@ public class MediaIntentReceiver extends BroadcastReceiver {
                     context.startService(new Intent(MediaService.ACTION_STOP));
                     break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
+                    Log.i( TAG, "onReceive : next" );
+                    context.startService(new Intent(MediaService.ACTION_FASTFORWARD));
+                    break;
                 case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+                    Log.i( TAG, "onReceive : fast foward" );
                     context.startService(new Intent(MediaService.ACTION_FASTFORWARD));
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                    Log.i( TAG, "onReceive : previous" );
+                    context.startService(new Intent(MediaService.ACTION_REWIND));
+                    break;
                 case KeyEvent.KEYCODE_MEDIA_REWIND:
+                    Log.i( TAG, "onReceive : rewind" );
                     context.startService(new Intent(MediaService.ACTION_REWIND));
                     break;
             }

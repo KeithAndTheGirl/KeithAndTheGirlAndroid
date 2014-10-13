@@ -3,15 +3,12 @@ package com.keithandthegirl.app.ui.episode;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,17 +17,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.EpisodeConstants;
-import com.keithandthegirl.app.services.media.AudioPlayerService;
+import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.services.media.MediaService;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
 import com.keithandthegirl.app.ui.gallery.EpisodeImageGalleryFragment;
 import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener,
@@ -39,7 +36,8 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     private static final String TAG = EpisodeActivity.class.getSimpleName();
     private long mEpisodeId;
     private LinearLayout mPlayerControls;
-    private Button mInitializeButton, mPlayButton, mPauseButton, mStopButton, mBackButton, mSkipButton;
+    private Button mPlayButton, mStopButton, mBackButton, mSkipButton;
+    private TextView mPlayerTitle, mPlayedLength, mPlayerDuration;
     private SeekBar mSeekBar;
 
     private EpisodeInfoHolder mEpisodeInfoHolder;
@@ -81,18 +79,14 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
             }
         });
 
+        mPlayerTitle = (TextView) findViewById( R.id.player_title );
+
         mPlayerControls = (LinearLayout) findViewById( R.id.playbackLayout);
-        mInitializeButton = (Button) findViewById(R.id.initialize);
-        mInitializeButton.setEnabled(true);
-        mInitializeButton.setOnClickListener(this);
+        mPlayerControls.setVisibility(View.GONE);
 
         mPlayButton = (Button) findViewById(R.id.play);
         mPlayButton.setEnabled(true);
         mPlayButton.setOnClickListener(this);
-
-        mPauseButton = (Button) findViewById(R.id.pause);
-        mPauseButton.setEnabled(true);
-        mPauseButton.setOnClickListener(this);
 
         mStopButton = (Button) findViewById(R.id.stop);
         mStopButton.setEnabled(true);
@@ -109,6 +103,9 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
         mSeekBar.setOnSeekBarChangeListener( this );
         mSeekBar.setEnabled( true );
+
+        mPlayedLength = (TextView) findViewById( R.id.played_length );
+        mPlayerDuration = (TextView) findViewById( R.id.player_duration );
     }
 
     @Override
@@ -131,11 +128,11 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.episode, menu);
-        return true;
-    }
-
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.episode, menu);
+//        return true;
+//    }
+//
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -147,6 +144,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                     NavUtils.navigateUpFromSameTask(this);
                 }
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -173,14 +171,13 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         getActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
 
         if( mEpisodeInfoHolder.isEpisodePublic() ) {
-            mPlayerControls.setVisibility(View.VISIBLE);
-            mPlayButton.setEnabled(true);
+//            mPlayerControls.setVisibility(View.VISIBLE);
 
             mSeekBar.setMax(mEpisodeInfoHolder.getEpisodeLength() * 1000);
             mSeekBar.setProgress(mEpisodeInfoHolder.getEpisodeLastPlayed());
             onProgressChanged( mSeekBar, mEpisodeInfoHolder.getEpisodeLastPlayed(), false );
         } else {
-            mPlayerControls.setVisibility( View.GONE );
+//            mPlayerControls.setVisibility( View.GONE );
         }
         // TODO Enable UI better now that we have episodeId
         // TODO also need to save it for config change
@@ -208,40 +205,21 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
         switch( v.getId() ) {
 
-            case R.id.initialize :
-                intent = new Intent(this, MediaService.class);
-                intent.setAction(MediaService.ACTION_URL);
-                if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
-                    File externalFile = new File(getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
-                    intent.setData(Uri.fromFile(externalFile));
-                } else {
-                    intent.setData( Uri.parse( mEpisodeInfoHolder.getEpisodeFileUrl() ) );
-                }
-                intent.putExtra(MediaService.EXTRA_EPISODE_ID, mEpisodeId);
-
-                break;
-
             case R.id.play :
 //                intent = new Intent(this, AudioPlayerService.class);
 //                intent.setAction(AudioPlayerService.ACTION_PLAY);
 //                intent.putExtra(AudioPlayerService.EXTRA_EPISODE_ID, mEpisodeId);
 
                 intent = new Intent(this, MediaService.class);
-                intent.setAction(MediaService.ACTION_PLAY);
+                intent.setAction(MediaService.ACTION_TOGGLE_PLAYBACK);
 
-                mPlayButton.setVisibility( View.GONE );
-                mPauseButton.setVisibility( View.VISIBLE );
                 break;
 
-            case R.id.pause :
-//                intent = new Intent(this, AudioPlayerService.class);
-//                intent.setAction(AudioPlayerService.ACTION_PAUSE);
+            case R.id.stop :
 
                 intent = new Intent(this, MediaService.class);
-                intent.setAction(MediaService.ACTION_PAUSE);
+                intent.setAction(MediaService.ACTION_STOP);
 
-                mPlayButton.setVisibility( View.VISIBLE );
-                mPauseButton.setVisibility( View.GONE );
                 break;
 
             case R.id.back :
@@ -249,6 +227,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 //                intent.setAction(AudioPlayerService.ACTION_REW);
                 intent = new Intent(this, MediaService.class);
                 intent.setAction(MediaService.ACTION_REWIND);
+
                 break;
 
             case R.id.skip :
@@ -256,6 +235,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 //                intent.setAction(AudioPlayerService.ACTION_FF);
                 intent = new Intent(this, MediaService.class);
                 intent.setAction(MediaService.ACTION_FASTFORWARD);
+
                 break;
         }
 
@@ -295,25 +275,6 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         onProgressChanged( mSeekBar, currentPosition, false );
     }
 
-//    private class PlaybackBroadcastReceiver extends BroadcastReceiver {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            if( intent.getAction().equals( AudioPlayerService.EVENT_STATUS ) ) {
-//                int currentPosition = intent.getIntExtra( AudioPlayerService.EXTRA_CURRENT_POSITION, -1 );
-//                updateSeekBarPosition( currentPosition );
-//
-//                boolean isPlaying = intent.getBooleanExtra( AudioPlayerService.EXTRA_IS_PLAYING, false );
-//                if( isPlaying ) {
-//                    mPlayButton.setVisibility( View.GONE );
-//                    mPauseButton.setVisibility( View.VISIBLE );
-//                    mPauseButton.setEnabled(true);
-//                    mBackButton.setEnabled(true);
-//                    mSkipButton.setEnabled(true);
-//                }
-//            }
-//        }
-//    }
-
     private class MediaServiceBroadcastReceiver extends BroadcastReceiver {
 
         private final String TAG = MediaServiceBroadcastReceiver.class.getSimpleName();
@@ -324,6 +285,14 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
             if( intent.getAction().equals( MediaService.EVENT_STATUS ) ) {
 
+                long episodeId = intent.getLongExtra( MediaService.EXTRA_EPISODE_ID, -1 );
+                if( episodeId > 0 ) {
+
+                    mPlayerTitle.setText(intent.getStringExtra(MediaService.EXTRA_TITLE));
+                    mPlayedLength.setText(intent.getStringExtra(MediaService.EXTRA_PLAYED_POSITION));
+                    mPlayerDuration.setText(intent.getStringExtra(MediaService.EXTRA_DURATION));
+                }
+
                 MediaService.State state = MediaService.State.valueOf(intent.getStringExtra(MediaService.EXTRA_STATE));
                 if( state.equals( MediaService.State.Playing ) || state.equals( MediaService.State.Paused ) ) {
 //                    Log.v( TAG, "onReceive : MediaService is playing or paused" );
@@ -331,16 +300,14 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                     int currentPosition = intent.getIntExtra( MediaService.EXTRA_CURRENT_POSITION, -1 );
                     updateSeekBarPosition( currentPosition );
 
-                    mInitializeButton.setVisibility( View.GONE );
-                    mInitializeButton.setEnabled( false );
+                    mPlayerControls.setVisibility( View.VISIBLE );
 
                 }
 
                 if( state.equals( MediaService.State.Playing ) ) {
 //                    Log.v( TAG, "onReceive : MediaService is playing" );
 
-                    mPlayButton.setVisibility( View.GONE );
-                    mPauseButton.setVisibility( View.VISIBLE );
+                    mPlayButton.setText( "Pause" );
 
                     mBackButton.setEnabled( true );
                     mSkipButton.setEnabled( true );
@@ -351,8 +318,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 if( state.equals( MediaService.State.Paused ) ) {
 //                    Log.v( TAG, "onReceive : MediaService is paused" );
 
-                    mPlayButton.setVisibility( View.VISIBLE );
-                    mPauseButton.setVisibility( View.GONE );
+                    mPlayButton.setText( "Play" );
 
                     mBackButton.setEnabled( false );
                     mSkipButton.setEnabled( false );
@@ -363,14 +329,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 if( !state.equals( MediaService.State.Playing ) && !state.equals( MediaService.State.Paused ) ) {
 //                    Log.v( TAG, "onReceive : MediaService is not playing or paused" );
 
-                    mInitializeButton.setVisibility( View.VISIBLE );
-
-                    mPlayButton.setVisibility( View.GONE );
-                    mPauseButton.setVisibility( View.GONE );
-
-                    mBackButton.setEnabled( false );
-                    mSkipButton.setEnabled( false );
-                    mSeekBar.setEnabled( false );
+                    mPlayerControls.setVisibility( View.GONE );
 
                 }
 

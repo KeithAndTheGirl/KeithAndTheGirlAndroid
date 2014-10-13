@@ -161,6 +161,7 @@
                 <action android:name="com.keithandthegirl.app.services.media.action.PAUSE" />
                 <action android:name="com.keithandthegirl.app.services.media.action.SKIP" />
                 <action android:name="com.keithandthegirl.app.services.media.action.REWIND" />
+                <action android:name="com.keithandthegirl.app.services.media.action.FASTFORWARD" />
                 <action android:name="com.keithandthegirl.app.services.media.action.STOP" />
                 <action android:name="com.keithandthegirl.app.services.media.action.STATUS" />
                 <action android:name="com.keithandthegirl.app.services.media.action.SEEK" />

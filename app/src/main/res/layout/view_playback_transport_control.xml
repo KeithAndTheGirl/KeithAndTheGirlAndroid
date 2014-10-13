@@ -26,6 +26,23 @@
             android:orientation="horizontal"
             android:background="@color/katg_green">
 
+        <TextView
+            android:id="@+id/player_title"
+            android:layout_width="match_parent"
+            android:layout_height="18dp"
+            android:textSize="12dp"
+            android:text="Title"
+            android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:background="@color/katg_green">
+
             <Button
                 android:id="@+id/back"
                 android:layout_width="0dp"
@@ -35,30 +52,12 @@
                 android:text="Back"/>
 
             <Button
-                android:id="@+id/initialize"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="6"
-                android:background="@color/Transparent"
-                android:text="Play"/>
-
-            <Button
                 android:id="@+id/play"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="6"
                 android:background="@color/Transparent"
-                android:visibility="gone"
                 android:text="Play"/>
-
-            <Button
-                android:id="@+id/pause"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="6"
-                android:background="@color/Transparent"
-                android:visibility="gone"
-                android:text="Pause"/>
 
             <Button
                 android:id="@+id/stop"
@@ -66,7 +65,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="6"
                 android:background="@color/Transparent"
-                android:visibility="gone"
                 android:text="Stop"/>
 
             <Button
@@ -97,5 +95,38 @@
                 android:text="Seek Bar"/>
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:background="@color/katg_green">
+
+            <TextView
+                android:id="@+id/played_length"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12dp"
+                android:text="0:00"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"  />
+
+            <TextView
+                android:id="@+id/player_duration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12dp"
+                android:text="0:00"
+                android:textStyle="bold"
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:layout_marginRight="10dp" />
+
+        </LinearLayout>
+
     </LinearLayout>
+
 </LinearLayout>

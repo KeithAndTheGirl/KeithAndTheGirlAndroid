@@ -25,7 +25,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        Crashlytics.start(this);
+        Crashlytics.start(this);
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setIndicatorsEnabled(false);
         }

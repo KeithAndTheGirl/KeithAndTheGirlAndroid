@@ -3,20 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.keithandthegirl.app.ui.episode.EpisodeActivity" >
 
+    <item android:id="@+id/action_play_episode"
+        android:title="Play Episode"
+        android:orderInCategory="100"
+        android:showAsAction="always" />
+
     <item android:id="@+id/action_download"
         android:title="Download"
         android:icon="@android:drawable/ic_menu_add"
-        android:orderInCategory="100"
+        android:orderInCategory="200"
         android:enabled="false"
         android:visible="false"
-        android:showAsAction="always" />
+        android:showAsAction="ifRoom" />
 
     <item android:id="@+id/action_delete"
         android:title="Delete"
         android:icon="@android:drawable/ic_menu_delete"
-        android:orderInCategory="100"
+        android:orderInCategory="200"
         android:enabled="false"
         android:visible="false"
-        android:showAsAction="always" />
+        android:showAsAction="ifRoom" />
 
 </menu>

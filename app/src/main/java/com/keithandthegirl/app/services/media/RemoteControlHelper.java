@@ -1,6 +1,7 @@
 package com.keithandthegirl.app.services.media;
 
 import android.media.AudioManager;
+import android.media.RemoteControlClient;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -36,25 +37,25 @@ public class RemoteControlHelper {
         }
     }
     public static void registerRemoteControlClient(AudioManager audioManager,
-                                                   RemoteControlClientCompat remoteControlClient) {
+                                                   RemoteControlClient remoteControlClient) {
         if (!sHasRemoteControlAPIs) {
             return;
         }
         try {
             sRegisterRemoteControlClientMethod.invoke(audioManager,
-                    remoteControlClient.getActualRemoteControlClientObject());
+                    remoteControlClient);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
     }
     public static void unregisterRemoteControlClient(AudioManager audioManager,
-                                                     RemoteControlClientCompat remoteControlClient) {
+                                                     RemoteControlClient remoteControlClient) {
         if (!sHasRemoteControlAPIs) {
             return;
         }
         try {
             sUnregisterRemoteControlClientMethod.invoke(audioManager,
-                    remoteControlClient.getActualRemoteControlClientObject());
+                    remoteControlClient);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

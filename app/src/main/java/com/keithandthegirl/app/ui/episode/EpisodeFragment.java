@@ -32,12 +32,14 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.db.model.ImageConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.loader.AbstractAsyncTaskLoader;
 import com.keithandthegirl.app.loader.WrappedLoaderCallbacks;
 import com.keithandthegirl.app.loader.WrappedLoaderResult;
+import com.keithandthegirl.app.services.media.MediaService;
 import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.ExpandedHeightGridView;
 import com.keithandthegirl.app.utils.StringUtils;
@@ -85,8 +87,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private View mEpisodeImagesLayout;
     private View mGuestImagesLayout;
 
-    private MenuItem mDownloadMenuItem;
-    private MenuItem mDeleteMenuItem;
+    private MenuItem mPlayEpisodeMenuItem, mDownloadMenuItem, mDeleteMenuItem;
     private DownloadManager mDownloadManager;
 
     private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
@@ -203,6 +204,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.episode, menu);
 
+        mPlayEpisodeMenuItem = menu.findItem( R.id.action_play_episode );
         mDownloadMenuItem = menu.findItem( R.id.action_download );
         mDeleteMenuItem = menu.findItem( R.id.action_delete );
 
@@ -214,6 +216,15 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch( item.getItemId() ) {
+
+            case R.id.action_play_episode :
+
+                Intent intent = new Intent(getActivity(), MediaService.class);
+                intent.setAction(MediaService.ACTION_URL);
+                intent.putExtra(MediaService.EXTRA_EPISODE_ID, mEpisodeId);
+                getActivity().startService( intent );
+
+                break;
 
             case R.id.action_download :
                 queueDownload();
@@ -245,6 +256,10 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
 
         if( !mEpisodeInfoHolder.isEpisodePublic() ) {
+
+            mPlayEpisodeMenuItem.setVisible( false );
+            mPlayEpisodeMenuItem.setEnabled( false );
+
             if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
                 mDownloadMenuItem.setVisible( false );
                 mDownloadMenuItem.setEnabled( false );
@@ -258,6 +273,11 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             }
 
             return;
+        } else {
+
+            mPlayEpisodeMenuItem.setVisible( true );
+            mPlayEpisodeMenuItem.setEnabled( true );
+
         }
 
         if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
@@ -469,60 +489,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         return new AbstractAsyncTaskLoader<EpisodeInfoHolder>(getActivity()) {
             @Override
             public EpisodeInfoHolder load() throws Exception {
-                EpisodeInfoHolder episodeHolder = new EpisodeInfoHolder();
 
-                ContentResolver contentResolver = getActivity().getContentResolver();
-                Cursor cursor = contentResolver.query(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), null, null, null, null);
-                if (cursor.moveToNext()) {
-                    episodeHolder.setEpisodeNumber(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
-                    episodeHolder.setEpisodeTitle(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
-                    episodeHolder.setEpisodePreviewUrl(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_PREVIEWURL)));
-                    episodeHolder.setEpisodeFileUrl(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_FILEURL)));
-                    episodeHolder.setEpisodeFilename(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_FILENAME)));
-                    episodeHolder.setEpisodeLength(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_LENGTH)));
-                    episodeHolder.setEpisodeFileSize(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_FILESIZE)));
-                    episodeHolder.setEpisodeType(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_TYPE)));
-                    episodeHolder.setEpisodePublic(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_PUBLIC)) == 1);
-                    episodeHolder.setEpisodePosted(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
-                    episodeHolder.setEpisodeDownloadId(cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOAD_ID)));
-                    episodeHolder.setEpisodeDownloaded(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOADED)) == 1);
-                    episodeHolder.setEpisodePlayed(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_PLAYED)));
-                    episodeHolder.setEpisodeLastPlayed(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED)));
-                    episodeHolder.setShowNameId(cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_SHOWNAMEID)));
-                    episodeHolder.setEpisodeDetailNotes(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_NOTES)));
-                    episodeHolder.setEpisodeDetailForumUrl(cursor.getString(cursor.getColumnIndex(DetailConstants.TABLE_NAME + "_" + DetailConstants.FIELD_FORUMURL)));
-                    episodeHolder.setShowName(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_NAME)));
-                    episodeHolder.setShowPrefix(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_PREFIX)));
-                    episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_VIP)) == 1 ? true : false);
-                    episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_COVERIMAGEURL_200)));
-                    episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_FORUMURL)));
-                    episodeHolder.setGuestNames(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES)));
-
-                    String guestImages = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_IMAGES));
-                    if(null != guestImages && !"".equals(guestImages)) {
-                       String[] images = guestImages.split(",");
-                       episodeHolder.setEpisodeGuestImages(Arrays.asList(images));
-                    } else {
-                        episodeHolder.setEpisodeGuestImages(Collections.EMPTY_LIST);
-                    }
-
-                }
-                cursor.close();
-
-                String[] projection = {ImageConstants._ID, ImageConstants.FIELD_MEDIAURL};
-                String selection = ImageConstants.FIELD_SHOWID + " = ?";
-                String[] selectionArgs = new String[]{String.valueOf(mEpisodeId)};
-
-                List<String> episodeImages = new ArrayList<String>();
-                cursor = contentResolver.query(ImageConstants.CONTENT_URI, projection, selection, selectionArgs, ImageConstants.FIELD_DISPLAY_ORDER);
-                while (cursor.moveToNext()) {
-                    String mediaUrl = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_MEDIAURL));
-                    episodeImages.add(mediaUrl);
-                }
-                cursor.close();
-                episodeHolder.setEpisodeImages(episodeImages);
-
-                return episodeHolder;
+                return EpisodeInfoHolder.loadEpisode( getActivity(), mEpisodeId );
             }
         };
     }

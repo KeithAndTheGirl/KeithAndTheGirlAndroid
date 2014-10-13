@@ -20,7 +20,7 @@ import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.episode.EpisodeActivity;
-import com.keithandthegirl.app.ui.episode.EpisodeInfoHolder;
+import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 
 import org.apache.commons.io.FileUtils;
 
