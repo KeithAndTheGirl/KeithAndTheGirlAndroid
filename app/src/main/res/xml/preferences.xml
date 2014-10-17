@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_header_explicit">
+
+        <CheckBoxPreference
+            android:key="explicit_checkbox"
+            android:title="@string/pref_title_explicit"
+            android:summary="@string/pref_description_explicit"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_header_download">
+
+        <CheckBoxPreference
+            android:key="mobile_download_checkbox"
+            android:title="@string/pref_title_mobile"
+            android:summary="@string/pref_description_mobile"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="wifi_download_checkbox"
+            android:title="@string/pref_title_wifi"
+            android:summary="@string/pref_description_wifi"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_header_vip">
+    </PreferenceCategory>
+
+</PreferenceScreen>
