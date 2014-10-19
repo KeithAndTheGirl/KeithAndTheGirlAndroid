@@ -1,17 +1,23 @@
 package com.keithandthegirl.app.ui.episode;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
@@ -42,6 +48,7 @@ import com.keithandthegirl.app.loader.WrappedLoaderResult;
 import com.keithandthegirl.app.services.media.MediaService;
 import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.ExpandedHeightGridView;
+import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.utils.StringUtils;
 import com.squareup.picasso.Picasso;
 
@@ -91,6 +98,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private DownloadManager mDownloadManager;
 
     private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
+
+    private boolean mDownloadMobile, mDownloadWifi, mMobileConnected, mWifiConnected;
 
     /**
      * Use this factory method to create a new instance of
@@ -181,6 +190,12 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         IntentFilter syncCompleteIntentFilter = new IntentFilter(SyncAdapter.COMPLETE_ACTION);
         getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mDownloadMobile = sharedPref.getBoolean( SettingsActivity.KEY_PREF_DOWNLOAD_MOBILE, false );
+        mDownloadWifi = sharedPref.getBoolean( SettingsActivity.KEY_PREF_DOWNLOAD_WIFI, false );
+
+        updateConnectedFlags();
     }
 
     @Override
@@ -219,10 +234,29 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
             case R.id.action_play_episode :
 
-                Intent intent = new Intent(getActivity(), MediaService.class);
-                intent.setAction(MediaService.ACTION_URL);
-                intent.putExtra(MediaService.EXTRA_EPISODE_ID, mEpisodeId);
-                getActivity().startService( intent );
+                updateConnectedFlags();
+
+                if( mWifiConnected || mMobileConnected ) {
+
+                    Intent intent = new Intent(getActivity(), MediaService.class);
+                    intent.setAction(MediaService.ACTION_URL);
+                    intent.putExtra(MediaService.EXTRA_EPISODE_ID, mEpisodeId);
+                    getActivity().startService(intent);
+
+                } else {
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+                    builder.setTitle( R.string.network_connected_title )
+                           .setMessage( R.string.network_connected_message );
+                    builder.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
 
                 break;
 
@@ -234,8 +268,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 deleteEpisode();
                 break;
 
-            case R.id.action_settings :
-                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -362,11 +394,18 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         if( !isDownloading() ) {
 
+            updateConnectedFlags();
+
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mEpisodeInfoHolder.getEpisodeFileUrl()));
 
             // only download via Any Newtwork Connection
-            // TODO: Setup preferences to allow user to decide if Mobile or WIFI networks should be used for downloads
-            //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+            if( mDownloadMobile && !mDownloadWifi ) {
+                request.setAllowedNetworkTypes( DownloadManager.Request.NETWORK_MOBILE );
+            }
+            if( mDownloadWifi && !mDownloadMobile ) {
+                request.setAllowedNetworkTypes( DownloadManager.Request.NETWORK_WIFI );
+            }
+
             request.setTitle(mEpisodeInfoHolder.getShowPrefix() + ":" + mEpisodeInfoHolder.getEpisodeNumber());
             request.setDescription(mEpisodeInfoHolder.getEpisodeTitle());
 
@@ -522,6 +561,22 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
     }
 
+    // Checks the network connection and sets the wifiConnected and mobileConnected
+    // variables accordingly.
+    private void updateConnectedFlags() {
+        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
+        if( null != activeInfo && activeInfo.isConnected() ) {
+            mWifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
+            mMobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+        } else {
+            mWifiConnected = false;
+            mMobileConnected = false;
+        }
+
+    }
+
     private void scheduleWorkItem( String showName ) {
         ContentValues values = new ContentValues();
         values.put( WorkItemConstants.FIELD_NAME, showName + " " + mEpisodeId + " details" );
@@ -592,7 +647,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
-            String guestImageUrl = getItem(position);
+            String imageUrl = getItem(position);
 
             if (convertView == null) {
                 LayoutInflater layoutInflater = LayoutInflater.from(getContext());
@@ -602,7 +657,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 convertView.setTag(viewHolder);
             }
             ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            Picasso.with(getContext()).load(guestImageUrl).into(viewHolder.imageView);
+            Picasso.with(getContext()).load(imageUrl).resize( 150, 150 ).into(viewHolder.imageView);
 
             return convertView;
         }

@@ -5,7 +5,7 @@
     <PreferenceCategory android:title="@string/pref_header_explicit">
 
         <CheckBoxPreference
-            android:key="explicit_checkbox"
+            android:key="pref_show_explicit"
             android:title="@string/pref_title_explicit"
             android:summary="@string/pref_description_explicit"
             android:defaultValue="true" />
@@ -15,13 +15,13 @@
     <PreferenceCategory android:title="@string/pref_header_download">
 
         <CheckBoxPreference
-            android:key="mobile_download_checkbox"
+            android:key="pref_download_mobile"
             android:title="@string/pref_title_mobile"
             android:summary="@string/pref_description_mobile"
             android:defaultValue="true" />
 
         <CheckBoxPreference
-            android:key="wifi_download_checkbox"
+            android:key="pref_download_wifi"
             android:title="@string/pref_title_wifi"
             android:summary="@string/pref_description_wifi"
             android:defaultValue="true" />
@@ -29,6 +29,12 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_header_vip">
+
+        <Preference android:title="@string/pref_title_vip" >
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://www.keithandthegirl.com/vip/?display=true" />
+        </Preference>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

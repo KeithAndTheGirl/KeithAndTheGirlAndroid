@@ -5,8 +5,8 @@
 
     <!-- Explicit settings -->
     <string name="pref_header_explicit">Explicit Content</string>
-    <string name="pref_title_explicit">Enable Explicit Image Download</string>
-    <string name="pref_description_explicit">Allow explicit image content to be downloaded to the app</string>
+    <string name="pref_title_explicit">Enable Explicit Content</string>
+    <string name="pref_description_explicit">Allow explicit content to be displayed in the app</string>
 
     <!-- Download settings -->
     <string name="pref_header_download">Download Settings</string>
@@ -18,5 +18,6 @@
 
     <!-- VIP settings -->
     <string name="pref_header_vip">VIP</string>
+    <string name="pref_title_vip">Become a VIP Member Today</string>
 
 </resources>

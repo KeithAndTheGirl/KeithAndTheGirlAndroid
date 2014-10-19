@@ -3,7 +3,12 @@ package com.keithandthegirl.app.db.model;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
+import com.keithandthegirl.app.ui.settings.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -218,6 +223,9 @@ public class EpisodeInfoHolder {
 
     public static EpisodeInfoHolder loadEpisode( Context context, long episodeId ) {
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( context );
+        boolean showExplicit = sharedPref.getBoolean( SettingsActivity.KEY_PREF_SHOW_EXPLICIT, false );
+
         EpisodeInfoHolder episodeHolder = new EpisodeInfoHolder();
 
         ContentResolver contentResolver = context.getContentResolver();
@@ -261,6 +269,15 @@ public class EpisodeInfoHolder {
         String[] projection = {ImageConstants._ID, ImageConstants.FIELD_MEDIAURL};
         String selection = ImageConstants.FIELD_SHOWID + " = ?";
         String[] selectionArgs = new String[]{String.valueOf(episodeId)};
+
+        if( !showExplicit ) {
+            Log.i( "EpisodeInfoHolder", "not showing explicit images" );
+
+            selection += " AND " + ImageConstants.FIELD_EXPLICIT + " = ?";
+            selectionArgs = new String[]{String.valueOf(episodeId), "0"};
+
+        }
+
 
         List<String> episodeImages = new ArrayList<String>();
         cursor = contentResolver.query(ImageConstants.CONTENT_URI, projection, selection, selectionArgs, ImageConstants.FIELD_DISPLAY_ORDER);

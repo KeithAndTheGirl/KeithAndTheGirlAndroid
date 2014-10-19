@@ -46,5 +46,8 @@
     <string name="loading_shows">Loading Shows…</string>
     <string name="title_activity_intro">IntroActivity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="network_connected_title">Network Not Connected</string>
+    <string name="network_connected_message">Check your network settings and try again.</string>
+    <string name="close">Close</string>
 
 </resources>
