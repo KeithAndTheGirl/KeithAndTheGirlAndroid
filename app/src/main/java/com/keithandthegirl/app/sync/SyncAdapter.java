@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -74,7 +75,7 @@ import retrofit.converter.GsonConverter;
  */
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
-//    private static final String TAG = SyncAdapter.class.getSimpleName();
+    private static final String TAG = SyncAdapter.class.getSimpleName();
 
     public static final String START_ACTION = "com.keithandthegirl.app.sync.START_ACTION";
     public static final String COMPLETE_ACTION = "com.keithandthegirl.app.sync.COMPLETE_ACTION";
@@ -253,7 +254,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 switch( wtype ) {
                     case ON_DEMAND:
                         if( !status.equals( WorkItemConstants.Status.OK ) ) {
-                            //Log.i( TAG, "onPerformSync : adding On Demand job" );
+                            Log.i(TAG, "onPerformSync : adding On Demand job");
 
                             jobs.add( job );
                         }
@@ -343,7 +344,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         getLives( provider, job );
                         break;
                     case LIST:
-//                        Log.i( TAG, "executeJobs : refreshing episode list" );
+                        Log.i( TAG, "executeJobs : refreshing episode list" );
 
                         getEpisodes( provider, job );
                         break;
@@ -453,7 +454,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         try {
 
             if( wifiConnected || mobileConnected ) {
-                //Log.v( TAG, "getEpisodes : network is available" );
+                Log.v( TAG, "getEpisodes : network is available" );
 
                 Uri uri = Uri.parse( job.getUrl() );
                 int showNameId = Integer.parseInt( uri.getQueryParameter( "shownameid" ) );
@@ -941,7 +942,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             int newSinceLastRun = 0;
 
             for( Episode episode : episodes ) {
-//                Log.v( TAG, "processEpisodes : episode=" + episode.toString() );
+                Log.v( TAG, "processEpisodes : episode=" + episode.toString() );
 
                 detailsQueue.add( episode.getShowId() );
 
@@ -976,7 +977,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 Cursor cursor = provider.query( ContentUris.withAppendedId( EpisodeConstants.CONTENT_URI, episode.getShowId() ), projection, null, null, null );
                 if( cursor.moveToFirst() ) {
-                    //Log.v( TAG, "processEpisodes : episode iteration, updating existing entry" );
+                    Log.v( TAG, "processEpisodes : episode iteration, updating existing entry" );
 
                     long downloaded = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_DOWNLOADED ) );
                     long played = cursor.getLong( cursor.getColumnIndex( EpisodeConstants.FIELD_PLAYED ) );
@@ -995,7 +996,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     );
 
                 } else {
-                    //Log.v( TAG, "processEpisodes : episode iteration, adding new entry" );
+                    Log.v( TAG, "processEpisodes : episode iteration, adding new entry" );
 
                     values.put( EpisodeConstants.FIELD_DOWNLOADED, -1 );
                     values.put( EpisodeConstants.FIELD_PLAYED, -1 );
@@ -1015,7 +1016,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
                 cursor.close();
 
-                //Log.v( TAG, "processEpisodes : processing guests" );
+                Log.v( TAG, "processEpisodes : processing guests" );
                 if( null != episode.getGuests() && episode.getGuests().length > 0 ) {
 
                     List<String> guestNames = new ArrayList<String>();
@@ -1023,7 +1024,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     List<String> guestImages = new ArrayList<String>();
 
                     for( Guest guest : episode.getGuests() ) {
-                        //Log.v( TAG, "processEpisodes : guest=" + guest.toString() );
+                        Log.v( TAG, "processEpisodes : guest=" + guest.toString() );
 
                         guestNames.add( guest.getRealName() );
                         guestIds.add( String.valueOf( guest.getShowGuestId() ) );
@@ -1042,7 +1043,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         cursor = provider.query( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, guest.getShowGuestId() ), null, null, null, null );
                         if( cursor.moveToFirst() ) {
-                            //Log.v( TAG, "processEpisodes : guest iteration, updating existing entry" );
+                            Log.v( TAG, "processEpisodes : guest iteration, updating existing entry" );
 
                             Long id = cursor.getLong(cursor.getColumnIndexOrThrow( GuestConstants._ID ) );
                             ops.add(
@@ -1053,7 +1054,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             );
 
                         } else {
-                            //Log.v( TAG, "processEpisodes : guest iteration, adding new entry" );
+                            Log.v( TAG, "processEpisodes : guest iteration, adding new entry" );
 
                             ops.add(
                                     ContentProviderOperation.newInsert( GuestConstants.CONTENT_URI )
@@ -1071,7 +1072,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         cursor = provider.query( EpisodeGuestConstants.CONTENT_URI, null, EpisodeGuestConstants.FIELD_SHOWID + "=? and " + EpisodeGuestConstants.FIELD_SHOWGUESTID + "=?", new String[] { String.valueOf( episode.getShowId() ), String.valueOf( guest.getShowGuestId() ) }, null );
                         if( cursor.moveToFirst() ) {
-                            //Log.v( TAG, "processEpisodes : episodeGuest iteration, updating existing entry" );
+                            Log.v( TAG, "processEpisodes : episodeGuest iteration, updating existing entry" );
 
                             Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EpisodeGuestConstants._ID ) );
                             ops.add(
@@ -1082,7 +1083,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             );
 
                         } else {
-                            //Log.v( TAG, "processEpisodes : episodeGuest iteration, adding new entry" );
+                            Log.v( TAG, "processEpisodes : episodeGuest iteration, adding new entry" );
 
                             ops.add(
                                     ContentProviderOperation.newInsert( EpisodeGuestConstants.CONTENT_URI )
@@ -1132,7 +1133,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             );
 
             if( !ops.isEmpty() ) {
-                //Log.v( TAG, "processEpisodes : applying final batch for transactions" );
+                Log.v( TAG, "processEpisodes : applying final batch for transactions" );
 
                 ContentProviderResult[] results = provider.applyBatch( ops );
                 loaded += results.length;
@@ -1144,7 +1145,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             if( EndpointConstants.Type.RECENT.equals( type ) ) {
                 if( !detailsQueue.isEmpty() ) {
-                    //Log.v( TAG, "processEpisodes : processing show details" );
+                    Log.v( TAG, "processEpisodes : processing show details" );
 
                     for( int showId : detailsQueue ) {
                         getShowDetails( provider, showId );
@@ -1152,10 +1153,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
 
-            //Log.i(TAG, "processEpisodes : episodes loaded '" + loaded + "'");
+            Log.i(TAG, "processEpisodes : episodes loaded '" + loaded + "'");
 
         } catch( Exception e ) {
-            //Log.e(TAG, "processEpisodes : error", e);
+            Log.e(TAG, "processEpisodes : error", e);
         }
     }
 

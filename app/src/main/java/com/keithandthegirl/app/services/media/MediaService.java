@@ -239,13 +239,15 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
     void processSeekRequest(Intent intent) {
         Log.d(TAG, "processSeekRequest : enter");
 
-        int seekPosition = intent.getIntExtra(EXTRA_SEEK_POSITION, -1);
+        if( null != mPlayer ) {
+            int seekPosition = intent.getIntExtra(EXTRA_SEEK_POSITION, -1);
 
-        mPlayer.seekTo(seekPosition);
+            mPlayer.seekTo(seekPosition);
 
-        updateLastPlayed(seekPosition);
+            updateLastPlayed(seekPosition);
 
-        processStatusRequest();
+            processStatusRequest();
+        }
 
         Log.d(TAG, "processSeekRequest : exit");
     }

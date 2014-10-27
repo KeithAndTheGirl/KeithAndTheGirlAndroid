@@ -1,15 +1,13 @@
 package com.keithandthegirl.app.ui.shows;
 
-import android.accounts.Account;
-import android.support.v4.app.ListFragment;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -24,21 +22,17 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.KatgProvider;
-import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.db.model.ShowConstants;
-import com.keithandthegirl.app.db.model.WorkItemConstants;
+import com.keithandthegirl.app.db.model.ShowInfoHolder;
+import com.keithandthegirl.app.sync.EpisodeListAsyncTask;
 import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
 import com.keithandthegirl.app.ui.episode.EpisodeActivity;
-import com.paging.listview.PagingListView;
+import com.keithandthegirl.app.ui.utils.EndlessScrollListener;
 import com.squareup.picasso.Picasso;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import java.text.MessageFormat;
 
@@ -47,6 +41,7 @@ import java.text.MessageFormat;
  * Created by dmfrey on 3/30/14.
  */
 public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String TAG = ShowFragment.class.getSimpleName();
 
     public static final String SHOW_NAME_ID_KEY = "showNameId";
@@ -54,11 +49,16 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     private View mHeaderView;
     private EpisodeCursorAdapter mAdapter;
     private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
+    private EpisodeListSyncCompleteReceiver mEpisodeListSyncCompleteReceiver = new EpisodeListSyncCompleteReceiver();
     private long mShowNameId;
 
     private ImageView mCoverImageView;
     private TextView mTitleTextView;
     private TextView mDescriptionTextView;
+
+    private ShowInfoHolder mShowHolder;
+
+    private boolean mMobileConnected, mWifiConnected;
 
     /**
      * Returns a new instance of this fragment for the given show id.
@@ -78,6 +78,8 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         super.onCreate(savedInstanceState);
         if (null != getArguments()) {
             mShowNameId = getArguments().getLong(SHOW_NAME_ID_KEY);
+
+            mShowHolder = ShowInfoHolder.loadShow( getActivity(), mShowNameId );
         }
         mAdapter = new EpisodeCursorAdapter(getActivity());
     }
@@ -102,6 +104,16 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getListView().addHeaderView(mHeaderView, null, false);
+        getListView().setOnScrollListener( new EndlessScrollListener() {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                Log.i( TAG, "onLoadMore : enter" );
+
+                loadMoreItems();
+
+                Log.i( TAG, "onLoadMore : exit" );
+            }
+        });
         setListAdapter(mAdapter);
 
         // Setting the empty text will turn the fragment view into a blank screen with the text centered
@@ -120,15 +132,27 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     @Override
     public void onResume() {
         super.onResume();
+
         IntentFilter syncCompleteIntentFilter = new IntentFilter(SyncAdapter.COMPLETE_ACTION);
         getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
+
+        IntentFilter episodeListSyncCompleteIntentFilter = new IntentFilter(EpisodeListAsyncTask.COMPLETE_ACTION);
+        getActivity().registerReceiver(mEpisodeListSyncCompleteReceiver, episodeListSyncCompleteIntentFilter);
+
+        updateConnectedFlags();
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
         if (null != mSyncCompleteReceiver) {
             getActivity().unregisterReceiver(mSyncCompleteReceiver);
+        }
+
+        if (null != mEpisodeListSyncCompleteReceiver) {
+            getActivity().unregisterReceiver(mEpisodeListSyncCompleteReceiver);
         }
     }
 
@@ -148,35 +172,19 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
     @Override
     public void onRefresh() {
-        // a swipe occurred and we need to start refreshing then start the sync adapter
-        // we will get a broadcast event when the sync adapter is done.
-        setRefreshing(true);
-        Account account = MainApplication.CreateSyncAccount(getActivity());
 
-        Bundle b = new Bundle();
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        updateConnectedFlags();
 
-        ContentResolver.setSyncAutomatically(account, KatgProvider.AUTHORITY, true);
-        ContentResolver.setIsSyncable(account, KatgProvider.AUTHORITY, 1);
-
-        boolean pending = ContentResolver.isSyncPending(account, KatgProvider.AUTHORITY);
-        boolean active = ContentResolver.isSyncActive(account, KatgProvider.AUTHORITY);
-
-        if (pending || active) {
-            Log.d(TAG, "Cancelling previously pending/active sync.");
-            ContentResolver.cancelSync(account, KatgProvider.AUTHORITY);
+        if( !mWifiConnected && !mMobileConnected ) {
+            return;
         }
 
-        DateTime now = new DateTime(DateTimeZone.UTC);
-        now = now.minusDays(1);
+        // a swipe occurred and we need to start refreshing then start the sync adapter
+        // we will get a broadcast event when the sync adapter is done.
+        setRefreshing( true );
 
-        ContentValues values = new ContentValues();
-        values.put(WorkItemConstants.FIELD_STATUS, WorkItemConstants.Status.NEVER.name());
-        values.put(WorkItemConstants.FIELD_LAST_RUN, now.getMillis());
+        new EpisodeListAsyncTask( getActivity(), (int) mShowNameId, -1, -1, 50, true ).execute();
 
-        int updated = getActivity().getContentResolver().update(WorkItemConstants.CONTENT_URI, values, WorkItemConstants.FIELD_FREQUENCY + " = ? AND " + WorkItemConstants.FIELD_ADDRESS + " = ? AND " + WorkItemConstants.FIELD_PARAMETERS + " = ?", new String[]{WorkItemConstants.Frequency.ON_DEMAND.name(), EndpointConstants.LIST, "?shownameid=" + mShowNameId + "&limit=50"});
-        Log.i(TAG, "onRefresh : updated=" + updated);
     }
 
     @Override
@@ -215,6 +223,40 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         startActivity(i);
     }
 
+    public void loadMoreItems() {
+        Log.d( TAG, "loadMoreItems : enter" );
+        Log.d( TAG, "loadMoreItems : mShowHolder=" + mShowHolder.toString() );
+
+        updateConnectedFlags();
+
+        if( !mWifiConnected && !mMobileConnected ) {
+            return;
+        }
+
+        int episodeCount = getListView().getCount();
+        Log.d( TAG, "loadMoreItems : episodeCount=" + episodeCount + ", show count=" + mShowHolder.getEpisodeNumberMax() );
+
+//        if( episodeCount < mShowHolder.getEpisodeNumberMax() ) {
+
+            int lastIndex = getListView().getCount() - 1;
+            long lastId = getListAdapter().getItemId( lastIndex );
+            Log.d( TAG, "loadMoreItems : lastIndex=" + lastIndex + ", lastId=" + lastId );
+
+            EpisodeInfoHolder episodeHolder = EpisodeInfoHolder.loadEpisode( getActivity(), lastId );
+            int number = episodeHolder.getEpisodeNumber() - 50;
+            if( number < 1 ) {
+                number = 1;
+            }
+
+            new EpisodeListAsyncTask( getActivity(), (int) mShowNameId, -1, number, 50, false ).execute();
+
+            setRefreshing( true );
+
+//        }
+
+        Log.d( TAG, "loadMoreItems : exit" );
+    }
+
     public void updateHeader(long showNameId) {
         String[] projection = new String[]{ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_DESCRIPTION, ShowConstants.FIELD_COVERIMAGEURL_200};
 
@@ -228,6 +270,22 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             Picasso.with(getActivity()).load(coverUrl).fit().centerCrop().into(mCoverImageView);
         }
         cursor.close();
+    }
+
+    // Checks the network connection and sets the wifiConnected and mobileConnected
+    // variables accordingly.
+    private void updateConnectedFlags() {
+        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
+        if( null != activeInfo && activeInfo.isConnected() ) {
+            mWifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
+            mMobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+        } else {
+            mWifiConnected = false;
+            mMobileConnected = false;
+        }
+
     }
 
     private static class ViewHolder {
@@ -322,6 +380,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     }
 
     private class SyncCompleteReceiver extends BroadcastReceiver {
+
         @Override
         public void onReceive(Context context, Intent intent) {
             // when we receive a syc complete action reset the loader so it can refresh the content
@@ -331,5 +390,19 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
                 getLoaderManager().restartLoader(0, args, ShowFragment.this);
             }
         }
+
     }
+
+    private class EpisodeListSyncCompleteReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // when we receive a syc complete action reset the loader so it can refresh the content
+            if (intent.getAction().equals(EpisodeListAsyncTask.COMPLETE_ACTION)) {
+                setRefreshing( false );
+            }
+        }
+
+    }
+
 }
