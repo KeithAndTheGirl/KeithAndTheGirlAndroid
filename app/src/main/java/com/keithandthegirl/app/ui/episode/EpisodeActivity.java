@@ -201,7 +201,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
     @Override
     public void onClick(View v) {
-        Intent intent = null;
+        Intent intent = new Intent(this, MediaService.class);;
 
         switch( v.getId() ) {
 
@@ -210,14 +210,12 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 //                intent.setAction(AudioPlayerService.ACTION_PLAY);
 //                intent.putExtra(AudioPlayerService.EXTRA_EPISODE_ID, mEpisodeId);
 
-                intent = new Intent(this, MediaService.class);
                 intent.setAction(MediaService.ACTION_TOGGLE_PLAYBACK);
 
                 break;
 
             case R.id.stop :
 
-                intent = new Intent(this, MediaService.class);
                 intent.setAction(MediaService.ACTION_STOP);
 
                 break;
@@ -225,7 +223,6 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
             case R.id.back :
 //                intent = new Intent(this, AudioPlayerService.class);
 //                intent.setAction(AudioPlayerService.ACTION_REW);
-                intent = new Intent(this, MediaService.class);
                 intent.setAction(MediaService.ACTION_REWIND);
 
                 break;
@@ -233,16 +230,13 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
             case R.id.skip :
 //                intent = new Intent(this, AudioPlayerService.class);
 //                intent.setAction(AudioPlayerService.ACTION_FF);
-                intent = new Intent(this, MediaService.class);
                 intent.setAction(MediaService.ACTION_FASTFORWARD);
 
                 break;
         }
 
-        if(intent != null) {
 //            intent.putExtra(AudioPlayerService.EXTRA_EPISODE_ID, mEpisodeId);
-            startService(intent);
-        }
+        startService(intent);
     }
 
     @Override
