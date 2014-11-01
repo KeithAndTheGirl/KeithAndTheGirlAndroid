@@ -186,7 +186,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
     @Override
     public void onCreate() {
-        Log.i(TAG, "onCreate : enter");
+//        Log.i(TAG, "onCreate : enter");
 
         // Create the Wifi lock (this does not acquire the lock, this just creates it)
         mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
@@ -205,7 +205,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         mMediaButtonReceiverComponent = new ComponentName(this, MediaIntentReceiver.class);
 
-        Log.i(TAG, "onCreate : exit");
+//        Log.i(TAG, "onCreate : exit");
     }
 
     /**
@@ -215,10 +215,10 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand : enter");
+//        Log.i(TAG, "onStartCommand : enter");
 
         String action = intent.getAction();
-        Log.i(TAG, "onStartCommand : action=" + action);
+//        Log.i(TAG, "onStartCommand : action=" + action);
         if (action.equals(ACTION_TOGGLE_PLAYBACK)) processTogglePlaybackRequest();
         else if (action.equals(ACTION_PLAY)) processPlayRequest();
         else if (action.equals(ACTION_PAUSE)) processPauseRequest();
@@ -231,13 +231,13 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
         else if (action.equals(ACTION_URL)) processAddRequest(intent);
         else if (action.equals(ACTION_STATUS) ) processStatusRequest();
 
-        Log.i(TAG, "onStartCommand : exit");
+//        Log.i(TAG, "onStartCommand : exit");
         return START_NOT_STICKY; // Means we started the service, but don't want it to
                                  // restart in case it's killed.
     }
 
     void processSeekRequest(Intent intent) {
-        Log.d(TAG, "processSeekRequest : enter");
+//        Log.d(TAG, "processSeekRequest : enter");
 
         if( null != mPlayer ) {
             int seekPosition = intent.getIntExtra(EXTRA_SEEK_POSITION, -1);
@@ -249,7 +249,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
             processStatusRequest();
         }
 
-        Log.d(TAG, "processSeekRequest : exit");
+//        Log.d(TAG, "processSeekRequest : exit");
     }
 
     void processStatusRequest() {
@@ -263,7 +263,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
         broadcast.putExtra(EXTRA_TITLE, mEpisodeHolder.getShowPrefix() + " : " + mEpisodeHolder.getEpisodeNumber() + " - " + mEpisodeHolder.getEpisodeTitle() );
         broadcast.putExtra(EXTRA_STATE, mState.name() );
 
-        if(mState.equals( State.Playing ) || mState.equals( State.Paused ) ) {
+        if( null != mPlayer && ( mState.equals( State.Playing ) || mState.equals( State.Paused ) ) ) {
 
             final int HOUR = 60*60*1000;
             final int MINUTE = 60*1000;
@@ -300,17 +300,23 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
     }
 
     void processTogglePlaybackRequest() {
-        Log.d(TAG, "processTogglePlaybackRequest : enter");
+//        Log.d(TAG, "processTogglePlaybackRequest : enter");
+
         if (mState == State.Paused || mState == State.Stopped) {
             processPlayRequest();
         } else {
             processPauseRequest();
         }
-        Log.d(TAG, "processTogglePlaybackRequest : exit");
+
+//        Log.d(TAG, "processTogglePlaybackRequest : exit");
     }
 
     void processPlayRequest() {
-        Log.d(TAG, "processPlayRequest : enter");
+//        Log.d(TAG, "processPlayRequest : enter");
+
+        if( null == mPlayer ) {
+            return;
+        }
 
         if (mState == State.Retrieving) {
             // If we are still retrieving media, just set the flag to start playing when we're
@@ -318,7 +324,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
             mWhatToPlayAfterRetrieve = null; // play a random song
             mStartPlayingAfterRetrieve = true;
 
-            Log.d(TAG, "processPlayRequest : exit, retrieving");
+//            Log.d(TAG, "processPlayRequest : exit, retrieving");
             return;
         }
 
@@ -342,18 +348,22 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.d(TAG, "processPlayRequest : exit");
+//        Log.d(TAG, "processPlayRequest : exit");
     }
 
     void processPauseRequest() {
-        Log.d(TAG, "processPauseRequest : enter");
+//        Log.d(TAG, "processPauseRequest : enter");
+
+        if( null == mPlayer ) {
+            return;
+        }
 
         if (mState == State.Retrieving) {
             // If we are still retrieving media, clear the flag that indicates we should start
             // playing when we're ready
             mStartPlayingAfterRetrieve = false;
 
-            Log.d(TAG, "processPauseRequest : exit, retrieving");
+//            Log.d(TAG, "processPauseRequest : exit, retrieving");
             return;
         }
 
@@ -372,22 +382,30 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.d(TAG, "processPauseRequest : exit");
+//        Log.d(TAG, "processPauseRequest : exit");
     }
 
     void processPreviousRequest() {
-        Log.d(TAG, "processPreviousRequest : enter");
+//        Log.d(TAG, "processPreviousRequest : enter");
+
+        if( null == mPlayer ) {
+            return;
+        }
 
         if (mState == State.Playing || mState == State.Paused)
             mPlayer.seekTo(0);
 
         processStatusRequest();
 
-        Log.d(TAG, "processPreviousRequest : exit");
+//        Log.d(TAG, "processPreviousRequest : exit");
     }
 
     void processRewindRequest() {
-        Log.d(TAG, "processRewindRequest : enter");
+//        Log.d(TAG, "processRewindRequest : enter");
+
+        if( null == mPlayer ) {
+            return;
+        }
 
         if (mState == State.Playing || mState == State.Paused) {
 
@@ -402,11 +420,15 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.d(TAG, "processRewindRequest : exit");
+//        Log.d(TAG, "processRewindRequest : exit");
     }
 
     void processFastForwardRequest() {
-        Log.d(TAG, "processFastForwardRequest : enter");
+//        Log.d(TAG, "processFastForwardRequest : enter");
+
+        if( null == mPlayer ) {
+            return;
+        }
 
         if (mState == State.Playing || mState == State.Paused) {
             tryToGetAudioFocus();
@@ -422,11 +444,11 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.d(TAG, "processFastForwardRequest : exit");
+//        Log.d(TAG, "processFastForwardRequest : exit");
     }
 
     void processSkipRequest() {
-        Log.d(TAG, "processSkipRequest : enter");
+//        Log.d(TAG, "processSkipRequest : enter");
 
         if (mState == State.Playing || mState == State.Paused) {
             tryToGetAudioFocus();
@@ -435,19 +457,23 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.d(TAG, "processSkipRequest : exit");
+//        Log.d(TAG, "processSkipRequest : exit");
     }
 
     void processStopRequest() {
-        Log.d(TAG, "processStopRequest : enter");
+//        Log.d(TAG, "processStopRequest : enter");
 
         processStopRequest(false);
 
-        Log.d(TAG, "processStopRequest : exit");
+//        Log.d(TAG, "processStopRequest : exit");
     }
 
     void processStopRequest(boolean force) {
-        Log.d(TAG, "processStopRequest : enter");
+//        Log.d(TAG, "processStopRequest : enter");
+
+        if( null == mPlayer ) {
+            return;
+        }
 
         if (mState == State.Playing || mState == State.Paused || force) {
             mState = State.Stopped;
@@ -464,14 +490,14 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
             processStatusRequest();
 
-            Log.d(TAG, "processStopRequest : exit, stopping service");
+//            Log.d(TAG, "processStopRequest : exit, stopping service");
             // service is no longer necessary. Will be started again if needed.
             if( force ) {
                 stopSelf();
             }
         }
 
-        Log.d(TAG, "processStopRequest : exit");
+//        Log.d(TAG, "processStopRequest : exit");
     }
 
     /**
@@ -481,7 +507,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
      * @param releaseMediaPlayer Indicates whether the Media Player should also be released or not
      */
     void relaxResources(boolean releaseMediaPlayer) {
-        Log.d(TAG, "relaxResources : enter");
+//        Log.d(TAG, "relaxResources : enter");
 
         timerHandler.removeCallbacks(timerRunnable);
 
@@ -498,17 +524,17 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
         // we can also release the Wifi lock, if we're holding it
         if (mWifiLock.isHeld()) mWifiLock.release();
 
-        Log.d(TAG, "relaxResources : exit");
+//        Log.d(TAG, "relaxResources : exit");
     }
 
     void giveUpAudioFocus() {
-        Log.d(TAG, "giveUpAudioFocus : enter");
+//        Log.d(TAG, "giveUpAudioFocus : enter");
 
         if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
                 && mAudioFocusHelper.abandonFocus())
             mAudioFocus = AudioFocus.NoFocusNoDuck;
 
-        Log.d(TAG, "giveUpAudioFocus : exit");
+//        Log.d(TAG, "giveUpAudioFocus : exit");
     }
 
     /**
@@ -520,7 +546,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
      * you have to do so from a context where you are sure this is the case.
      */
     void configAndStartMediaPlayer() {
-        Log.d(TAG, "configAndStartMediaPlayer : enter");
+//        Log.d(TAG, "configAndStartMediaPlayer : enter");
 
         if (mAudioFocus == AudioFocus.NoFocusNoDuck) {
             // If we don't have audio focus and can't duck, we have to pause, even if mState
@@ -528,7 +554,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
             // playback once we get the focus back.
             if (mPlayer.isPlaying()) mPlayer.pause();
 
-            Log.d(TAG, "configAndStartMediaPlayer : exit, no focus no duck");
+//            Log.d(TAG, "configAndStartMediaPlayer : exit, no focus no duck");
             return;
         }
         else if (mAudioFocus == AudioFocus.NoFocusCanDuck)
@@ -546,11 +572,11 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         timerHandler.postDelayed(timerRunnable, 0);
 
-        Log.d(TAG, "configAndStartMediaPlayer : exit");
+//        Log.d(TAG, "configAndStartMediaPlayer : exit");
     }
 
     void processAddRequest(Intent intent) {
-        Log.d(TAG, "processAddRequest : enter");
+//        Log.d(TAG, "processAddRequest : enter");
 
         if (mState == State.Playing || mState == State.Paused) {
 
@@ -566,17 +592,17 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
         tryToGetAudioFocus();
         playEpisode();
 
-        Log.d(TAG, "processAddRequest : exit");
+//        Log.d(TAG, "processAddRequest : exit");
     }
 
     void tryToGetAudioFocus() {
-        Log.d(TAG, "tryToGetAudioFocus : enter");
+//        Log.d(TAG, "tryToGetAudioFocus : enter");
 
         if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
                 && mAudioFocusHelper.requestFocus())
             mAudioFocus = AudioFocus.Focused;
 
-        Log.d(TAG, "tryToGetAudioFocus : exit");
+//        Log.d(TAG, "tryToGetAudioFocus : exit");
     }
 
     /**
@@ -586,7 +612,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
      * next.
      */
     void playEpisode() {
-        Log.d(TAG, "playEpisode : enter");
+//        Log.d(TAG, "playEpisode : enter");
 
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
@@ -665,22 +691,22 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
             ex.printStackTrace();
         }
 
-        Log.d(TAG, "playEpisode : exit");
+//        Log.d(TAG, "playEpisode : exit");
     }
 
     /** Called when media player is done playing current song. */
     public void onCompletion(MediaPlayer player) {
-        Log.d(TAG, "onCompletion : enter");
+//        Log.d(TAG, "onCompletion : enter");
         // The media player finished playing the current song, so we go ahead and start the next.
 //        playNextSong(null);
         processStopRequest(true);
 
-        Log.d(TAG, "onCompletion : exit");
+//        Log.d(TAG, "onCompletion : exit");
     }
 
     /** Called when media player is done preparing. */
     public void onPrepared(MediaPlayer player) {
-        Log.d(TAG, "onPrepared : enter");
+//        Log.d(TAG, "onPrepared : enter");
 
 //        try {
 //            Thread.sleep( 2000 );
@@ -695,12 +721,12 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.d(TAG, "onPrepared : exit");
+//        Log.d(TAG, "onPrepared : exit");
     }
 
     /** Updates the notification. */
     void updateNotification(String text) {
-        Log.v(TAG, "updateNotification : enter");
+//        Log.v(TAG, "updateNotification : enter");
 
         Intent episodeIntent = new Intent( getApplicationContext(), EpisodeActivity.class );
         episodeIntent.putExtra( EpisodeActivity.EPISODE_KEY, mEpisodeId );
@@ -730,7 +756,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
 
-        Log.v(TAG, "updateNotification : exit");
+//        Log.v(TAG, "updateNotification : exit");
     }
 
     /**
@@ -739,7 +765,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
      * user as a notification. That's why we create the notification here.
      */
     void setUpAsForeground(String text) {
-        Log.v(TAG, "setUpAsForeground : enter");
+//        Log.v(TAG, "setUpAsForeground : enter");
 
         Intent episodeIntent = new Intent( getApplicationContext(), EpisodeActivity.class );
         episodeIntent.putExtra( EpisodeActivity.EPISODE_KEY, mEpisodeId );
@@ -769,7 +795,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         startForeground(NOTIFICATION_ID, mNotification);
 
-        Log.v(TAG, "setUpAsForeground : exit");
+//        Log.v(TAG, "setUpAsForeground : exit");
     }
 
     /**
@@ -788,7 +814,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
     }
 
     public void onGainedAudioFocus() {
-        Log.v(TAG, "onGainedAudioFocus : enter");
+//        Log.v(TAG, "onGainedAudioFocus : enter");
 
 //        Toast.makeText(getApplicationContext(), "gained audio focus.", Toast.LENGTH_SHORT).show();
 
@@ -800,11 +826,11 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.v(TAG, "onGainedAudioFocus : exit");
+//        Log.v(TAG, "onGainedAudioFocus : exit");
     }
 
     public void onLostAudioFocus(boolean canDuck) {
-        Log.v(TAG, "onLostAudioFocus : enter");
+//        Log.v(TAG, "onLostAudioFocus : enter");
 
 //        Toast.makeText(getApplicationContext(), "lost audio focus." + (canDuck ? "can duck" : "no duck"), Toast.LENGTH_SHORT).show();
 
@@ -816,19 +842,19 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
         processStatusRequest();
 
-        Log.v(TAG, "onLostAudioFocus : exit");
+//        Log.v(TAG, "onLostAudioFocus : exit");
     }
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy : enter");
+//        Log.i(TAG, "onDestroy : enter");
 
         // Service is being killed, so make sure we release our resources
         mState = State.Stopped;
         relaxResources(true);
         giveUpAudioFocus();
 
-        Log.i(TAG, "onDestroy : exit");
+//        Log.i(TAG, "onDestroy : exit");
     }
 
     Handler timerHandler = new Handler();
