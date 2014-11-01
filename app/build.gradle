@@ -15,29 +15,30 @@ repositories {
     maven { url 'http://download.crashlytics.com/maven' }
 }
 
+def katgProperties = file( "KeithAndTheGirlApp.properties" );
 
 android {
 
     Properties props = new Properties()
-    if( new File( "KeithAndTheGirlApp.properties" ).exists() ) {
+//    if( katgProperties.exists() ) {
 
-        props.load( new FileInputStream( file( "KeithAndTheGirlApp.properties" ) ) )
+        props.load( new FileInputStream( katgProperties ) )
 
-    }
+//    }
 
     signingConfigs {
         release {
-            if( new File( "KeithAndTheGirlApp.properties" ).exists() ) {
+//            if( katgProperties.exists() ) {
                 keyAlias props['keyalias']
                 keyPassword props['keyalias.password']
                 storeFile file(props['keystore'])
                 storePassword props['keystore.password']
-            }
+//            }
         }
     }
 
     compileSdkVersion 21
-    buildToolsVersion '21.0.0'
+    buildToolsVersion '21.0.1'
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 21
@@ -67,9 +68,9 @@ android {
 
             runProguard false
             versionNameSuffix '-beta-2.2'
-            if( new File( "KeithAndTheGirlApp.properties" ).exists() ) {
+//            if( katgProperties.exists() ) {
                 signingConfig signingConfigs.release
-            }
+//            }
         }
     }
     productFlavors {
