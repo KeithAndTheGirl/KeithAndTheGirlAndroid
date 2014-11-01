@@ -23,7 +23,9 @@ public class MediaIntentReceiver extends BroadcastReceiver {
         if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
 //            Toast.makeText(context, "Headphones disconnected.", Toast.LENGTH_SHORT).show();
             // send an intent to our MusicService to telling it to pause the audio
-            context.startService(new Intent(MediaService.ACTION_PAUSE));
+            Intent mediaServiceIntent = new Intent( context, MediaService.class );
+            mediaServiceIntent.setAction( MediaService.ACTION_PAUSE );
+            context.startService( mediaServiceIntent );
         } else if (intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)) {
 
             KeyEvent keyEvent = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
@@ -32,37 +34,32 @@ public class MediaIntentReceiver extends BroadcastReceiver {
 
             Log.i( TAG, "onReceive : keyEvent=" + keyEvent.getKeyCode() );
 
+            Intent mediaServiceIntent = new Intent( context, MediaService.class );
             switch (keyEvent.getKeyCode()) {
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    context.startService(new Intent(MediaService.ACTION_TOGGLE_PLAYBACK));
+                    mediaServiceIntent.setAction( MediaService.ACTION_TOGGLE_PLAYBACK );
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
-                    context.startService(new Intent(MediaService.ACTION_PLAY));
+                    mediaServiceIntent.setAction( MediaService.ACTION_PLAY);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                    context.startService(new Intent(MediaService.ACTION_PAUSE));
+                    mediaServiceIntent.setAction( MediaService.ACTION_PAUSE);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    context.startService(new Intent(MediaService.ACTION_STOP));
+                    mediaServiceIntent.setAction( MediaService.ACTION_STOP);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    Log.i( TAG, "onReceive : next" );
-                    context.startService(new Intent(MediaService.ACTION_FASTFORWARD));
-                    break;
                 case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
-                    Log.i( TAG, "onReceive : fast foward" );
-                    context.startService(new Intent(MediaService.ACTION_FASTFORWARD));
+                    mediaServiceIntent.setAction( MediaService.ACTION_FASTFORWARD);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    Log.i( TAG, "onReceive : previous" );
-                    context.startService(new Intent(MediaService.ACTION_REWIND));
-                    break;
                 case KeyEvent.KEYCODE_MEDIA_REWIND:
-                    Log.i( TAG, "onReceive : rewind" );
-                    context.startService(new Intent(MediaService.ACTION_REWIND));
+                    mediaServiceIntent.setAction( MediaService.ACTION_REWIND);
                     break;
             }
+
+            context.startService(mediaServiceIntent);
         }
     }
 }
