@@ -20,20 +20,20 @@ def katgProperties = file( "KeithAndTheGirlApp.properties" );
 android {
 
     Properties props = new Properties()
-//    if( katgProperties.exists() ) {
+    if( katgProperties.exists() ) {
 
         props.load( new FileInputStream( katgProperties ) )
 
-//    }
+    }
 
     signingConfigs {
         release {
-//            if( katgProperties.exists() ) {
+            if( katgProperties.exists() ) {
                 keyAlias props['keyalias']
                 keyPassword props['keyalias.password']
                 storeFile file(props['keystore'])
                 storePassword props['keystore.password']
-//            }
+            }
         }
     }
 
