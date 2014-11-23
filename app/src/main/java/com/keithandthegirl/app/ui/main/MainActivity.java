@@ -1,7 +1,5 @@
 package com.keithandthegirl.app.ui.main;
 
-import android.app.ActionBar;
-import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -9,33 +7,46 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
+import com.keithandthegirl.app.ui.navigationdrawer.NavigationDrawerFragment;
+import com.keithandthegirl.app.ui.navigationdrawer.NavigationItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AbstractBaseActivity implements ActionBar.TabListener {
+public class MainActivity extends AbstractBaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
 
-    SectionsPagerAdapter mSectionsPagerAdapter;
-    ViewPager mViewPager;
+    private NavigationDrawerFragment mNavigationDrawerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+        getSupportActionBar().setTitle(R.string.katg_actionbar_title);
+
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+        // Set up the drawer.
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mNavigationDrawerFragment.setupDrawer(R.id.navigation_drawer, drawerLayout);
+        mNavigationDrawerFragment.setupDrawerItems(getNavigationItems());
 
         boolean neverRun = false;
         Cursor cursor = getContentResolver().query(ShowConstants.CONTENT_URI, null, null, null, null);
@@ -54,81 +65,43 @@ public class MainActivity extends AbstractBaseActivity implements ActionBar.TabL
         }
 
         alarm.setAlarm(this);
+    }
 
-        final ActionBar actionBar = getActionBar();
-        assert actionBar != null;
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+    private List<NavigationItem> getNavigationItems() {
+        ArrayList<NavigationItem> navigationItemArrayList = new ArrayList<>();
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        NavigationItem navigationItem = new NavigationItem(AboutFragment.class);
+        navigationItem.setLabelId(R.string.action_bar_tab_about);
+        navigationItem.setIcon(R.drawable.ic_tab_about_off);
+        navigationItemArrayList.add(navigationItem);
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        navigationItem = new NavigationItem(EventsFragment.class);
+        navigationItem.setLabelId(R.string.action_bar_tab_events);
+        navigationItem.setIcon(R.drawable.ic_tab_calendar_off);
+        navigationItemArrayList.add(navigationItem);
 
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
+        navigationItem = new NavigationItem(GuestsFragment.class);
+        navigationItem.setLabel("Guests");
+        navigationItem.setIcon(R.drawable.ic_tab_guest_off);
+        navigationItemArrayList.add(navigationItem);
 
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+        navigationItem = new NavigationItem(LiveFragment.class);
+        navigationItem.setLabel("Live");
+        navigationItem.setIcon(R.drawable.ic_tab_live_off);
+        navigationItemArrayList.add(navigationItem);
 
-            // Create a tab with text corresponding to the page title defined by
-            // the adapter. Also specify this Activity object, which implements
-            // the TabListener interface, as the callback (listener) for when
-            // this tab is selected.
-            LinearLayout view = (LinearLayout) getLayoutInflater().inflate(R.layout.custom_tab, null, false);
-
-            ImageView icon = (ImageView) view.findViewById(R.id.icon);
-            icon.setImageDrawable(mSectionsPagerAdapter.getUnselectedIcon(i));
-
-            TextView title = (TextView) view.findViewById(R.id.title);
-            title.setText(mSectionsPagerAdapter.getPageTitle(i));
-
-            actionBar.addTab(actionBar.newTab()
-                            .setCustomView(view)
-                            .setTabListener(this)
-            );
-        }
+        navigationItem = new NavigationItem(YoutubeFragment.class);
+        navigationItem.setLabel("YouTube");
+        navigationItem.setIcon(R.drawable.ic_tab_youtube_off);
+        navigationItemArrayList.add(navigationItem);
+        return navigationItemArrayList;
     }
 
     @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
-
-        ImageView icon = (ImageView) tab.getCustomView().findViewById(R.id.icon);
-        icon.setImageDrawable(mSectionsPagerAdapter.getSelectedIcon(tab.getPosition()));
-
-        TextView title = (TextView) tab.getCustomView().findViewById(R.id.title);
-        title.setTextColor(getResources().getColor(R.color.katg_tab_text_selected_color));
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-
-        ImageView icon = (ImageView) tab.getCustomView().findViewById(R.id.icon);
-        icon.setImageDrawable(mSectionsPagerAdapter.getUnselectedIcon(tab.getPosition()));
-
-        TextView title = (TextView) tab.getCustomView().findViewById(R.id.title);
-        title.setTextColor(getResources().getColor(R.color.katg_tab_text_unselected_color));
-
-//        tab.setIcon( mSectionsPagerAdapter.getUnselectedIcon(tab.getPosition()) );
+    public void onNavigationDrawerItemSelected(NavigationItem navigationItem) {
 
     }
 
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
 
     enum FragmentType {UNSET, SHOWS, LIVE, GUESTS, EVENTS, YOUTUBE, ABOUT}
     private class SectionsPagerAdapter extends FragmentPagerAdapter {

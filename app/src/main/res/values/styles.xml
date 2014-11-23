@@ -1,15 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="Theme.Katg" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/katg_green</item>
+        <item name="colorPrimaryDark">@color/katg_dark_green</item>
 
-        <item name="android:textViewStyle">@style/MyTextViewStyle</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
 
     </style>
 
-    <style name="MyTextViewStyle" parent="android:Widget.TextView">
-        <item name="android:textColor">@android:color/black</item>
+    <style name="PlayerTheme" parent="@style/Theme.Katg">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/black</item>
     </style>
+
+    <style name="KatgNavigationItem" parent="Theme.Katg">
+        <item name="android:background">@drawable/katg_nav_item_background</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+    </style>
+
+    <style name="KatgNavigationItem.Inner">
+        <item name="android:background">@drawable/katg_nav_item_background_inner</item>
+    </style>
+
+    <style name="KatgNavigationItemText">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/White</item>
+        <item name="android:layout_marginLeft">16dp</item>
+    </style>
+
+    <style name="KatgNavigationItemText.Inner"></style>
 
 </resources>

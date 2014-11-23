@@ -52,7 +52,8 @@
         <activity
             android:name="com.keithandthegirl.app.ui.WorkItemsActivity"
             android:label="@string/title_activity_workitems"
-            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity" >
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity"
+            android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
@@ -60,7 +61,7 @@
         <activity
             android:name="com.keithandthegirl.app.ui.youtube.VideoPlayerActivity"
             android:label="@string/title_activity_video_player"
-            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity" >
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
@@ -72,7 +73,8 @@
         <activity
             android:name="com.keithandthegirl.app.ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity" >
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity"
+            android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithandthegirl.app.ui.MainActivity" />

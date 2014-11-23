@@ -1,8 +1,8 @@
 package com.keithandthegirl.app.ui;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.ui.utils.WorkFragment;
@@ -21,7 +21,7 @@ public class WorkItemsActivity extends AbstractBaseActivity {
         setContentView( R.layout.activity_workitems );
 
         // Set up the action bar to show a dropdown list.
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled( false );
 
         // Show the Up button in the action bar.

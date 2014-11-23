@@ -9,7 +9,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -21,7 +21,7 @@ import com.keithandthegirl.app.db.model.LiveConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 
-public abstract class AbstractBaseActivity extends FragmentActivity {
+public abstract class AbstractBaseActivity extends ActionBarActivity {
     private static final String TAG = AbstractBaseActivity.class.getSimpleName();
 
     private ContentResolver mContentResolver;

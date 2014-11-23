@@ -49,5 +49,8 @@
     <string name="network_connected_title">Network Not Connected</string>
     <string name="network_connected_message">Check your network settings and try again.</string>
     <string name="close">Close</string>
+    <string name="navigation_drawer_open">Navigation drawer open</string>
+    <string name="navigation_drawer_close">Navigation drawer closed</string>
+    <string name="katg_actionbar_title">KATG</string>
 
 </resources>

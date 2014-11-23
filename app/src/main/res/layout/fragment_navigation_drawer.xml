@@ -1,0 +1,357 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/vip_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/katg_dark_green"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/katgImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/ic_launcher"
+            android:background="@color/Transparent"/>
+
+        <TextView
+            android:id="@+id/vipMessageTextView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingLeft="16dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/Black"
+            android:text="You are not VIP"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="16dp"
+            android:background="@color/Transparent"
+            android:text="Get VIP"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vip_layout">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/aboutNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    tools:text="About"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/katgNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/aboutNavView"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    tools:text="Keith and the Girl Podcast"/>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/vipShowsNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/katgNavView"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    tools:text="VIP Shows"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    android:layout_alignParentRight="true"
+                    android:src="@android:drawable/arrow_down_float"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/vipShowsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/vipShowsNavView"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/mnikNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="My Name is Keith"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ttswdNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/mnikNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Thats the show with Danny"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tbloNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ttswdNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="The Brother Love Owwwr"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/buwhNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tbloNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Bottoms up with Hennessy"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/superHangNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tbloNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Super Hang"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/mfafNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tbloNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Myka Fox &amp; Friends"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/internmentNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tbloNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="INTERNment"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/katgBeginningsNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/internmentNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="KATG Beginnings"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/katgLiveShowsNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/katgBeginningsNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="KATG Live Shows"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/liveNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/vipShowsLayout"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    tools:text="Live"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/scheduleNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/liveNavView"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    tools:text="Schedule"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/youtubeNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/scheduleNavView"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    tools:text="YouTube"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settingsNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/youtubeNavView"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    tools:text="Settings"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/feedbackNavView"
+                style="@style/KatgNavigationItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/settingsNavView"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/KatgNavigationItemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    tools:text="feedback"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</RelativeLayout>
