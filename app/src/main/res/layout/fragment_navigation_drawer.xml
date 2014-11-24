@@ -11,7 +11,7 @@
         android:background="@color/katg_dark_green"
         android:orientation="horizontal">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/katgImageButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -30,6 +30,7 @@
             android:text="You are not VIP"/>
 
         <Button
+            android:id="@+id/vipButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginRight="16dp"
@@ -109,13 +110,48 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/vipShowsNavView"
                 android:orientation="vertical"
+                android:animateLayoutChanges="true"
                 android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/katgTvNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="KATG TV"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/wmnNavView"
+                    style="@style/KatgNavigationItem.Inner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/katgTvNavView"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KatgNavigationItemText.Inner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Whats my name"/>
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/mnikNavView"
                     style="@style/KatgNavigationItem.Inner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/wmnNavView"
                     android:orientation="horizontal">
 
                     <TextView
@@ -317,28 +353,11 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/settingsNavView"
-                style="@style/KatgNavigationItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/youtubeNavView"
-                android:orientation="horizontal">
-
-                <TextView
-                    style="@style/KatgNavigationItemText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    tools:text="Settings"/>
-
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/feedbackNavView"
                 style="@style/KatgNavigationItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/settingsNavView"
+                android:layout_below="@id/youtubeNavView"
                 android:orientation="horizontal">
 
                 <TextView
