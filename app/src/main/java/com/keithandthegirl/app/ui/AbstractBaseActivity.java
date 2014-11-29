@@ -19,7 +19,6 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.LiveConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
-import com.keithandthegirl.app.ui.settings.SettingsActivity;
 
 public abstract class AbstractBaseActivity extends ActionBarActivity {
     private static final String TAG = AbstractBaseActivity.class.getSimpleName();
@@ -112,10 +111,10 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_settings:
-                Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(settingsIntent);
-                return true;
+//            case R.id.action_settings:
+//                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+//                startActivity(settingsIntent);
+//                return true;
 
 //            case R.id.action_login:
 //                Intent vipIntent = new Intent(this, AuthenticatorActivity.class);

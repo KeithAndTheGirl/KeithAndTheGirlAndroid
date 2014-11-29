@@ -3,16 +3,14 @@ package com.keithandthegirl.app.ui.navigationdrawer;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.keithandthegirl.app.utils.StringUtils;
 
 public final class NavigationItem {
     private static final String TAG = NavigationItem.class.getSimpleName();
-    private Class<? extends Fragment> mClass;
-    private Fragment mFragment;
+
     private boolean mAddToBackStack;
+    private NavigationItemType mNavigationItemType;
     private String mBackStackName = null;
     private Bundle mBundle;
     private String mTitle;
@@ -21,22 +19,12 @@ public final class NavigationItem {
     private int mResIcon;
     private boolean mVip;
 
-    public NavigationItem(Class<? extends Fragment> aClass) {
-        mClass = aClass;
-        
+    public enum NavigationItemType { SHOWS, GUESTS, LIVE, SCHEDULE, YOUTUBE, ABOUT, SETTINGS, UNKNOWN }
+
+    public NavigationItem(NavigationItemType navigationItemType) {
+        mNavigationItemType = navigationItemType;
         mAddToBackStack = false;
         mBundle = null;
-    }
-
-    public Fragment getFragment() {
-        if (mFragment == null) {
-            try {
-                mFragment = mClass.newInstance();
-            } catch (Exception e) {
-                Log.e(TAG, "Failed instantiating fragment", e);
-            }
-        }
-        return mFragment;
     }
 
     public boolean isAddToBackStack() {
@@ -49,7 +37,7 @@ public final class NavigationItem {
 
     public String getBackStackName() {
         if (StringUtils.isNullOrEmpty(mBackStackName)) {
-            return mClass.getSimpleName();
+            return mNavigationItemType.toString();
         }
         else {
             return mBackStackName;
@@ -68,10 +56,6 @@ public final class NavigationItem {
         mBundle = bundle;
     }
     
-    public void setTargetFragment(Fragment fragment, int requestCode) {
-    	getFragment().setTargetFragment(fragment, requestCode);
-    }
-
     public void setLabel(String title) {
         mTitle = title;
     }
@@ -84,8 +68,8 @@ public final class NavigationItem {
         return mResIcon;
     }
 
-    public void setIcon(@DrawableRes int mResIcon) {
-        this.mResIcon = mResIcon;
+    public void setIcon(@DrawableRes int resIcon) {
+        mResIcon = resIcon;
     }
 
     public int getLabelId() {
@@ -93,18 +77,22 @@ public final class NavigationItem {
     }
 
     public void setLabelId(@StringRes int labelId) {
-        this.mLabelId = labelId;
+        mLabelId = labelId;
     }
 
     public boolean isVip() {
         return mVip;
     }
 
-    public boolean ismVip() {
-        return mVip;
+    public void setVip(boolean isVip) {
+        mVip = isVip;
     }
 
-    public void setmVip(boolean mVip) {
-        this.mVip = mVip;
+    public NavigationItemType getNavigationItemType() {
+        return mNavigationItemType;
+    }
+
+    public void setNavigationItemType(NavigationItemType navigationItemType) {
+        this.mNavigationItemType = navigationItemType;
     }
 }

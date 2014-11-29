@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,37 +16,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.keithandthegirl.app.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class NavigationDrawerFragment extends Fragment implements View.OnClickListener {
+public class NavigationDrawerFragment extends Fragment implements AdapterView.OnItemClickListener {
     private static final String TAG = NavigationDrawerFragment.class.getSimpleName();
 
-    public enum NavigationChoice {
-        ABOUT,
-        LIVE,
-        SCHEDULE,
-        YOUTUBE,
-        FEEDBACK,
-        KATG,
-        KATG_TV,
-        WHATS_MY_NAME,
-        MY_NAME_IS_KEITH,
-        THATS_THE_SHOW_WITH_DANNY,
-        BROTHER_LOVE_OWWWR,
-        BOTTOMS_UP,
-        SUPER_HANG,
-        MYKA_FOX_AND_FRIENDS,
-        INTERNMENT,
-        KATG_BEGINNINGS,
-        KATG_LIVE_SHOWS
-    }
-
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
-    private static final String STATE_IS_VIP_OPEN = "state_is_vip_open";
     private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
 
     private NavigationDrawerCallbacks mNavigationDrawerCallbacks;
@@ -54,31 +36,13 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
     private DrawerLayout mDrawerLayout;
     private View mFragmentContainerView;
 
-    private boolean mIsVipExpanded = false;
-
     private int mCurrentSelectedPosition = 0;
+
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
-    private View mVipShowsLayout;
-    private View mVipShowsNavView;
-    private Button mVipButton;
-    private View mAboutNavView;
-    private View mKatgNavView;
-    private View mKatgTvNavView;
-    private View mWmnNaveView;
-    private View mMnikNavView;
-    private View mTtswdNavView;
-    private View mTbloNavView;
-    private View mBuwhNavView;
-    private View mSuperHangNavView;
-    private View mMfafNavView;
-    private View mInternmentNavView;
-    private View mKatgBeginningsNavView;
-    private View mKatgLiveShowsNavView;
-    private View mScheduleNavView;
-    private View mYoutubeNavView;
-    private View mSettingsNavView;
-    private View mFeedbackNavView;
+    private ListView mNavigationListView;
+    private List<NavigationItem> mNavigationListItems = new ArrayList<>();
+    private NavigationItemAdapter mNavigationAdapter;
 
     public NavigationDrawerFragment() { }
 
@@ -94,9 +58,9 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
         if (savedInstanceState != null) {
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
-            mIsVipExpanded = savedInstanceState.getBoolean(STATE_IS_VIP_OPEN, false);
         }
 
+        mNavigationAdapter = new NavigationItemAdapter(getActivity(), mNavigationListItems);
         // Select either the default item (0) or the last selected item.
         selectItem(mCurrentSelectedPosition);
     }
@@ -104,145 +68,20 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View fragmentView = inflater.inflate( R.layout.fragment_navigation_drawer, container, false);
-
-        mAboutNavView = fragmentView.findViewById(R.id.aboutNavView);
-        mAboutNavView.setOnClickListener(this);
-
-        mKatgNavView = fragmentView.findViewById(R.id.katgNavView);
-        mKatgNavView.setOnClickListener(this);
-
-        mVipShowsNavView = fragmentView.findViewById(R.id.vipShowsNavView);
-        mVipShowsNavView.setOnClickListener(this);
-
-        mVipButton = (Button)fragmentView.findViewById(R.id.vipButton);
-        mVipButton.setOnClickListener(this);
-
-        mVipShowsLayout = fragmentView.findViewById(R.id.vipShowsLayout);
-        mVipShowsLayout.setOnClickListener(this);
-
-        mKatgTvNavView = fragmentView.findViewById(R.id.katgTvNavView);
-        mKatgTvNavView.setOnClickListener(this);
-
-        mWmnNaveView = fragmentView.findViewById(R.id.wmnNavView);
-        mWmnNaveView.setOnClickListener(this);
-
-        mMnikNavView = fragmentView.findViewById(R.id.mnikNavView);
-        mMnikNavView.setOnClickListener(this);
-
-        mTtswdNavView = fragmentView.findViewById(R.id.ttswdNavView);
-        mTtswdNavView.setOnClickListener(this);
-
-        mTbloNavView = fragmentView.findViewById(R.id.tbloNavView);
-        mTbloNavView.setOnClickListener(this);
-
-        mBuwhNavView = fragmentView.findViewById(R.id.buwhNavView);
-        mBuwhNavView.setOnClickListener(this);
-
-        mSuperHangNavView = fragmentView.findViewById(R.id.superHangNavView);
-        mSuperHangNavView.setOnClickListener(this);
-
-        mMfafNavView = fragmentView.findViewById(R.id.mfafNavView);
-        mMfafNavView.setOnClickListener(this);
-
-        mInternmentNavView = fragmentView.findViewById(R.id.internmentNavView);
-        mInternmentNavView.setOnClickListener(this);
-
-        mKatgBeginningsNavView = fragmentView.findViewById(R.id.katgBeginningsNavView);
-        mKatgBeginningsNavView.setOnClickListener(this);
-
-        mKatgLiveShowsNavView = fragmentView.findViewById(R.id.katgLiveShowsNavView);
-        mKatgLiveShowsNavView.setOnClickListener(this);
-
-        mScheduleNavView = fragmentView.findViewById(R.id.scheduleNavView);
-        mScheduleNavView.setOnClickListener(this);
-
-        mYoutubeNavView = fragmentView.findViewById(R.id.youtubeNavView);
-        mYoutubeNavView.setOnClickListener(this);
-
-        mFeedbackNavView = fragmentView.findViewById(R.id.feedbackNavView);
-        mFeedbackNavView.setOnClickListener(this);
-
+        mNavigationListView = (ListView)fragmentView.findViewById(R.id.navigationListView);
+        mNavigationListView.setAdapter(mNavigationAdapter);
+        mNavigationListView.setOnItemClickListener(this);
         return fragmentView;
     }
 
     public boolean isDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.aboutNavView:
-                notifyCallback(NavigationChoice.ABOUT);
-                break;
-            case R.id.katgNavView:
-                notifyCallback(NavigationChoice.KATG);
-                break;
-            case R.id.vipShowsNavView:
-                if (mIsVipExpanded) {
-                    mVipShowsLayout.setVisibility(View.GONE);
-                    mIsVipExpanded = false;
-                } else {
-                    mVipShowsLayout.setVisibility(View.VISIBLE);
-                    mIsVipExpanded = true;
-                }
-                break;
-            case R.id.katgTvNavView:
-                notifyCallback(NavigationChoice.KATG_TV);
-                break;
-            case R.id.wmnNavView:
-                notifyCallback(NavigationChoice.WHATS_MY_NAME);
-                break;
-            case R.id.mnikNavView:
-                notifyCallback(NavigationChoice.MY_NAME_IS_KEITH);
-                break;
-            case R.id.ttswdNavView:
-                notifyCallback(NavigationChoice.THATS_THE_SHOW_WITH_DANNY);
-                break;
-            case R.id.tbloNavView:
-                notifyCallback(NavigationChoice.BROTHER_LOVE_OWWWR);
-                break;
-            case R.id.buwhNavView:
-                notifyCallback(NavigationChoice.BOTTOMS_UP);
-                break;
-            case R.id.superHangNavView:
-                notifyCallback(NavigationChoice.SUPER_HANG);
-                break;
-            case R.id.mfafNavView:
-                notifyCallback(NavigationChoice.MYKA_FOX_AND_FRIENDS);
-                break;
-            case R.id.internmentNavView:
-                notifyCallback(NavigationChoice.INTERNMENT);
-                break;
-            case R.id.katgBeginningsNavView:
-                notifyCallback(NavigationChoice.KATG_BEGINNINGS);
-                break;
-            case R.id.katgLiveShowsNavView:
-                notifyCallback(NavigationChoice.KATG_LIVE_SHOWS);
-                break;
-            case R.id.scheduleNavView:
-                notifyCallback(NavigationChoice.SCHEDULE);
-                break;
-            case R.id.youtubeNavView:
-                notifyCallback(NavigationChoice.YOUTUBE);
-                break;
-            case R.id.feedbackNavView:
-                notifyCallback(NavigationChoice.FEEDBACK);
-                break;
-        }
-    }
-
-    private void notifyCallback(NavigationChoice navigationChoice) {
-        mNavigationDrawerCallbacks.onNavigationDrawerItemSelected(navigationChoice);
-        mDrawerLayout.closeDrawer(GravityCompat.START);
-
     }
 
     /**
@@ -251,7 +90,7 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
      * @param fragmentId   The android:id of this fragment in its activity's layout.
      * @param drawerLayout The DrawerLayout containing this fragment's UI.
      */
-    public void setupDrawer(int fragmentId, DrawerLayout drawerLayout) {
+    public void setupDrawer(int fragmentId, DrawerLayout drawerLayout, List<NavigationItem> navigationItemList) {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
@@ -312,11 +151,17 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
         });
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mNavigationListItems.clear();
+        mNavigationListItems.addAll(navigationItemList);
+        mNavigationAdapter.notifyDataSetChanged();
+        selectItem(mCurrentSelectedPosition);
     }
 
-    public void setupDrawerItems(List<NavigationItem> navigationItemList) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        selectItem(0);
     }
-
 
     private void selectItem(int position) {
         mCurrentSelectedPosition = position;
@@ -324,9 +169,11 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
         if (mNavigationDrawerCallbacks != null) {
-//            if (mNavigationItemsList.size() > 0 ){
-//                mNavigationDrawerCallbacks.onNavigationDrawerItemSelected(mNavigationItemsList.get(position));
-//            }
+            if (mNavigationAdapter.getCount() > 0 ){
+                NavigationItem item = mNavigationAdapter.getItem(position);
+                mNavigationDrawerCallbacks.onNavigationDrawerItemSelected(item);
+                mCurrentSelectedPosition = position;
+            }
         }
     }
 
@@ -348,7 +195,6 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
-        outState.putBoolean(STATE_IS_VIP_OPEN, mIsVipExpanded);
     }
 
     @Override
@@ -377,6 +223,18 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (isDrawerOpen()) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
+
+        if (mNavigationDrawerCallbacks != null) {
+            NavigationItem item = mNavigationAdapter.getItem(position);
+            mNavigationDrawerCallbacks.onNavigationDrawerItemSelected(item);
+        }
+    }
+
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
@@ -384,6 +242,7 @@ public class NavigationDrawerFragment extends Fragment implements View.OnClickLi
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(NavigationChoice navigationChoice);
+        void onNavigationDrawerItemSelected(NavigationItem navigationChoice);
+        void onVipButtonClicked();
     }
 }

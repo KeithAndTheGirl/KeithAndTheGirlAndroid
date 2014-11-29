@@ -77,7 +77,7 @@
             android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.keithandthegirl.app.ui.MainActivity" />
+                android:value="com.keithandthegirl.app.ui.main.MainActivity" />
         </activity>
         <activity
             android:name="com.keithandthegirl.app.ui.AuthenticatorActivity"

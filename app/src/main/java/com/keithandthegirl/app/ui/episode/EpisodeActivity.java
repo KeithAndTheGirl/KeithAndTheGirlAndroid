@@ -27,7 +27,6 @@ import com.keithandthegirl.app.ui.gallery.EpisodeImageGalleryFragment;
 import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener,
@@ -75,7 +74,6 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 int transportViewHeight = (int) getResources().getDimension(R.dimen.transport_view_height);
                 transportLayout.animate().translationY(transportViewHeight);
                 ValueAnimator.ofInt(container.getHeight(), container.getHeight() + transportViewHeight );
-
             }
         });
 
