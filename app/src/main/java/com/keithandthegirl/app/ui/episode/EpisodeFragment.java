@@ -34,10 +34,8 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.model.EndpointConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
-import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.loader.AbstractAsyncTaskLoader;
 import com.keithandthegirl.app.loader.WrappedLoaderCallbacks;
 import com.keithandthegirl.app.loader.WrappedLoaderResult;
@@ -48,9 +46,6 @@ import com.keithandthegirl.app.ui.custom.ExpandedHeightGridView;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.utils.StringUtils;
 import com.squareup.picasso.Picasso;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -668,7 +663,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 convertView.setTag(viewHolder);
             }
             ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            Picasso.with(getContext()).load(imageUrl).resize( 150, 150 ).into(viewHolder.imageView);
+            Picasso.with(getContext()).load(imageUrl).resize( 150, 150 ).centerInside().into(viewHolder.imageView);
 
             return convertView;
         }

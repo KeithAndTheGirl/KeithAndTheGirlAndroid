@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.keithandthegirl.app.R;
@@ -24,7 +25,7 @@ import com.keithandthegirl.app.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NavigationDrawerFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class NavigationDrawerFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
     private static final String TAG = NavigationDrawerFragment.class.getSimpleName();
 
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
@@ -43,6 +44,7 @@ public class NavigationDrawerFragment extends Fragment implements AdapterView.On
     private ListView mNavigationListView;
     private List<NavigationItem> mNavigationListItems = new ArrayList<>();
     private NavigationItemAdapter mNavigationAdapter;
+    private Button mVipButton;
 
     public NavigationDrawerFragment() { }
 
@@ -75,6 +77,8 @@ public class NavigationDrawerFragment extends Fragment implements AdapterView.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View fragmentView = inflater.inflate( R.layout.fragment_navigation_drawer, container, false);
         mNavigationListView = (ListView)fragmentView.findViewById(R.id.navigationListView);
+        mVipButton = (Button) fragmentView.findViewById(R.id.vipButton);
+        mVipButton.setOnClickListener(this);
         mNavigationListView.setAdapter(mNavigationAdapter);
         mNavigationListView.setOnItemClickListener(this);
         return fragmentView;
@@ -232,6 +236,15 @@ public class NavigationDrawerFragment extends Fragment implements AdapterView.On
         if (mNavigationDrawerCallbacks != null) {
             NavigationItem item = mNavigationAdapter.getItem(position);
             mNavigationDrawerCallbacks.onNavigationDrawerItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == mVipButton) {
+            if (mNavigationDrawerCallbacks != null) {
+                mNavigationDrawerCallbacks.onVipButtonClicked();
+            }
         }
     }
 

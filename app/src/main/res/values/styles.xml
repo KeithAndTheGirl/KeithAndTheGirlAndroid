@@ -7,7 +7,7 @@
         <item name="android:textColor">@color/White</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-
+        <item name="android:listViewStyle">@style/KatgListViewStyle</item>
     </style>
 
     <style name="PlayerTheme" parent="@style/Theme.Katg">
@@ -30,6 +30,9 @@
         <item name="android:layout_marginLeft">16dp</item>
     </style>
 
-    <style name="KatgNavigationItemText.Inner"></style>
+    <style name="KatgListViewStyle" parent="android:Widget.ListView.White">
+        <item name="android:background">@color/White</item>
+        <item name="android:listDivider">@color/katg_green</item>
+    </style>
 
 </resources>

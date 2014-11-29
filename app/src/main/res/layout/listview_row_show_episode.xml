@@ -2,6 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:tools="http://schemas.android.com/tools"
+             tools:style="@style/KatgListViewStyle"
              android:orientation="vertical"
              android:layout_width="match_parent"
              android:layout_height="wrap_content">
@@ -53,7 +54,6 @@
                 android:layout_weight="9"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
-                android:textStyle="bold"
                 tools:text="If the title is long enough that it will wrap three lines. This is what it will look like." />
 
 

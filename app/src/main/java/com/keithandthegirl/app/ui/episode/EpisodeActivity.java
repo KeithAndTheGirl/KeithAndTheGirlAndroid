@@ -1,7 +1,6 @@
 package com.keithandthegirl.app.ui.episode;
 
 import android.animation.ValueAnimator;
-import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -54,10 +53,15 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
             mEpisodeId = extras.getLong(EPISODE_KEY);
         }
 
-        final ActionBar actionBar = getActionBar();
-        assert actionBar != null;
-        // Show the Up button in the action bar.
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+//        final ActionBar actionBar = getSupportActionBar();
+//        assert actionBar != null;
+//        // Show the Up button in the action bar.
+//        actionBar.setDisplayHomeAsUpEnabled(true);
+
+
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

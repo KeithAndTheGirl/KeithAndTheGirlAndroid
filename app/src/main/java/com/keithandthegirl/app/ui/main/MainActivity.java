@@ -15,14 +15,19 @@ import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
+import com.keithandthegirl.app.ui.episode.EpisodeFragment;
 import com.keithandthegirl.app.ui.navigationdrawer.NavigationDrawerFragment;
 import com.keithandthegirl.app.ui.navigationdrawer.NavigationItem;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
+import com.keithandthegirl.app.ui.shows.ShowFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AbstractBaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity
+        extends AbstractBaseActivity
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks,
+                   ShowFragment.OnShowFragmentListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
@@ -152,5 +157,10 @@ public class MainActivity extends AbstractBaseActivity implements NavigationDraw
     public void onVipButtonClicked() {
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingsIntent);
+    }
+
+    @Override
+    public void onShowSelected(long showId, long episodeId) {
+        replaceFragment(EpisodeFragment.newInstance(episodeId));
     }
 }

@@ -1,5 +1,6 @@
 package com.keithandthegirl.app.ui.shows;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -46,6 +47,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
     public static final String SHOW_NAME_ID_KEY = "showNameId";
 
+    private OnShowFragmentListener mListener;
     private View mHeaderView;
     private EpisodeCursorAdapter mAdapter;
     private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
@@ -127,6 +129,15 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         Bundle args = new Bundle();
         args.putLong(SHOW_NAME_ID_KEY, mShowNameId);
         getLoaderManager().initLoader(0, args, this);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof OnShowFragmentListener ) {
+            mListener = (OnShowFragmentListener) activity;
+        }
     }
 
     @Override
@@ -218,6 +229,9 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
+//        if (mListener != null) {
+//            mListener.onShowSelected(mShowNameId, id);
+//        }
         Intent i = new Intent(getActivity(), EpisodeActivity.class);
         i.putExtra(EpisodeActivity.EPISODE_KEY, id);
         startActivity(i);
@@ -402,7 +416,10 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
                 setRefreshing( false );
             }
         }
+    }
 
+    public interface OnShowFragmentListener {
+        public void onShowSelected(long showId, long episodeId);
     }
 
 }
