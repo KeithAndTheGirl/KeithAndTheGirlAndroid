@@ -63,6 +63,17 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
 
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setViewPager(mViewPager);
+        mSlidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.katg_green);
+            }
+
+            @Override
+            public int getDividerColor(int position) {
+                return getResources().getColor(R.color.katg_green);
+            }
+        });
     }
 
     @Override

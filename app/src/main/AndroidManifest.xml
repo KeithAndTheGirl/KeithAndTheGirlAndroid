@@ -22,7 +22,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_short_name"
-        android:theme="@style/Theme.Katg" >
+        android:theme="@style/ThemeKatg" >
 
         <meta-data
             android:name="com.crashlytics.ApiKey"

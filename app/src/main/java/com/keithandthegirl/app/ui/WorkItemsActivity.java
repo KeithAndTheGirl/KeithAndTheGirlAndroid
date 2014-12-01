@@ -3,6 +3,7 @@ package com.keithandthegirl.app.ui;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.ui.utils.WorkFragment;
@@ -19,6 +20,10 @@ public class WorkItemsActivity extends AbstractBaseActivity {
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_workitems );
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
 
         // Set up the action bar to show a dropdown list.
         final ActionBar actionBar = getSupportActionBar();

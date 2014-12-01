@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,19 +49,21 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_episode);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
 
         Bundle extras = getIntent().getExtras();
         if (extras.containsKey(EPISODE_KEY)) {
             mEpisodeId = extras.getLong(EPISODE_KEY);
         }
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        // Show the Up button in the action bar.
 
-//        final ActionBar actionBar = getSupportActionBar();
-//        assert actionBar != null;
-//        // Show the Up button in the action bar.
-//        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 
 
@@ -168,9 +172,9 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     @Override
     public void onEpisodeLoaded(final EpisodeInfoHolder episodeInfoHolder) {
         mEpisodeInfoHolder = episodeInfoHolder;
-        assert getActionBar() != null;
-        getActionBar().setTitle(episodeInfoHolder.getShowName());
-        getActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
+//        assert getActionBar() != null;
+//        getActionBar().setTitle(episodeInfoHolder.getShowName());
+//        getActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
 
         if( mEpisodeInfoHolder.isEpisodePublic() ) {
 //            mPlayerControls.setVisibility(View.VISIBLE);

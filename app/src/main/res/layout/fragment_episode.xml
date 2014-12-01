@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/White"
     tools:context="com.keithandthegirl.app.ui.episode.EpisodeFragment">
 
     <ScrollView
@@ -199,6 +200,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_gravity="end"
+                android:elevation="16dp"
                 android:background="@drawable/abc_menu_dropdown_panel_holo_light"
                 tools:src="@drawable/katg_show"/>
 

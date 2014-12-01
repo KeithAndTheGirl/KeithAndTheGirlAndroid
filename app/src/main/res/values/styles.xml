@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Katg" parent="Theme.AppCompat">
+    <style name="ThemeKatg" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/katg_green</item>
         <item name="colorPrimaryDark">@color/katg_dark_green</item>
         <item name="android:textColor">@color/White</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:listViewStyle">@style/KatgListViewStyle</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
+        <item name="android:buttonStyle">@style/RobotoButtonStyle</item>
+
     </style>
 
-    <style name="PlayerTheme" parent="@style/Theme.Katg">
+    <style name="RobotoTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="RobotoButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="PlayerTheme" parent="@style/ThemeKatg">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 
-    <style name="KatgNavigationItem" parent="Theme.Katg">
+    <style name="KatgNavigationItem" parent="ThemeKatg">
         <item name="android:background">@drawable/katg_nav_item_background</item>
         <item name="android:minHeight">?attr/actionBarSize</item>
-    </style>
-
-    <style name="KatgNavigationItem.Inner">
-        <item name="android:background">@drawable/katg_nav_item_background_inner</item>
     </style>
 
     <style name="KatgNavigationItemText">
