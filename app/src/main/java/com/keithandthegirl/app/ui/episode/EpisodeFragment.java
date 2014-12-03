@@ -43,6 +43,7 @@ import com.keithandthegirl.app.services.media.MediaService;
 import com.keithandthegirl.app.sync.EpisodeDetailsAsyncTask;
 import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.ExpandedHeightGridView;
+import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.utils.StringUtils;
 import com.squareup.picasso.Picasso;
@@ -69,7 +70,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private EpisodeInfoHolder mEpisodeInfoHolder;
     private List<String> mEpisodeGuestImagesList;
     private EpisodeGuestImageAdapter mEpisodeGuestImageAdapter;
-    private List<String> mEpisodeImagesList;
+    private List<ImageGalleryInfoHolder> mImageGalleryInfoList;
     private EpisodeImageAdapter mEpisodeImageAdapter;
 
     private ViewSwitcher mMainViewSwitcher;
@@ -128,8 +129,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeGuestImagesList = new ArrayList<String>();
         mEpisodeGuestImageAdapter = new EpisodeGuestImageAdapter(getActivity(), mEpisodeGuestImagesList);
 
-        mEpisodeImagesList = new ArrayList<String>();
-        mEpisodeImageAdapter = new EpisodeImageAdapter(getActivity(), mEpisodeImagesList);
+        mImageGalleryInfoList = new ArrayList<>();
+        mEpisodeImageAdapter = new EpisodeImageAdapter(getActivity(), mImageGalleryInfoList);
     }
 
     @Override
@@ -501,8 +502,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         if (episodeHolder.getEpisodeImages().size() > 0) {
             mEpisodeImagesLayout.setVisibility(View.VISIBLE);
-            mEpisodeImagesList.clear();
-            mEpisodeImagesList.addAll(episodeHolder.getEpisodeImages());
+            mImageGalleryInfoList.clear();
+            mImageGalleryInfoList.addAll(episodeHolder.getEpisodeImages());
             mEpisodeImageAdapter.notifyDataSetChanged();
         } else {
             mEpisodeImagesLayout.setVisibility(View.GONE);
@@ -646,14 +647,14 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
     }
 
-    private class EpisodeImageAdapter extends ArrayAdapter<String> {
-        public EpisodeImageAdapter(final Context context, final List<String> objects) {
+    private class EpisodeImageAdapter extends ArrayAdapter<ImageGalleryInfoHolder> {
+        public EpisodeImageAdapter(final Context context, final List<ImageGalleryInfoHolder> objects) {
             super(context, -1, objects);
         }
 
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
-            String imageUrl = getItem(position);
+            ImageGalleryInfoHolder imageHolder = getItem(position);
 
             if (convertView == null) {
                 LayoutInflater layoutInflater = LayoutInflater.from(getContext());
@@ -663,7 +664,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 convertView.setTag(viewHolder);
             }
             ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            Picasso.with(getContext()).load(imageUrl).resize( 150, 150 ).centerInside().into(viewHolder.imageView);
+            Picasso.with(getContext()).load(imageHolder.getImageUrl()).resize( 150, 150 ).centerInside().into(viewHolder.imageView);
 
             return convertView;
         }
@@ -675,6 +676,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     public interface EpisodeEventListener {
         void onEpisodeLoaded(EpisodeInfoHolder episodeInfoHolder);
-        void onShowImageClicked(int position, List<String> imageUrls);
+        void onShowImageClicked(int position, ArrayList<ImageGalleryInfoHolder> imageHolders);
     }
 }

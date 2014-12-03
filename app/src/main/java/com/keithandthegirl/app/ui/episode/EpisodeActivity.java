@@ -30,6 +30,10 @@ import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ * TODO remember scroll location when coming back from gallery
+ */
 public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener,
                                                                      OnClickListener, OnSeekBarChangeListener {
     public static final String EPISODE_KEY = "EPISODE_KEY";
@@ -62,10 +66,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         final ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
         // Show the Up button in the action bar.
-
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -191,16 +192,11 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     }
 
     @Override
-    public void onShowImageClicked(final int position, final List<String> imageUrls) {
-
-        ArrayList<ImageGalleryInfoHolder> infoHolderList = new ArrayList<ImageGalleryInfoHolder>();
-        for (String string : imageUrls) {
-            infoHolderList.add(new ImageGalleryInfoHolder(string, ""));
-        }
+    public void onShowImageClicked(final int position, final ArrayList<ImageGalleryInfoHolder> imageGalleryInfoHolderList) {
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, EpisodeImageGalleryFragment.newInstance(position, infoHolderList))
+                .replace(R.id.container, EpisodeImageGalleryFragment.newInstance(position, imageGalleryInfoHolderList))
                 .addToBackStack(EpisodeImageGalleryFragment.STACK_NAME)
                 .commit();
     }

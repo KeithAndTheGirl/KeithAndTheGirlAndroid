@@ -10,12 +10,22 @@ import android.os.Parcelable;
 public class ImageGalleryInfoHolder implements Parcelable {
     private String mImageUrl;
     private String mCaption;
+    private boolean mIsExplicit;
 
     public ImageGalleryInfoHolder() {}
 
     public ImageGalleryInfoHolder(String imageUrl, String caption) {
         mImageUrl = imageUrl;
         mCaption = caption;
+        mIsExplicit = false;
+    }
+
+    public boolean isExplicit() {
+        return mIsExplicit;
+    }
+
+    public void setExplicit(boolean isExplicit) {
+        mIsExplicit = isExplicit;
     }
 
     public String getImageUrl() {

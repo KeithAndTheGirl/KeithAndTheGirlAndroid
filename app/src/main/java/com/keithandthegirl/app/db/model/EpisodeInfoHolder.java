@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class EpisodeInfoHolder {
     private String mShowForumUrl;
     private String mGuestNames;
     private List<String> mGuestImages;
-    private List<String> mEpisodeImages;
+    private ArrayList<ImageGalleryInfoHolder> mEpisodeImages;
 
     public int getEpisodeNumber() {
         return mEpisodeNumber;
@@ -214,11 +215,11 @@ public class EpisodeInfoHolder {
         mGuestImages = guestImages;
     }
 
-    public List<String> getEpisodeImages() {
+    public ArrayList<ImageGalleryInfoHolder> getEpisodeImages() {
         return mEpisodeImages;
     }
-    public void setEpisodeImages(final List<String> episodeImages) {
-        mEpisodeImages = episodeImages;
+    public void setEpisodeImages(final ArrayList<ImageGalleryInfoHolder> imageHolders) {
+        mEpisodeImages = imageHolders;
     }
 
     public static EpisodeInfoHolder loadEpisode( Context context, long episodeId ) {
@@ -266,7 +267,7 @@ public class EpisodeInfoHolder {
         }
         cursor.close();
 
-        String[] projection = {ImageConstants._ID, ImageConstants.FIELD_MEDIAURL};
+        String[] projection = {ImageConstants._ID, ImageConstants.FIELD_MEDIAURL, ImageConstants.FIELD_DESCRIPTION};
         String selection = ImageConstants.FIELD_SHOWID + " = ?";
         String[] selectionArgs = new String[]{String.valueOf(episodeId)};
 
@@ -278,17 +279,16 @@ public class EpisodeInfoHolder {
 
         }
 
-
-        List<String> episodeImages = new ArrayList<String>();
+        ArrayList<ImageGalleryInfoHolder> episodeImages = new ArrayList<>();
         cursor = contentResolver.query(ImageConstants.CONTENT_URI, projection, selection, selectionArgs, ImageConstants.FIELD_DISPLAY_ORDER);
         while (cursor.moveToNext()) {
             String mediaUrl = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_MEDIAURL));
-            episodeImages.add(mediaUrl);
+            String description = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_DESCRIPTION));
+            episodeImages.add(new ImageGalleryInfoHolder(mediaUrl, description));
         }
         cursor.close();
         episodeHolder.setEpisodeImages(episodeImages);
 
         return episodeHolder;
     }
-
 }

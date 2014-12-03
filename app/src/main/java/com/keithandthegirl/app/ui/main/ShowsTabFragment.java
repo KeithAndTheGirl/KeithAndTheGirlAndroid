@@ -18,10 +18,12 @@ import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.custom.CursorFragmentPagerAdapter;
 import com.keithandthegirl.app.ui.shows.ShowFragment;
 import com.keithandthegirl.app.ui.slidingtabs.SlidingTabLayout;
+import com.keithandthegirl.app.ui.slidingtabs.SlidingTabPagerAdapter;
 import com.keithandthegirl.app.utils.StringUtils;
 
 /**
  * Created by Jeff on 11/26/2014.
+ * TODO remember page when coming back from replaceFragment
  */
 public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = ShowsTabFragment.class.getSimpleName();
@@ -58,22 +60,11 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        mAdapter = new ShowCursorAdapter(getFragmentManager(), null);
+        mAdapter = new ShowCursorAdapter(getChildFragmentManager(), null);
         mViewPager.setAdapter(mAdapter);
 
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setViewPager(mViewPager);
-        mSlidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
-            @Override
-            public int getIndicatorColor(int position) {
-                return getResources().getColor(R.color.katg_green);
-            }
-
-            @Override
-            public int getDividerColor(int position) {
-                return getResources().getColor(R.color.katg_green);
-            }
-        });
     }
 
     @Override
@@ -108,10 +99,42 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
 
-    private class ShowCursorAdapter extends CursorFragmentPagerAdapter {
+    private class ShowCursorAdapter extends SlidingTabPagerAdapter {
 
         public ShowCursorAdapter( FragmentManager fragmentManager, Cursor cursor ) {
             super(fragmentManager, cursor, true);
+        }
+
+        @Override
+        public boolean isVip(int position) {
+            boolean isVip = false;
+            if (mCursor.moveToPosition(position)) {
+                isVip = mCursor.getLong(mCursor.getColumnIndex(ShowConstants.FIELD_VIP)) == 0 ? false : true;
+            }
+            return isVip;
+        }
+
+        @Override
+        public boolean hasNewShows(int position) {
+            boolean hasNewShows = false;
+            if (position == 1) {
+                if (mCursor.moveToPosition(position)) {
+                    long newShows = mCursor.getInt(mCursor.getColumnIndex(ShowConstants.FIELD_EPISODE_COUNT_NEW));
+                    if ( newShows > 0) {
+                        hasNewShows = true;
+                    }
+                }
+            }
+            return hasNewShows;
+        }
+
+        @Override
+        public int getNewShowCount(int position) {
+            int newShowCount = 0;
+            if (mCursor.moveToPosition(position)) {
+                newShowCount = mCursor.getInt(mCursor.getColumnIndex(ShowConstants.FIELD_EPISODE_COUNT_NEW));
+            }
+            return newShowCount;
         }
 
         @Override

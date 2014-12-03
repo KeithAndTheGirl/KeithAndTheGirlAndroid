@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:background="?attr/selectableItemBackground"
+    tools:background="@color/katg_green">
+
+
+    <TextView
+        android:id="@+id/showCountTextView"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="4dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/red_badge_count"
+        android:gravity="center"
+        android:padding="3dp"
+        android:textSize="8dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:text="99"
+        tools:ignore="SpUsage"/>
+
+
+    <TextView
+        android:id="@+id/tabTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/showCountTextView"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:gravity="center_vertical"
+        tools:text="KEITH AND THE GIRL"/>
+
+    <TextView
+        android:id="@+id/vipTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tabTextView"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="4dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/vip_badge"
+        android:gravity="center"
+        android:padding="3dp"
+        android:text="VIP"
+        android:textSize="8sp"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
+</RelativeLayout>
