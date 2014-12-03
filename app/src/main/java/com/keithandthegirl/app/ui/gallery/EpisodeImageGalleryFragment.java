@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.ui.custom.TouchImageView;
+import com.keithandthegirl.app.utils.StringUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -85,10 +86,22 @@ public class EpisodeImageGalleryFragment extends Fragment {
             Picasso.with(container.getContext()).load(url).into(imageView);
 
             TextView imageTitleTextView = (TextView) view.findViewById(R.id.imageTitleTextView);
-            imageTitleTextView.setText(mImageHolderList.get(position).getTitle());
+            String title = mImageHolderList.get(position).getTitle();
+            if (StringUtils.isNullOrEmpty(title)) {
+                imageTitleTextView.setVisibility(View.GONE);
+            } else {
+                imageTitleTextView.setText(title);
+                imageTitleTextView.setVisibility(View.VISIBLE);
+            }
 
             TextView imageDescriptionTextView = (TextView) view.findViewById(R.id.imageDescriptionTextView);
-            imageDescriptionTextView.setText(mImageHolderList.get(position).getDescription());
+            String description = mImageHolderList.get(position).getDescription();
+            if (StringUtils.isNullOrEmpty(description)) {
+                imageDescriptionTextView.setVisibility(View.GONE);
+            } else {
+                imageDescriptionTextView.setText(description);
+                imageDescriptionTextView.setVisibility(View.VISIBLE);
+            }
             viewPager.addView(view);
             return view;
         }
