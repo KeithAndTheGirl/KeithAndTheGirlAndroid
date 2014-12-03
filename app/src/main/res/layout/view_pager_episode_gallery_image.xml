@@ -12,7 +12,20 @@
         android:layout_height="match_parent"/>
 
     <TextView
-        android:id="@+id/imageText"
+        android:id="@+id/imageTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/White"
+        android:textSize="18sp"
+        android:layout_gravity="top"
+        android:gravity="center"
+        android:background="@color/TransparentMiddle"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        tools:text="This is what the text over the image will look like"/>
+
+    <TextView
+        android:id="@+id/imageDescriptionTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/White"

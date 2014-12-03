@@ -9,14 +9,16 @@ import android.os.Parcelable;
 */
 public class ImageGalleryInfoHolder implements Parcelable {
     private String mImageUrl;
-    private String mCaption;
+    private String mDescription;
+    private String mTitle;
     private boolean mIsExplicit;
 
     public ImageGalleryInfoHolder() {}
 
-    public ImageGalleryInfoHolder(String imageUrl, String caption) {
+    public ImageGalleryInfoHolder(String imageUrl, String title, String description) {
         mImageUrl = imageUrl;
-        mCaption = caption;
+        mTitle = title;
+        mDescription = description;
         mIsExplicit = false;
     }
 
@@ -36,14 +38,21 @@ public class ImageGalleryInfoHolder implements Parcelable {
         mImageUrl = imageUrl;
     }
 
-    public String getCaption() {
-        return mCaption;
+    public String getTitle() {
+        return mTitle;
     }
 
-    public void setCaption(final String caption) {
-        mCaption = caption;
+    public void setTitle(final String title) {
+        mTitle = title;
     }
 
+    public String getDescription() {
+        return mDescription;
+    }
+
+    public void setDescription(final String description) {
+        mDescription = description;
+    }
 
     @Override
     public int describeContents() {
@@ -53,12 +62,12 @@ public class ImageGalleryInfoHolder implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.mImageUrl);
-        dest.writeString(this.mCaption);
+        dest.writeString(this.mDescription);
     }
 
     ImageGalleryInfoHolder(Parcel in) {
         this.mImageUrl = in.readString();
-        this.mCaption = in.readString();
+        this.mDescription = in.readString();
     }
 
     public static final Creator<ImageGalleryInfoHolder> CREATOR = new Creator<ImageGalleryInfoHolder>() {

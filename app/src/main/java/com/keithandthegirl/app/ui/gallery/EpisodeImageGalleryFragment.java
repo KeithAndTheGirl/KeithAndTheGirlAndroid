@@ -83,8 +83,12 @@ public class EpisodeImageGalleryFragment extends Fragment {
             TouchImageView imageView = (TouchImageView) view.findViewById(R.id.galleryImageView);
             String url = mImageHolderList.get(position).getImageUrl();
             Picasso.with(container.getContext()).load(url).into(imageView);
-            TextView captionTextView = (TextView) view.findViewById(R.id.imageText);
-            captionTextView.setText(mImageHolderList.get(position).getCaption());
+
+            TextView imageTitleTextView = (TextView) view.findViewById(R.id.imageTitleTextView);
+            imageTitleTextView.setText(mImageHolderList.get(position).getTitle());
+
+            TextView imageDescriptionTextView = (TextView) view.findViewById(R.id.imageDescriptionTextView);
+            imageDescriptionTextView.setText(mImageHolderList.get(position).getDescription());
             viewPager.addView(view);
             return view;
         }

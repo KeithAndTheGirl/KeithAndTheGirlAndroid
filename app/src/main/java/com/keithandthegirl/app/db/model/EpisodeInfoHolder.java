@@ -267,7 +267,7 @@ public class EpisodeInfoHolder {
         }
         cursor.close();
 
-        String[] projection = {ImageConstants._ID, ImageConstants.FIELD_MEDIAURL, ImageConstants.FIELD_DESCRIPTION};
+        String[] projection = {ImageConstants._ID, ImageConstants.FIELD_TITLE, ImageConstants.FIELD_DESCRIPTION, ImageConstants.FIELD_MEDIAURL};
         String selection = ImageConstants.FIELD_SHOWID + " = ?";
         String[] selectionArgs = new String[]{String.valueOf(episodeId)};
 
@@ -283,8 +283,9 @@ public class EpisodeInfoHolder {
         cursor = contentResolver.query(ImageConstants.CONTENT_URI, projection, selection, selectionArgs, ImageConstants.FIELD_DISPLAY_ORDER);
         while (cursor.moveToNext()) {
             String mediaUrl = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_MEDIAURL));
+            String title = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_TITLE));
             String description = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_DESCRIPTION));
-            episodeImages.add(new ImageGalleryInfoHolder(mediaUrl, description));
+            episodeImages.add(new ImageGalleryInfoHolder(mediaUrl, title, description));
         }
         cursor.close();
         episodeHolder.setEpisodeImages(episodeImages);
