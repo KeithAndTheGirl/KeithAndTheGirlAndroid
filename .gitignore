@@ -58,3 +58,4 @@ proguard/
 .idea/
 
 .gitignore.orig
+app/src/main/assets/crashlytics-build.properties
