@@ -1,49 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="10dp">
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    tools:background="@color/White">
 
     <ImageView
         android:id="@+id/guest_image"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:layout_margin="10dp"
-        android:padding="5dp" />
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/Transparent"
+        android:padding="5dp"
+        android:elevation="5dp"
+        tools:src="@drawable/ic_launcher"/>
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/guest_episodes"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:padding="5dp">
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/black"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/guest_image"
+        tools:text="Episodes: 15"
+        android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/guest_real_name"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="@android:color/black"
-            android:text="real name"
-            android:textSize="18sp" />
+    <TextView
+        android:id="@+id/guest_real_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/guest_image"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="KATG Guest"/>
 
-        <TextView
-            android:id="@+id/guest_episodes"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="@android:color/black"
-            android:text="episodes"
-            android:textSize="14sp" />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/guest_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:layout_toRightOf="@id/guest_image"
+        android:layout_below="@id/guest_real_name"
+        android:layout_marginRight="16dp"
+        tools:text="The girl's younger brother. Maintains this site and works on several other web projects. Former president of Atheists United."
+        android:textSize="14sp" />
 
     <View
         android:id="@+id/SplitLine_ver1"
         android:layout_width="match_parent"
         android:layout_height= "2dp"
         android:layout_marginTop="10dp"
+        android:layout_alignParentBottom="true"
         android:background="@color/katg_show_status" />
 
-</LinearLayout>
+</RelativeLayout>

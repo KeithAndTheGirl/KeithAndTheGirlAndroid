@@ -132,21 +132,27 @@ public class MainActivity
                 replaceFragment(ShowsTabFragment.newInstance());
                 break;
             case GUESTS:
+                getSupportActionBar().setTitle("Guests");
                 replaceFragment(GuestsFragment.newInstance());
                 break;
             case LIVE:
+                getSupportActionBar().setTitle("Live");
                 replaceFragment(LiveFragment.newInstance());
                 break;
             case SCHEDULE:
+                getSupportActionBar().setTitle("Schedule");
                 replaceFragment(EventsFragment.newInstance());
                 break;
             case YOUTUBE:
+                getSupportActionBar().setTitle("Youtube");
                 replaceFragment(YoutubeFragment.newInstance());
                 break;
             case ABOUT:
+                getSupportActionBar().setTitle("About");
                 replaceFragment(AboutFragment.newInstance());
                 break;
             case SETTINGS:
+                getSupportActionBar().setTitle("Settings");
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingsIntent);
                 break;

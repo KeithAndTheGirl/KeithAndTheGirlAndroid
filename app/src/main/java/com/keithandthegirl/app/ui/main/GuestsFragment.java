@@ -22,7 +22,7 @@ public class GuestsFragment extends ListFragment {
 
     private static final String RAW_GUESTS_QUERY =
             "SELECT distinct " +
-            "    g._id, g.realname, g.pictureurl, count( eg.showguestid) as count " +
+            "    g._id, g.realname, g.pictureurl, g.description, count( eg.showguestid) as count " +
             "FROM " +
             "    guest g left join episode_guests eg on g._id = eg.showguestid " +
             "group by " +
@@ -90,6 +90,7 @@ public class GuestsFragment extends ListFragment {
             refHolder.image = (ImageView) view.findViewById( R.id.guest_image );
             refHolder.realName = (TextView) view.findViewById( R.id.guest_real_name );
             refHolder.episodes = (TextView) view.findViewById( R.id.guest_episodes );
+            refHolder.description = (TextView) view.findViewById(R.id.guest_description);
 
             view.setTag( refHolder );
 
@@ -105,9 +106,9 @@ public class GuestsFragment extends ListFragment {
                 mHolder.image.setVisibility( View.VISIBLE );
                 Picasso.with(getActivity()).load(pictureUrl).fit().centerCrop().into(mHolder.image);
             } else {
-                mHolder.image.setVisibility( View.GONE );
+                mHolder.image.setVisibility( View.INVISIBLE );
             }
-
+            mHolder.description.setText(cursor.getString(cursor.getColumnIndex(GuestConstants.FIELD_DESCRIPTION)));
             mHolder.realName.setText( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_REALNAME ) ) );
             mHolder.episodes.setText( "Episodes: " + cursor.getString( cursor.getColumnIndex( "count" ) ) );
         }
@@ -117,7 +118,7 @@ public class GuestsFragment extends ListFragment {
         ImageView image;
         TextView realName;
         TextView episodes;
-
+        TextView description;
         ViewHolder() { }
     }
 }
