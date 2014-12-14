@@ -146,6 +146,11 @@
     <color name="TransparentSelected">#BB000000</color>
     <color name="TransparentDark">#EE000000</color>
 
+    <color name="LightTransparentLight">#552F4F4F</color>
+    <color name="LightTransparentMiddle">#AAFFFFFF</color>
+    <color name="LightTransparentSelected">#BBFFFFFF</color>
+    <color name="LightTransparentDark">#EEFFFFFF</color>
+
     <color name="katg_green">#74be66</color>
     <color name="katg_dark_green">#60a520</color>
 

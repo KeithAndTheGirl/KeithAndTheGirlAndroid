@@ -52,5 +52,38 @@
     <string name="navigation_drawer_open">Navigation drawer open</string>
     <string name="navigation_drawer_close">Navigation drawer closed</string>
     <string name="katg_actionbar_title">KATG</string>
+    <string name="live_show_info">You will be able to listen to the show live and send feedback directly to hosts Keith and Chemda. They respond to listener feedback live on the show.</string>
+    <string name="live_title_not_broadcasting">NEXT LIVE SHOW</string>
+    <string name="live_title_broadcasting">ON AIR</string>
+
+    <plurals name="timerSeconds">
+        <item quantity="one"><big>%d</big> second</item>
+        <item quantity="other"><big>%d</big> seconds</item>
+    </plurals>
+
+    <plurals name="timerMinutes">
+        <item quantity="one"><big>%d</big> minute</item>
+        <item quantity="other"><big>%d</big> minutes</item>
+    </plurals>
+
+    <plurals name="timerHours">
+        <item quantity="one"><big>%d</big> hour</item>
+        <item quantity="other"><big>%d</big> hours</item>
+    </plurals>
+
+    <plurals name="timerDays">
+        <item quantity="one"><big>%d</big> day</item>
+        <item quantity="other"><big>%d</big> days</item>
+    </plurals>
+
+    <plurals name="timerWeeks">
+        <item quantity="one"><big>%d</big> week</item>
+        <item quantity="other"><big>%d</big> weeks</item>
+    </plurals>
+
+    <plurals name="timerMonths">
+        <item quantity="one"><big>%d</big> month</item>
+        <item quantity="other"><big>%d</big> months</item>
+    </plurals>
 
 </resources>

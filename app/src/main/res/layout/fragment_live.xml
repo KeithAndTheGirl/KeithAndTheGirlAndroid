@@ -11,18 +11,29 @@
         android:src="@drawable/live_background"/>
 
     <TextView
-        android:id="@+id/nextLiveShowView"
+        android:id="@+id/liveFragmentTitleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="NEXT LIVE SHOW"
+        tools:text="@string/live_title_not_broadcasting"
         android:textSize="28sp"
         android:gravity="center_horizontal"
         android:layout_alignParentTop="true"
         android:textColor="@color/katg_dark_green"/>
 
+    <ViewSwitcher
+        android:id="@+id/liveViewSwitcher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/liveFragmentTitleTextView"
+        android:layout_gravity="center">
+
+        <include layout="@layout/layout_live_countdown"/>
+        <include layout="@layout/layout_live_feedback"/>
+
+    </ViewSwitcher>
+
     <TextView
-        android:id="@+id/feedbackView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -30,57 +41,6 @@
         android:gravity="center"
         android:textSize="18sp"
         android:textColor="@color/White"
-        android:text="You will be able to listen to the show live and send feedback directly to hosts Keith and Chemda. They respond to listener feedback live on the show."/>
-
-    <LinearLayout
-        android:id="@+id/countDownView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/nextLiveShowView"
-        android:layout_marginTop="40dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/White"
-            android:text="Starts in..."/>
-
-        <TextView
-            android:id="@+id/countDownTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="24sp"
-            android:gravity="center_horizontal"
-            android:textColor="@color/White"
-            tools:text="1 Day 7 Hours 33 Seconds"/>
-
-    </LinearLayout>
-
-    <ViewSwitcher
-        android:id="@+id/playStopLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/countDownView"
-        android:layout_gravity="center"
-        android:visibility="gone">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/live_play_button"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/live_stop_button"/>
-
-    </ViewSwitcher>
+        android:text="@string/live_show_info"/>
 
 </RelativeLayout>
