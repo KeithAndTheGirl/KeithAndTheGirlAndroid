@@ -38,7 +38,7 @@
             <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="10"
+            android:layout_weight="9"
             android:layout_marginBottom="8dp"
             android:textColor="@android:color/black"
             tools:text="Jan 1, 1999 10:00 AM"
@@ -65,7 +65,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="10"
+            android:layout_weight="9"
             android:textColor="@android:color/black"
             tools:text="Q.E.D. 27-16 23rd Ave, Astoria NY 11105"
             android:id="@+id/event_location" />
@@ -91,7 +91,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="10"
+            android:layout_weight="9"
             android:textColor="@android:color/black"
             android:id="@+id/event_details"
             android:linksClickable="true"
