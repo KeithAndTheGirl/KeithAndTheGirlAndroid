@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_margin="5dp"
+              android:padding="5dp"
+              tools:background="@color/White">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/black"
+        tools:text="Live Show with Daniel Frey"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:id="@+id/event_title" />
+
+    <LinearLayout
+        android:id="@+id/whenLayout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginRight="8dp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="When:"/>
+
+            <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
+            android:layout_marginBottom="8dp"
+            android:textColor="@android:color/black"
+            tools:text="Jan 1, 1999 10:00 AM"
+            android:id="@+id/event_start_date" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/locationLayout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginRight="8dp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="Location:"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
+            android:textColor="@android:color/black"
+            tools:text="Q.E.D. 27-16 23rd Ave, Astoria NY 11105"
+            android:id="@+id/event_location" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/detailsLayout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginRight="8dp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="Details:"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
+            android:textColor="@android:color/black"
+            android:id="@+id/event_details"
+            android:linksClickable="true"
+            tools:text="Keith and Chemda host You Can't Say That the game show with fan-favorite guest stars!"
+            android:autoLink="web"/>
+
+    </LinearLayout>
+
+</LinearLayout>

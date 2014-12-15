@@ -52,8 +52,7 @@
         <activity
             android:name="com.keithandthegirl.app.ui.WorkItemsActivity"
             android:label="@string/title_activity_workitems"
-            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity"
-            android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
+            android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
@@ -74,7 +73,7 @@
             android:name="com.keithandthegirl.app.ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName="com.keithandthegirl.app.ui.main.MainActivity"
-            android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
+            android:theme="@style/Base.Theme.AppCompat">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithandthegirl.app.ui.main.MainActivity" />

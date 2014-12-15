@@ -3,10 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.keithandthegirl.app.ui.MainActivity" >
 
-    <item android:id="@+id/action_broadcasting"
-        android:title="@string/action_broadcasting"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_live_mic_off"
-        app:showAsAction="always" />
+    <item android:id="@+id/action_work_items"
+        android:title="@string/action_work_items"
+        android:orderInCategory="500"
+        app:showAsAction="never" />
 
 </menu>

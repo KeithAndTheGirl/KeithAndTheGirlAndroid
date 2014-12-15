@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EventConstants;
+import com.keithandthegirl.app.utils.StringUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -25,11 +26,15 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.util.TimeZone;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 /**
  * Created by dmfrey on 3/21/14.
+ * TODO this would look nice as a recyclerView/cardView
+ * TODO adding an action to the card for adding a reminder could be a nice feature. but maybe just a push notification would be better
  */
 public class EventsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
     private static final String TAG = EventsFragment.class.getSimpleName();
 
     EventCursorAdapter mAdapter;
@@ -45,113 +50,112 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
+    public Loader<Cursor> onCreateLoader(int i, Bundle args) {
         String[] projection = null;
 
         String selection = EventConstants.FIELD_ENDDATE + " > ?";
 
-        DateTime now = new DateTime( DateTimeZone.UTC );
-        String[] selectionArgs = new String[] { String.valueOf( now.getMillis() ) };
+        DateTime now = new DateTime(DateTimeZone.UTC);
+        String[] selectionArgs = new String[]{String.valueOf(now.getMillis())};
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), EventConstants.CONTENT_URI, projection, selection, selectionArgs, EventConstants.FIELD_ENDDATE );
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), EventConstants.CONTENT_URI, projection, selection, selectionArgs, EventConstants.FIELD_ENDDATE);
         return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
-        mAdapter.swapCursor( cursor );
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mAdapter.swapCursor(cursor);
     }
 
     @Override
-     public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        mAdapter.swapCursor( null );
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mAdapter.swapCursor(null);
     }
 
     @Override
-    public void onActivityCreated( Bundle savedInstanceState ) {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mAdapter = new EventCursorAdapter( getActivity() );
-        setListAdapter( mAdapter );
-        getLoaderManager().initLoader( 0, null, this );
+        mAdapter = new EventCursorAdapter(getActivity());
+        setListAdapter(mAdapter);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     private class EventCursorAdapter extends CursorAdapter {
         private LayoutInflater mInflater;
 
-        DateTimeFormatter mFormatter = DateTimeFormat.forPattern( "MMM d, yyyy hh:mm aa" ).withZone( DateTimeZone.forTimeZone( TimeZone.getTimeZone( "America/New_York" ) ) );
+        DateTimeFormatter mFormatter = DateTimeFormat.forPattern("MMM d, yyyy hh:mm aa").withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("America/New_York")));
 
-        public EventCursorAdapter( Context context ) {
-            super( context, null, false );
+        public EventCursorAdapter(Context context) {
+            super(context, null, false);
 
-            mInflater = LayoutInflater.from( context );
+            mInflater = LayoutInflater.from(context);
         }
 
         @Override
-        public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-            View view = mInflater.inflate( R.layout.event_item_row, parent, false );
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = mInflater.inflate(R.layout.listview_item_event, parent, false);
 
-            ViewHolder refHolder = new ViewHolder();
-            refHolder.title = (TextView) view.findViewById( R.id.event_title );
-            refHolder.startDate = (TextView) view.findViewById( R.id.event_start_date );
-            refHolder.endDate = (TextView) view.findViewById( R.id.event_end_date );
-            refHolder.location = (TextView) view.findViewById( R.id.event_location );
-            refHolder.details = (TextView) view.findViewById( R.id.event_details );
-
-            view.setTag( refHolder );
+            ViewHolder refHolder = new ViewHolder(view);
+            view.setTag(refHolder);
 
             return view;
         }
 
         @Override
-        public void bindView( View view, Context context, Cursor cursor ) {
-
+        public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            long start = cursor.getLong( cursor.getColumnIndex( EventConstants.FIELD_STARTDATE ) );
-            long end = cursor.getLong( cursor.getColumnIndex( EventConstants.FIELD_ENDDATE ) );
-            String details = cursor.getString(cursor.getColumnIndex(EventConstants.FIELD_DETAILS));
+            long start = cursor.getLong(cursor.getColumnIndex(EventConstants.FIELD_STARTDATE));
+            String details = cursor.getString(cursor.getColumnIndex(EventConstants.FIELD_DETAILS)).trim();
+            String title = cursor.getString(cursor.getColumnIndex(EventConstants.FIELD_TITLE));
+            String location = cursor.getString(cursor.getColumnIndex(EventConstants.FIELD_LOCATION));
 
-            mHolder.title.setText( cursor.getString( cursor.getColumnIndex( EventConstants.FIELD_TITLE ) ) );
+            mHolder.title.setText(title.trim());
 
-            if( start > 0 ) {
-                mHolder.startDate.setText( mFormatter.print(start) );
-                mHolder.startDate.setVisibility(View.VISIBLE);
+            if (start > 0) {
+                mHolder.startDate.setText(mFormatter.print(start));
+                mHolder.whenLayout.setVisibility(View.VISIBLE);;
             } else {
-                mHolder.startDate.setVisibility(View.GONE);
+                mHolder.whenLayout.setVisibility(View.GONE);
             }
 
-            if( end > 0 ) {
-                mHolder.endDate.setText( mFormatter.print(end) );
-                mHolder.endDate.setVisibility(View.VISIBLE);
+            if (!StringUtils.isNullOrEmpty(location)) {
+                mHolder.location.setText(location);
+                mHolder.locationLayout.setVisibility(View.VISIBLE);
             } else {
-                mHolder.endDate.setVisibility(View.GONE);
+                mHolder.locationLayout.setVisibility(View.GONE);
             }
 
-            mHolder.location.setText( cursor.getString( cursor.getColumnIndex( EventConstants.FIELD_LOCATION ) ) );
+            if (!StringUtils.isNullOrEmpty(details)) {
 
-            if( null != details && !"null".equals( details ) && !"".equals( details ) ) {
-
-                details = "<p>" + details + "</p>";
-
-                mHolder.details.setMovementMethod( LinkMovementMethod.getInstance() );
-                mHolder.details.setText( Html.fromHtml( details ) );
-                mHolder.details.setVisibility(View.VISIBLE);
+                mHolder.details.setMovementMethod(LinkMovementMethod.getInstance());
+                mHolder.details.setText(Html.fromHtml(details));
+                mHolder.detailsLayout.setVisibility(View.VISIBLE);
             } else {
-                mHolder.details.setText( "" );
-                mHolder.details.setVisibility(View.GONE);
+                mHolder.details.setText("");
+                mHolder.detailsLayout.setVisibility(View.GONE);
             }
-
         }
-
     }
 
-    private static class ViewHolder {
+    static class ViewHolder {
+        @InjectView(R.id.event_title)
         TextView title;
+        @InjectView(R.id.event_start_date)
         TextView startDate;
-        TextView endDate;
+        @InjectView(R.id.event_location)
         TextView location;
+        @InjectView(R.id.event_details)
         TextView details;
+        @InjectView(R.id.whenLayout)
+        View whenLayout;
+        @InjectView(R.id.locationLayout)
+        View locationLayout;
+        @InjectView(R.id.detailsLayout)
+        View detailsLayout;
 
-        ViewHolder() { }
+        ViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
     }
 }

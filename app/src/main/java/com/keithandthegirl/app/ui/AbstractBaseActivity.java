@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.keithandthegirl.app.BuildConfig;
 import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
@@ -76,6 +77,9 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
 
+        if (BuildConfig.DEBUG) {
+            getMenuInflater().inflate(R.menu.debug, menu);
+        }
         return true;
     }
 

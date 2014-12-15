@@ -17,6 +17,9 @@ import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.GuestConstants;
 import com.squareup.picasso.Picasso;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 public class GuestsFragment extends ListFragment {
     private static final String TAG = GuestsFragment.class.getSimpleName();
 
@@ -84,14 +87,9 @@ public class GuestsFragment extends ListFragment {
 
         @Override
         public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-            View view = mInflater.inflate( R.layout.guest_row, parent, false );
+            View view = mInflater.inflate( R.layout.listview_item_guest, parent, false );
 
-            ViewHolder refHolder = new ViewHolder();
-            refHolder.image = (ImageView) view.findViewById( R.id.guest_image );
-            refHolder.realName = (TextView) view.findViewById( R.id.guest_real_name );
-            refHolder.episodes = (TextView) view.findViewById( R.id.guest_episodes );
-            refHolder.description = (TextView) view.findViewById(R.id.guest_description);
-
+            ViewHolder refHolder = new ViewHolder(view);
             view.setTag( refHolder );
 
             return view;
@@ -114,11 +112,18 @@ public class GuestsFragment extends ListFragment {
         }
     }
 
-    private static class ViewHolder {
+    static class ViewHolder {
+        @InjectView(R.id.guest_image)
         ImageView image;
+        @InjectView(R.id.guest_real_name)
         TextView realName;
+        @InjectView(R.id.guest_episodes)
         TextView episodes;
+        @InjectView(R.id.guest_description)
         TextView description;
-        ViewHolder() { }
+
+        ViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
     }
 }

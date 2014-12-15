@@ -129,6 +129,7 @@ public class MainActivity
     public void onNavigationDrawerItemSelected(NavigationItem navigationChoice) {
         switch (navigationChoice.getNavigationItemType()) {
             case SHOWS:
+                getSupportActionBar().setTitle("Shows");
                 replaceFragment(ShowsTabFragment.newInstance());
                 break;
             case GUESTS:

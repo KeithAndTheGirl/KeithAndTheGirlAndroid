@@ -21,6 +21,9 @@ import com.keithandthegirl.app.ui.slidingtabs.SlidingTabLayout;
 import com.keithandthegirl.app.ui.slidingtabs.SlidingTabPagerAdapter;
 import com.keithandthegirl.app.utils.StringUtils;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 /**
  * Created by Jeff on 11/26/2014.
  * TODO remember page when coming back from replaceFragment
@@ -29,9 +32,12 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     private static final String TAG = ShowsTabFragment.class.getSimpleName();
 
     CursorFragmentPagerAdapter mAdapter;
-    private View mProgressView;
-    private ViewPager mViewPager;
-    private SlidingTabLayout mSlidingTabLayout;
+    @InjectView(R.id.progressContainer)
+    View mProgressView;
+    @InjectView(R.id.viewpager)
+    ViewPager mViewPager;
+    @InjectView(R.id.sliding_tabs)
+    SlidingTabLayout mSlidingTabLayout;
 
     public static ShowsTabFragment newInstance() {
         ShowsTabFragment fragment = new ShowsTabFragment();
@@ -51,19 +57,16 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
         final View rootView = inflater.inflate( R.layout.fragment_shows_tab, container, false );
-        mProgressView = rootView.findViewById(R.id.progressContainer);
-        mProgressView.setVisibility(View.VISIBLE);
+        ButterKnife.inject(this, rootView);
         return rootView;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        mProgressView.setVisibility(View.VISIBLE);
         mAdapter = new ShowCursorAdapter(getChildFragmentManager(), null);
         mViewPager.setAdapter(mAdapter);
-
-        mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 
@@ -72,7 +75,6 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
         super.onActivityCreated( savedInstanceState );
         getLoaderManager().initLoader( 0, getArguments(), this );
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
