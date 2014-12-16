@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.keithandthegirl.app.ui.slidingtabs;
+package com.keithandthegirl.app.ui.custom.slidingtabs;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;

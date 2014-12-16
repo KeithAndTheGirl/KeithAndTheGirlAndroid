@@ -17,8 +17,8 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.custom.CursorFragmentPagerAdapter;
 import com.keithandthegirl.app.ui.shows.ShowFragment;
-import com.keithandthegirl.app.ui.slidingtabs.SlidingTabLayout;
-import com.keithandthegirl.app.ui.slidingtabs.SlidingTabPagerAdapter;
+import com.keithandthegirl.app.ui.custom.slidingtabs.SlidingTabLayout;
+import com.keithandthegirl.app.ui.custom.slidingtabs.SlidingTabPagerAdapter;
 import com.keithandthegirl.app.utils.StringUtils;
 
 import butterknife.ButterKnife;

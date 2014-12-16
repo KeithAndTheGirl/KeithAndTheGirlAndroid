@@ -1,4 +1,4 @@
-package com.keithandthegirl.app.ui.slidingtabs;
+package com.keithandthegirl.app.ui.custom.slidingtabs;
 
 import android.database.Cursor;
 import android.support.v4.app.FragmentManager;
