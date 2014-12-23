@@ -25,5 +25,6 @@
     <dimen name="transport_thumb_margin_adjust">-20dp</dimen>
     <dimen name="about_text_size">14sp</dimen>
     <dimen name="navigation_drawer_width">306dp</dimen>
+    <dimen name="katg_toolbar_playback_height">48dp</dimen>
 
 </resources>

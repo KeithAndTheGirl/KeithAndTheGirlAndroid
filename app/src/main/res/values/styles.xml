@@ -29,4 +29,10 @@
         <item name="android:listDivider">@color/katg_green</item>
     </style>
 
+    <style name="PlaybackProgress" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">7dp</item>
+    </style>
+
 </resources>

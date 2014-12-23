@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="@dimen/katg_toolbar_playback_height"
+              android:background="@color/katg_toolbar_playback_background">
+
+    <FrameLayout
+        android:id="@+id/showImageLayout"
+        android:layout_width="@dimen/katg_toolbar_playback_height"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:background="@color/katg_toolbar_playback_background">
+
+        <ImageView
+            android:id="@+id/showImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_launcher"/>
+
+    </FrameLayout>
+
+    <ImageButton
+        android:id="@+id/playImageButton"
+        android:layout_width="@dimen/katg_toolbar_playback_height"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:background="@color/katg_toolbar_playback_background"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_play_arrow_grey600_48dp"/>
+
+    <FrameLayout
+        android:id="@+id/seekLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_toRightOf="@id/showImageLayout"
+        android:layout_toLeftOf="@id/playImageButton"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ProgressBar
+            android:id="@+id/playbackProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            style="@style/PlaybackProgress"
+            android:layout_gravity="center"
+            android:progressDrawable="@drawable/playback_progress_drawable"
+            android:progress="50"
+            android:max="100"/>
+
+    </FrameLayout>
+
+</RelativeLayout>

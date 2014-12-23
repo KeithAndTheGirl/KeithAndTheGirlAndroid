@@ -18,10 +18,19 @@
             android:minHeight="?attr/actionBarSize"
             android:background="?attr/colorPrimary"/>
 
+        <fragment
+            android:id="@+id/katgToolbarPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/katg_toolbar_playback_height"
+            android:layout_alignParentBottom="true"
+            android:name="com.keithandthegirl.app.ui.player.KatgPlayerFragment"
+            tools:layout="@layout/fragment_katg_player"/>
+
         <FrameLayout android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/toolbar"/>
+            android:layout_below="@id/toolbar"
+            android:layout_above="@id/katgToolbarPlayer"/>
 
     </RelativeLayout>
 

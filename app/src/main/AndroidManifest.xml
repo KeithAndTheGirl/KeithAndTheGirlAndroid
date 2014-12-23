@@ -96,6 +96,8 @@
                 android:value=".ui.shows.ShowsActivity" />
         </activity>
 
+        <activity android:name=".ui.player.KatgPlaybackActivity"/>
+
         <!-- KATG Receivers -->
         <receiver android:name="com.keithandthegirl.app.db.schedule.KatgAlarmReceiver" />
         <receiver

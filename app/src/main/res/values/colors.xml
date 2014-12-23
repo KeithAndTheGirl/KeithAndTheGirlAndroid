@@ -156,6 +156,7 @@
 
     <color name="katg_action_bar_tab_selected">#ffffff</color>
     <color name="katg_action_bar_tab_unselected">#b6bcbf</color>
+    <color name="katg_toolbar_playback_background">#88ff88</color>
 
     <color name="katg_main_background">#262B31</color>
     <color name="katg_background_middle">#ee191f25</color>
@@ -176,6 +177,7 @@
     <color name="katg_tab_text_unselected_color">#7e7e7e</color>
     <color name="katg_vip_badge_start">#50A1E6</color>
     <color name="katg_vip_badge_end">#3973B9</color>
+
 
 
 </resources>

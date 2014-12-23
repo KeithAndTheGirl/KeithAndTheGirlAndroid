@@ -18,6 +18,7 @@ import com.keithandthegirl.app.ui.AbstractBaseActivity;
 import com.keithandthegirl.app.ui.episode.EpisodeFragment;
 import com.keithandthegirl.app.ui.navigationdrawer.NavigationDrawerFragment;
 import com.keithandthegirl.app.ui.navigationdrawer.NavigationItem;
+import com.keithandthegirl.app.ui.player.KatgPlayerFragment;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.ui.shows.ShowFragment;
 
@@ -33,6 +34,7 @@ public class MainActivity
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private KatgPlayerFragment mPlayerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,10 @@ public class MainActivity
         // Set up the drawer.
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationDrawerFragment.setupDrawer(R.id.navigation_drawer, drawerLayout, getNavigationItemList());
+
+        mPlayerFragment = (KatgPlayerFragment)
+                getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
+        // todo any player fragment setup?
 
         boolean neverRun = false;
         Cursor cursor = getContentResolver().query(ShowConstants.CONTENT_URI, null, null, null, null);
