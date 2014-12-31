@@ -5,16 +5,19 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.ShowConstants;
+import com.keithandthegirl.app.sync.ShowsDataFragment;
 import com.keithandthegirl.app.ui.custom.CursorFragmentPagerAdapter;
 import com.keithandthegirl.app.ui.shows.ShowFragment;
 import com.keithandthegirl.app.ui.custom.slidingtabs.SlidingTabLayout;
@@ -29,7 +32,9 @@ import butterknife.InjectView;
  * TODO remember page when coming back from replaceFragment
  */
 public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String TAG = ShowsTabFragment.class.getSimpleName();
+    private static final String SHOWS_DATA_FRAGMENT_TAG = ShowsDataFragment.class.getCanonicalName();
 
     CursorFragmentPagerAdapter mAdapter;
     @InjectView(R.id.progressContainer)
@@ -56,8 +61,22 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+
         final View rootView = inflater.inflate( R.layout.fragment_shows_tab, container, false );
         ButterKnife.inject(this, rootView);
+
+        ShowsDataFragment showsDataFragment = (ShowsDataFragment) getChildFragmentManager().findFragmentByTag( SHOWS_DATA_FRAGMENT_TAG );
+        if( null == showsDataFragment ) {
+
+            showsDataFragment = (ShowsDataFragment) instantiate( getActivity(), ShowsDataFragment.class.getName() );
+            showsDataFragment.setRetainInstance( true );
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.add( showsDataFragment, SHOWS_DATA_FRAGMENT_TAG );
+            transaction.commit();
+
+        }
+
         return rootView;
     }
 

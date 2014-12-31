@@ -252,19 +252,24 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
 //        if( episodeCount < mShowHolder.getEpisodeNumberMax() ) {
 
-            int lastIndex = getListView().getCount() - 1;
+        int lastIndex = getListView().getLastVisiblePosition();
+        if( lastIndex == 0 ) {
+            new EpisodeListAsyncTask( getActivity(), (int) mShowNameId, -1, -1, 50, false ).execute();
+        } else {
+
             long lastId = getListAdapter().getItemId( lastIndex );
             Log.d( TAG, "loadMoreItems : lastIndex=" + lastIndex + ", lastId=" + lastId );
 
-            EpisodeInfoHolder episodeHolder = EpisodeInfoHolder.loadEpisode( getActivity(), lastId );
+            EpisodeInfoHolder episodeHolder = EpisodeInfoHolder.loadEpisode(getActivity(), lastId);
             int number = episodeHolder.getEpisodeNumber() - 50;
-            if( number < 1 ) {
+            if (number < 1) {
                 number = 1;
             }
-
             new EpisodeListAsyncTask( getActivity(), (int) mShowNameId, -1, number, 50, false ).execute();
 
-            setRefreshing( true );
+        }
+
+        setRefreshing( true );
 
 //        }
 

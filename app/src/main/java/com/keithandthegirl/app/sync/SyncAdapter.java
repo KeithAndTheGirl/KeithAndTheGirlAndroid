@@ -331,7 +331,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     case OVERVIEW:
 //                        Log.i( TAG, "executeJobs : refreshing shows" );
 
-                        getShows( provider, job );
+                        //getShows( provider, job );
                         break;
                     case EVENTS:
 //                        Log.i( TAG, "executeJobs : refreshing events" );
@@ -346,13 +346,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     case LIST:
                         Log.i( TAG, "executeJobs : refreshing episode list" );
 
-                        getEpisodes( provider, job );
+//                        getEpisodes( provider, job );
                         break;
 
                     case RECENT:
 //                        Log.i( TAG, "executeJobs : refreshing recent episodes" );
 
-                        getRecentEpisodes( provider, job );
+//                        getRecentEpisodes( provider, job );
 
                         break;
 
@@ -366,7 +366,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     case DETAILS:
 //                        Log.i( TAG, "executeJobs : refreshing episode details" );
 
-                        getEpisodeDetails( provider, job );
+//                        getEpisodeDetails( provider, job );
 
                         break;
 
