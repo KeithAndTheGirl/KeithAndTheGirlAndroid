@@ -60,30 +60,27 @@
         <item quantity="one"><big>%d</big> second</item>
         <item quantity="other"><big>%d</big> seconds</item>
     </plurals>
-
     <plurals name="timerMinutes">
         <item quantity="one"><big>%d</big> minute</item>
         <item quantity="other"><big>%d</big> minutes</item>
     </plurals>
-
     <plurals name="timerHours">
         <item quantity="one"><big>%d</big> hour</item>
         <item quantity="other"><big>%d</big> hours</item>
     </plurals>
-
     <plurals name="timerDays">
         <item quantity="one"><big>%d</big> day</item>
         <item quantity="other"><big>%d</big> days</item>
     </plurals>
-
     <plurals name="timerWeeks">
         <item quantity="one"><big>%d</big> week</item>
         <item quantity="other"><big>%d</big> weeks</item>
     </plurals>
-
     <plurals name="timerMonths">
         <item quantity="one"><big>%d</big> month</item>
         <item quantity="other"><big>%d</big> months</item>
     </plurals>
+
+    <string name="title_activity_detail_player_controls">DetailPlayerControlsActivity</string>
 
 </resources>

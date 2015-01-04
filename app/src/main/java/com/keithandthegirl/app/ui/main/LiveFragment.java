@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.keithandthegirl.app.R;
@@ -101,7 +102,6 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
         mLocationEditText.addTextChangedListener(this);
         mNameEditText.addTextChangedListener(this);
         mCommentEditText.addTextChangedListener(this);
-
     }
 
     @Override
@@ -112,41 +112,7 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
-        FeedbackService.getInstance().getBroadcastingLive(new Callback<Live>() {
-            @Override
-            public void success(final Live live, final Response response) {
-                if (live.isBroadcasting()) {
-                    // update UI
-                    mLiveViewSwitcher.setDisplayedChild(VIEW_LIVE);
-                    mLiveFragmentTitleTextView.setText(R.string.live_title_broadcasting);
-
-                    // stop timer if running
-                    if (updateHandler != null) {
-                        updateHandler.removeCallbacks(updateRunnable);
-                    }
-                } else {
-                    // update UI
-                    mLiveViewSwitcher.setDisplayedChild(VIEW_COUNTDOWN);
-                    mLiveFragmentTitleTextView.setText(R.string.live_title_not_broadcasting);
-
-                    // start cursor loader for next show time
-                    getLoaderManager().initLoader(0, null, LiveFragment.this);
-                }
-            }
-
-            @Override
-            public void failure(final RetrofitError error) {
-                Log.w(TAG, error.getMessage());
-                // todo this is the same call as success not broadcasting, refactor to one method
-                // update UI
-                mLiveViewSwitcher.setDisplayedChild(VIEW_COUNTDOWN);
-                mLiveFragmentTitleTextView.setText(R.string.live_title_not_broadcasting);
-
-                // start cursor loader for next show time
-                getLoaderManager().initLoader(0, null, LiveFragment.this);
-            }
-        });
-
+        doLiveCheck();
     }
 
     @Override
@@ -173,19 +139,19 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
         FeedbackService.getInstance().sendFeedback(name, location, comment, new Callback<FeedbackService.FeedbackResult>() {
             @Override
             public void success(final FeedbackService.FeedbackResult feedbackResult, final Response response) {
+                Toast.makeText(getActivity(), "Feedback was sent!", Toast.LENGTH_LONG).show();
                 afterPost();
             }
 
             @Override
             public void failure(final RetrofitError error) {
+                Toast.makeText(getActivity(), "Failed to send your feedback. :(", Toast.LENGTH_SHORT).show();
                 afterPost();
             }
 
             void afterPost() {
                 mSubmitButton.setEnabled(true);
                 mSubmitButton.setText("Submit");
-                mNameEditText.setText(StringUtils.EMPTY_STRING);
-                mLocationEditText.setText(StringUtils.EMPTY_STRING);
                 mCommentEditText.setText(StringUtils.EMPTY_STRING);
             }
         });
@@ -226,6 +192,7 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
         if (delta < MINUTE_MILLIS) {
             int seconds = (int) (delta / SECONDS_MILLIS);
             resultString = getResources().getQuantityString(R.plurals.timerSeconds, seconds, seconds);
+            doLiveCheck();
         } else if (delta < HOUR_MILLIS) {
             int minutes = (int) (delta / MINUTE_MILLIS);
             int seconds = (int) ((delta % MINUTE_MILLIS) / SECONDS_MILLIS);
@@ -283,8 +250,46 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
                     System.currentTimeMillis(),
                     android.text.format.DateUtils.FORMAT_SHOW_YEAR,
                     android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE);
+            doLiveCheck();
         }
         return resultString;
+    }
+
+    private void doLiveCheck() {
+        FeedbackService.getInstance().getBroadcastingLive(new Callback<Live>() {
+            @Override
+            public void success(final Live live, final Response response) {
+                if (live.isBroadcasting()) {
+                    // update UI
+                    mLiveViewSwitcher.setDisplayedChild(VIEW_LIVE);
+                    mLiveFragmentTitleTextView.setText(R.string.live_title_broadcasting);
+
+                    // stop timer if running
+                    if (updateHandler != null) {
+                        updateHandler.removeCallbacks(updateRunnable);
+                    }
+                } else {
+                    // update UI
+                    mLiveViewSwitcher.setDisplayedChild(VIEW_COUNTDOWN);
+                    mLiveFragmentTitleTextView.setText(R.string.live_title_not_broadcasting);
+
+                    // start cursor loader for next show time
+                    getLoaderManager().initLoader(0, null, LiveFragment.this);
+                }
+            }
+
+            @Override
+            public void failure(final RetrofitError error) {
+                Log.w(TAG, error.getMessage());
+                // todo this is the same call as success not broadcasting, refactor to one method
+                // update UI
+                mLiveViewSwitcher.setDisplayedChild(VIEW_COUNTDOWN);
+                mLiveFragmentTitleTextView.setText(R.string.live_title_not_broadcasting);
+
+                // start cursor loader for next show time
+                getLoaderManager().initLoader(0, null, LiveFragment.this);
+            }
+        });
     }
 
     @Override

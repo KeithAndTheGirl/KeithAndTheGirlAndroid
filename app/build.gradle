@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.14.7'
     }
 }
 
@@ -65,7 +65,6 @@ android {
             minifyEnabled false
         }
         beta {
-
             minifyEnabled false
             applicationIdSuffix '.beta'
 //            if( katgProperties.exists() ) {

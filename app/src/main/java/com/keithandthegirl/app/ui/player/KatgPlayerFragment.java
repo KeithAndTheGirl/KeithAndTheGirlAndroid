@@ -31,14 +31,13 @@ public class KatgPlayerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_katg_player, container, false);
-
         ButterKnife.inject(this, view);
         return view;
     }
 
     @OnClick( {R.id.seekLayout, R.id.showImageLayout})
     public void showTransport(View view) {
-        Intent playbackIntent = new Intent(this.getActivity(), KatgPlaybackActivity.class);
+        Intent playbackIntent = new Intent(this.getActivity(), DetailPlayerControlsActivity.class);
         startActivity(playbackIntent);
     }
 }
