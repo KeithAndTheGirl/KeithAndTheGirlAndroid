@@ -16,7 +16,6 @@ import butterknife.OnClick;
 
 /**
  * Created by Jeff on 12/16/2014.
- * Copyright Propeller Health 2014
  */
 public class KatgPlayerFragment extends Fragment {
 
