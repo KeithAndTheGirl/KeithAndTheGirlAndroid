@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 
@@ -62,6 +63,10 @@ public class ShowsDataFragment extends Fragment {
         super.onDestroyView();
 
         Log.v( TAG, "onDestroyView : exit" );
+    }
+
+    public boolean isLoading() {
+        return loading;
     }
 
     private void initializeClient() {
@@ -149,10 +154,16 @@ public class ShowsDataFragment extends Fragment {
 
             loading = true;
 
-            List<Show> shows = katgService.seriesOverview();
+            try {
+                List<Show> shows = katgService.seriesOverview();
 
-            Log.v( TAG, "doInBackground : exit" );
-            return shows;
+                Log.v( TAG, "doInBackground : exit" );
+                return shows;
+            } catch( RetrofitError e ) {
+
+                Log.v( TAG, "doInBackground : error", e );
+                return null;
+            }
         }
 
         @Override

@@ -2,18 +2,24 @@ package com.keithandthegirl.app;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.keithandthegirl.app.account.AccountGeneral;
 import com.squareup.picasso.Picasso;
 
+import java.util.Calendar;
+
 /**
  * Created by dmfrey on 3/19/14.
  */
 public class MainApplication extends Application {
+
     private static final String TAG = MainApplication.class.getSimpleName();
 
     // An account type, in the form of a domain name
@@ -22,13 +28,22 @@ public class MainApplication extends Application {
     // The account name
     public static final String ACCOUNT = "dummyaccount";
 
+    private AlarmManager mAlarmManager;
+    private PendingIntent mBroadcastingPendingIntent;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        Crashlytics.start(this);
+//        Crashlytics.start(this);
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setIndicatorsEnabled(false);
         }
+
+//        mAlarmManager = (AlarmManager) getSystemService( Context.ALARM_SERVICE );
+//        Intent intent = new Intent( this, AlarmReceiver.class );
+//        mBroadcastingPendingIntent = PendingIntent.getBroadcast( this, 0, intent, 0 );
+//
+//        mAlarmManager.setInexactRepeating( AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_FIFTEEN_MINUTES, AlarmManager.INTERVAL_HOUR, mBroadcastingPendingIntent );
     }
 
     public static Account CreateSyncAccount( Context context ) {

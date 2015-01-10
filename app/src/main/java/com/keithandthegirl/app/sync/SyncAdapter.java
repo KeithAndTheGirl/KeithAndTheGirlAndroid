@@ -341,7 +341,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     case LIVE:
 //                        Log.i( TAG, "executeJobs : refreshing live status" );
 
-                        getLives( provider, job );
+                        //getLives( provider, job );
                         break;
                     case LIST:
                         Log.i( TAG, "executeJobs : refreshing episode list" );

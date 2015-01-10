@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -25,6 +26,8 @@ import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EventConstants;
 import com.keithandthegirl.app.db.model.Live;
 import com.keithandthegirl.app.feeback.FeedbackService;
+import com.keithandthegirl.app.sync.BroadcastingDataFragment;
+import com.keithandthegirl.app.sync.ShowsDataFragment;
 import com.keithandthegirl.app.utils.StringUtils;
 
 import org.joda.time.DateTime;
@@ -43,6 +46,8 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
     private static final String TAG = LiveFragment.class.getSimpleName();
     private static final int VIEW_COUNTDOWN = 0;
     private static final int VIEW_LIVE = 1;
+
+    private static final String BROADCASTING_DATA_FRAGMENT_TAG = BroadcastingDataFragment.class.getCanonicalName();
 
     private long mNextStart;
 
@@ -90,8 +95,22 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_live, container, false);
         ButterKnife.inject(this, view);
+
+        BroadcastingDataFragment broadcastingDataFragment = (BroadcastingDataFragment) getChildFragmentManager().findFragmentByTag( BROADCASTING_DATA_FRAGMENT_TAG );
+        if( null == broadcastingDataFragment ) {
+
+            broadcastingDataFragment = (BroadcastingDataFragment) instantiate( getActivity(), BroadcastingDataFragment.class.getName() );
+            broadcastingDataFragment.setRetainInstance( true );
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.add( broadcastingDataFragment, BROADCASTING_DATA_FRAGMENT_TAG );
+            transaction.commit();
+
+        }
+
         return view;
     }
 
