@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Jeff on 12/16/2014.
- * Copyright Propeller Health 2014
  */
 public class AuthenticationResponse {
 

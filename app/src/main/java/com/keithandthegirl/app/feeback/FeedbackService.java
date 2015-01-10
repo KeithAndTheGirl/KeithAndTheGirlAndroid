@@ -17,7 +17,6 @@ import retrofit.http.POST;
 
 /**
  * Created by Jeff on 12/5/2014.
- * Copyright Propeller Health 2014
  */
 public class FeedbackService {
     private static final String TAG = FeedbackService.class.getSimpleName();
