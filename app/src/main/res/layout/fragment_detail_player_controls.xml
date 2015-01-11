@@ -17,6 +17,7 @@
         tools:background="@color/Green"/>
 
     <SeekBar
+        android:id="@+id/playerSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:progress="50"

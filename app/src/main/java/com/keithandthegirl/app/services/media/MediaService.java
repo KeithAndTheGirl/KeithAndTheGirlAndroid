@@ -21,6 +21,7 @@ import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -45,7 +46,9 @@ import java.io.IOException;
 public class MediaService extends Service implements OnCompletionListener, OnPreparedListener, OnErrorListener, AudioFocusable {
 
     // The tag we put on debug messages
-    final static String TAG = MediaService.class.getSimpleName();
+    private final static String TAG = MediaService.class.getSimpleName();
+
+    private final IBinder mBinder = new MediaServiceBinder();
 
     // The id of the episode to play
     public static final String EXTRA_EPISODE_ID = "com.keithandthegirl.app.services.media.extra.EPISODE_ID";
@@ -242,9 +245,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
         if( null != mPlayer ) {
             int seekPosition = intent.getIntExtra(EXTRA_SEEK_POSITION, -1);
 
-            mPlayer.seekTo(seekPosition);
-
-            updateLastPlayed(seekPosition);
+            processSeekRequest( seekPosition );
 
             processStatusRequest();
         }
@@ -252,7 +253,15 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processSeekRequest : exit");
     }
 
-    void processStatusRequest() {
+    public void processSeekRequest( int seekPosition ) {
+
+        mPlayer.seekTo(seekPosition);
+
+        updateLastPlayed(seekPosition);
+
+    }
+
+    public void processStatusRequest() {
 
         if( null == mEpisodeId || mEpisodeId.longValue() <= 0 ) {
             return;
@@ -299,7 +308,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
     }
 
-    void processTogglePlaybackRequest() {
+    public void processTogglePlaybackRequest() {
 //        Log.d(TAG, "processTogglePlaybackRequest : enter");
 
         if (mState == State.Paused || mState == State.Stopped) {
@@ -311,7 +320,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processTogglePlaybackRequest : exit");
     }
 
-    void processPlayRequest() {
+    public void processPlayRequest() {
 //        Log.d(TAG, "processPlayRequest : enter");
 
         if( null == mPlayer ) {
@@ -351,7 +360,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processPlayRequest : exit");
     }
 
-    void processPauseRequest() {
+    public void processPauseRequest() {
 //        Log.d(TAG, "processPauseRequest : enter");
 
         if( null == mPlayer ) {
@@ -385,7 +394,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processPauseRequest : exit");
     }
 
-    void processPreviousRequest() {
+    public void processPreviousRequest() {
 //        Log.d(TAG, "processPreviousRequest : enter");
 
         if( null == mPlayer ) {
@@ -400,7 +409,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processPreviousRequest : exit");
     }
 
-    void processRewindRequest() {
+    public void processRewindRequest() {
 //        Log.d(TAG, "processRewindRequest : enter");
 
         if( null == mPlayer ) {
@@ -423,7 +432,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processRewindRequest : exit");
     }
 
-    void processFastForwardRequest() {
+    public void processFastForwardRequest() {
 //        Log.d(TAG, "processFastForwardRequest : enter");
 
         if( null == mPlayer ) {
@@ -447,7 +456,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processFastForwardRequest : exit");
     }
 
-    void processSkipRequest() {
+    public void processSkipRequest() {
 //        Log.d(TAG, "processSkipRequest : enter");
 
         if (mState == State.Playing || mState == State.Paused) {
@@ -460,7 +469,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processSkipRequest : exit");
     }
 
-    void processStopRequest() {
+    public void processStopRequest() {
 //        Log.d(TAG, "processStopRequest : enter");
 
         processStopRequest(false);
@@ -468,7 +477,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "processStopRequest : exit");
     }
 
-    void processStopRequest(boolean force) {
+    public void processStopRequest(boolean force) {
 //        Log.d(TAG, "processStopRequest : enter");
 
         if( null == mPlayer ) {
@@ -575,7 +584,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 //        Log.d(TAG, "configAndStartMediaPlayer : exit");
     }
 
-    void processAddRequest(Intent intent) {
+    public void processAddRequest(Intent intent) {
 //        Log.d(TAG, "processAddRequest : enter");
 
         if (mState == State.Playing || mState == State.Paused) {
@@ -593,6 +602,14 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
         playEpisode();
 
 //        Log.d(TAG, "processAddRequest : exit");
+    }
+
+    public EpisodeInfoHolder getEpisode() {
+        return mEpisodeHolder;
+    }
+
+    public State getState() {
+        return mState;
     }
 
     void tryToGetAudioFocus() {
@@ -889,7 +906,16 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
 
     @Override
     public IBinder onBind(Intent arg0) {
-        return null;
+        return mBinder;
+    }
+
+    public class MediaServiceBinder extends Binder {
+
+        public MediaService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return MediaService.this;
+        }
+
     }
 
 }

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,7 +30,9 @@ public class MainActivity
         extends AbstractBaseActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
                    ShowFragment.OnShowFragmentListener {
+
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String PLAYER_FRAGMENT_TAG = KatgPlayerFragment.class.getCanonicalName();
 
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
 
@@ -54,10 +57,6 @@ public class MainActivity
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationDrawerFragment.setupDrawer(R.id.navigation_drawer, drawerLayout, getNavigationItemList());
 
-        mPlayerFragment = (KatgPlayerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
-        // todo any player fragment setup?
-
         boolean neverRun = false;
         Cursor cursor = getContentResolver().query(ShowConstants.CONTENT_URI, null, null, null, null);
         if (cursor.getCount() == 0) {
@@ -75,6 +74,24 @@ public class MainActivity
         }
 
         alarm.setAlarm(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mPlayerFragment = (KatgPlayerFragment) getSupportFragmentManager().findFragmentByTag( PLAYER_FRAGMENT_TAG );
+        if( null == mPlayerFragment ) {
+            mPlayerFragment = (KatgPlayerFragment) Fragment.instantiate(this, KatgPlayerFragment.class.getName());
+
+            FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+            transaction.add( mPlayerFragment, PLAYER_FRAGMENT_TAG );
+            transaction.commit();
+
+        } else {
+            replaceFragment(mPlayerFragment);
+        }
+
     }
 
     private List<NavigationItem> getNavigationItemList() {
