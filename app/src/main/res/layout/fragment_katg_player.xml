@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="@dimen/katg_toolbar_playback_height"
-              android:background="@color/katg_toolbar_playback_background">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/playerLayout"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/katg_toolbar_playback_height"
+                android:background="@color/katg_toolbar_playback_background">
 
     <FrameLayout
         android:id="@+id/showImageLayout"
@@ -32,7 +34,7 @@
         android:scaleType="centerInside"
         android:src="@drawable/ic_play_arrow_grey600_48dp"/>
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/seekLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -42,16 +44,26 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
+        <TextView
+            android:id="@+id/episodeInfoTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:textColor="@color/Black"
+            android:singleLine="true"
+            tools:text="2015: The quick brown fox jumped over the lazy Dog."/>
+
         <ProgressBar
             android:id="@+id/playbackProgressBar"
             android:layout_width="match_parent"
             android:layout_height="16dp"
             style="@style/PlaybackProgress"
-            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/episodeInfoTextView"
             android:progressDrawable="@drawable/playback_progress_drawable"
-            android:progress="50"
-            android:max="100"/>
+            tools:progress="50"
+            tools:max="100"/>
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

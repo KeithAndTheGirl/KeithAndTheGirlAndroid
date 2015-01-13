@@ -83,11 +83,6 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <activity
-            android:name=".ui.player.SimplePlayerActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name"
-            android:theme="@style/PlayerTheme" />
-        <activity
             android:name=".ui.episode.EpisodeActivity"
             android:label="@string/title_activity_episode" >
             <meta-data
@@ -182,7 +177,7 @@
             android:syncable="true" />
 
         <activity
-            android:name=".ui.player.DetailPlayerControlsActivity"
+            android:name=".ui.player.PlaybackControlsActivity"
             android:label="@string/title_activity_detail_player_controls" >
         </activity>
     </application>

@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,7 +18,7 @@ import com.keithandthegirl.app.ui.AbstractBaseActivity;
 import com.keithandthegirl.app.ui.episode.EpisodeFragment;
 import com.keithandthegirl.app.ui.navigationdrawer.NavigationDrawerFragment;
 import com.keithandthegirl.app.ui.navigationdrawer.NavigationItem;
-import com.keithandthegirl.app.ui.player.KatgPlayerFragment;
+import com.keithandthegirl.app.ui.player.PlaybackStatusFragment;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.ui.shows.ShowFragment;
 
@@ -29,33 +28,39 @@ import java.util.List;
 public class MainActivity
         extends AbstractBaseActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-                   ShowFragment.OnShowFragmentListener {
+                   ShowFragment.OnShowFragmentListener, PlaybackStatusFragment.PlayerVisibilityListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String PLAYER_FRAGMENT_TAG = KatgPlayerFragment.class.getCanonicalName();
 
     KatgAlarmReceiver alarm = new KatgAlarmReceiver();
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private KatgPlayerFragment mPlayerFragment;
+    private PlaybackStatusFragment mPlayerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
         getSupportActionBar().setTitle(R.string.katg_actionbar_title);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationDrawerFragment =
+                (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         // Set up the drawer.
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationDrawerFragment.setupDrawer(R.id.navigation_drawer, drawerLayout, getNavigationItemList());
+
+        mPlayerFragment =
+                (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
+        mPlayerFragment.setPlayerVisibilityListener(this);
+        if (mPlayerFragment != null) {
+            getSupportFragmentManager().beginTransaction().hide(mPlayerFragment).commit();
+        }
 
         boolean neverRun = false;
         Cursor cursor = getContentResolver().query(ShowConstants.CONTENT_URI, null, null, null, null);
@@ -79,19 +84,6 @@ public class MainActivity
     @Override
     protected void onResume() {
         super.onResume();
-
-        mPlayerFragment = (KatgPlayerFragment) getSupportFragmentManager().findFragmentByTag( PLAYER_FRAGMENT_TAG );
-        if( null == mPlayerFragment ) {
-            mPlayerFragment = (KatgPlayerFragment) Fragment.instantiate(this, KatgPlayerFragment.class.getName());
-
-            FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-            transaction.add( mPlayerFragment, PLAYER_FRAGMENT_TAG );
-            transaction.commit();
-
-        } else {
-            replaceFragment(mPlayerFragment);
-        }
-
     }
 
     private List<NavigationItem> getNavigationItemList() {
@@ -192,5 +184,11 @@ public class MainActivity
     @Override
     public void onShowSelected(long showId, long episodeId) {
         replaceFragment(EpisodeFragment.newInstance(episodeId));
+    }
+
+    @Override
+    public void onVisibilityChanged(final boolean visible) {
+        //TODO we should be able to animate this visibility change...
+        getSupportFragmentManager().beginTransaction().hide(mPlayerFragment).commit();
     }
 }

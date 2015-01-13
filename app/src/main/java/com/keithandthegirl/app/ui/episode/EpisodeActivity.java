@@ -28,7 +28,6 @@ import com.keithandthegirl.app.ui.gallery.EpisodeImageGalleryFragment;
 import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -290,7 +289,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                 }
 
                 MediaService.State state = MediaService.State.valueOf(intent.getStringExtra(MediaService.EXTRA_STATE));
-                if( state.equals( MediaService.State.Playing ) || state.equals( MediaService.State.Paused ) ) {
+                if( state.equals( MediaService.State.PLAYING) || state.equals( MediaService.State.PAUSED) ) {
 //                    Log.v( TAG, "onReceive : MediaService is playing or paused" );
 
                     int currentPosition = intent.getIntExtra( MediaService.EXTRA_CURRENT_POSITION, -1 );
@@ -300,7 +299,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
                 }
 
-                if( state.equals( MediaService.State.Playing ) ) {
+                if( state.equals( MediaService.State.PLAYING) ) {
 //                    Log.v( TAG, "onReceive : MediaService is playing" );
 
                     mPlayButton.setText( "Pause" );
@@ -311,7 +310,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
                 }
 
-                if( state.equals( MediaService.State.Paused ) ) {
+                if( state.equals( MediaService.State.PAUSED) ) {
 //                    Log.v( TAG, "onReceive : MediaService is paused" );
 
                     mPlayButton.setText( "Play" );
@@ -322,7 +321,7 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
                 }
 
-                if( !state.equals( MediaService.State.Playing ) && !state.equals( MediaService.State.Paused ) ) {
+                if( !state.equals( MediaService.State.PLAYING) && !state.equals( MediaService.State.PAUSED) ) {
 //                    Log.v( TAG, "onReceive : MediaService is not playing or paused" );
 
                     mPlayerControls.setVisibility( View.GONE );

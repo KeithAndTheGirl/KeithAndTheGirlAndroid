@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/katg_toolbar_playback_height"
             android:layout_alignParentBottom="true"
-            android:name="com.keithandthegirl.app.ui.player.KatgPlayerFragment"
+            android:name="com.keithandthegirl.app.ui.player.PlaybackStatusFragment"
             tools:layout="@layout/fragment_katg_player"/>
 
         <FrameLayout android:id="@+id/container"

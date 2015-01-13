@@ -7,18 +7,17 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.services.media.MediaService;
 import com.keithandthegirl.app.services.media.MediaService.MediaServiceBinder;
-import com.keithandthegirl.app.services.media.MediaService.State;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -27,13 +26,15 @@ import butterknife.OnClick;
 /**
  * Created by Jeff on 12/16/2014.
  */
-public class KatgPlayerFragment extends Fragment {
+public class PlaybackStatusFragment extends Fragment implements MediaService.MediaServiceEventListener {
+    private static final String TAG = PlaybackStatusFragment.class.getSimpleName();
 
-    private static final String TAG = KatgPlayerFragment.class.getSimpleName();
-
-    MediaService mService;
+    MediaService mMediaService;
+    PlayerVisibilityListener mPlayerVisibilityListener = null;
     boolean mBound = false;
 
+    @InjectView(R.id.playerLayout)
+    View playerLayout;
     @InjectView(R.id.seekLayout)
     View seekLayout;
     @InjectView(R.id.showImageLayout)
@@ -42,6 +43,14 @@ public class KatgPlayerFragment extends Fragment {
     ImageButton playImageButton;
     @InjectView(R.id.playbackProgressBar)
     ProgressBar playbackProgressBar;
+    @InjectView(R.id.episodeInfoTextView)
+    TextView episodeInfoTextView;
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,7 +63,6 @@ public class KatgPlayerFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        Log.d( TAG, "onStart : connecting to MediaService" );
         Intent intent = new Intent(getActivity(), MediaService.class);
         getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
@@ -71,63 +79,67 @@ public class KatgPlayerFragment extends Fragment {
         super.onStop();
 
         if (mBound) {
-            Log.d( TAG, "onStop : disconnecting from MediaService" );
             getActivity().unbindService(mConnection);
             mBound = false;
         }
     }
 
-    @OnClick( {R.id.seekLayout, R.id.showImageLayout})
+    @OnClick({R.id.seekLayout, R.id.showImageLayout})
     public void showTransport(View view) {
-        Intent playbackIntent = new Intent(this.getActivity(), DetailPlayerControlsActivity.class);
+        Intent playbackIntent = new Intent(this.getActivity(), PlaybackControlsActivity.class);
         startActivity(playbackIntent);
     }
 
+    public void setPlayerVisibilityListener(PlayerVisibilityListener playerVisibilityListener) {
+        mPlayerVisibilityListener = playerVisibilityListener;
+    }
+
+    @Override
+    public void onStatusUpdate(final EpisodeInfoHolder episodeInfoHolder) {
+        updateView();
+
+    }
+
     private void updateView() {
-        Log.d( TAG, "updateView : enter" );
-
-        if( mBound ) {
-            Log.d( TAG, "updateView : MediaService bound, setting up controls" );
-
-            if( mService.getState().equals( State.Playing ) || mService.getState().equals( State.Paused ) ) {
-                Log.d( TAG, "updateView : MediaService is playing" );
-
-                EpisodeInfoHolder episode = mService.getEpisode();
-                playbackProgressBar.setMax( episode.getEpisodeLength() * 1000 );
-                playbackProgressBar.setProgress( episode.getEpisodeLastPlayed() );
-
-                // todo: toggle play button
+        if (mBound) {
+            switch (mMediaService.getState()) {
+                case NONE:
+                    if (mPlayerVisibilityListener != null) {
+                        mPlayerVisibilityListener.onVisibilityChanged(false);
+                    }
+                    break;
+                case PLAYING:
+                case PAUSED:
+                    if (mPlayerVisibilityListener != null) {
+                        mPlayerVisibilityListener.onVisibilityChanged(true);
+                    }
+                    EpisodeInfoHolder episode = mMediaService.getEpisode();
+                    playbackProgressBar.setMax(episode.getEpisodeLength() * 1000);
+                    playbackProgressBar.setProgress(episode.getEpisodeLastPlayed());
+                    episodeInfoTextView.setText(episode.getEpisodeTitle());
+                    break;
             }
-
         }
-
-        Log.d( TAG, "updateView : exit" );
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
-
         @Override
-        public void onServiceConnected( ComponentName className, IBinder service ) {
-            Log.d( TAG, "ServiceConnection.onServiceConnected : enter" );
-
+        public void onServiceConnected(ComponentName className, IBinder service) {
             MediaServiceBinder binder = (MediaServiceBinder) service;
-            mService = binder.getService();
+            mMediaService = binder.getMediaService();
+            mMediaService.setMediaServiceEventListener(PlaybackStatusFragment.this);
             mBound = true;
 
             updateView();
-
-            Log.d( TAG, "ServiceConnection.onServiceConnected : exit" );
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            Log.d( TAG, "ServiceConnection.onServiceDisconnected : enter" );
-
             mBound = false;
-
-            Log.d( TAG, "ServiceConnection.onServiceDisconnected : exit" );
         }
-
     };
 
+    public interface PlayerVisibilityListener {
+        void onVisibilityChanged(boolean visible);
+    }
 }
