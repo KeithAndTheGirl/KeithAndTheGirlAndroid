@@ -233,7 +233,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 //            mListener.onShowSelected(mShowNameId, id);
 //        }
         Intent i = new Intent(getActivity(), EpisodeActivity.class);
-        i.putExtra(EpisodeActivity.EPISODE_KEY, id);
+        i.putExtra(EpisodeActivity.ARG_EPISODE_KEY, id);
         startActivity(i);
     }
 

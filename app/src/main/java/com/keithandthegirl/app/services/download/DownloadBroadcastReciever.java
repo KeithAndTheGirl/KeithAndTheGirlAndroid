@@ -18,9 +18,9 @@ import android.util.Log;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.episode.EpisodeActivity;
-import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 
 import org.apache.commons.io.FileUtils;
 
@@ -92,7 +92,7 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
                                             .setAutoCancel( true );
 
                             Intent episodeIntent = new Intent(context, EpisodeActivity.class);
-                            episodeIntent.putExtra(EpisodeActivity.EPISODE_KEY, episodeId);
+                            episodeIntent.putExtra(EpisodeActivity.ARG_EPISODE_KEY, episodeId);
 
                             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
                             stackBuilder.addParentStack(EpisodeActivity.class);
@@ -124,7 +124,7 @@ public class DownloadBroadcastReciever extends BroadcastReceiver {
 
                     Intent episodeIntent = new Intent( context, EpisodeActivity.class );
                     episodeIntent.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
-                    episodeIntent.putExtra( EpisodeActivity.EPISODE_KEY, episodeId );
+                    episodeIntent.putExtra( EpisodeActivity.ARG_EPISODE_KEY, episodeId );
                     context.startActivity( episodeIntent );
 
                 }

@@ -28,7 +28,7 @@ import java.util.List;
 public class MainActivity
         extends AbstractBaseActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-                   ShowFragment.OnShowFragmentListener, PlaybackStatusFragment.PlayerVisibilityListener {
+                   ShowFragment.OnShowFragmentListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -57,10 +57,6 @@ public class MainActivity
 
         mPlayerFragment =
                 (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
-        mPlayerFragment.setPlayerVisibilityListener(this);
-        if (mPlayerFragment != null) {
-            getSupportFragmentManager().beginTransaction().hide(mPlayerFragment).commit();
-        }
 
         boolean neverRun = false;
         Cursor cursor = getContentResolver().query(ShowConstants.CONTENT_URI, null, null, null, null);
@@ -184,11 +180,5 @@ public class MainActivity
     @Override
     public void onShowSelected(long showId, long episodeId) {
         replaceFragment(EpisodeFragment.newInstance(episodeId));
-    }
-
-    @Override
-    public void onVisibilityChanged(final boolean visible) {
-        //TODO we should be able to animate this visibility change...
-        getSupportFragmentManager().beginTransaction().hide(mPlayerFragment).commit();
     }
 }

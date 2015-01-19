@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -48,9 +50,11 @@ import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.utils.StringUtils;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,12 +62,48 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<EpisodeInfoHolder>, AdapterView.OnItemClickListener {
-
     private static final String TAG = EpisodeFragment.class.getSimpleName();
 
     private static final String ARG_EPISODE_ID = "ARG_EPISODE_ID";
     private static final int VIEW_EPISODE_DETAILS = 0;
     private static final int VIEW_PROGRESS = 1;
+
+    ViewSwitcher mMainViewSwitcher;
+    @InjectView(R.id.episodeHeaderBackgroundImageView)
+    ImageView mEpisodeHeaderBackgroundImageView;
+
+    @InjectView(R.id.episodeDateTextView)
+    TextView mEpisodeDateTextView;
+
+    @InjectView(R.id.episodeNumberTextView)
+    TextView mEpisodeNumberTextView;
+
+    @InjectView(R.id.episodeTitleTextView)
+    TextView mEpisodeTitleTextView;
+
+    @InjectView(R.id.episodeGuestsTextView)
+    TextView mEpisodeGuestsTextView;
+
+    @InjectView(R.id.episodeGuestImagesGridView)
+    ExpandedHeightGridView mEpisodeGuestImagesGridView;
+
+    @InjectView(R.id.episodeImagesGridView)
+    ExpandedHeightGridView mEpisodeImagesGridView;
+
+    @InjectView(R.id.episodeShowNotesWebView)
+    WebView mEpisodeShowNotesWebView;
+
+    @InjectView(R.id.episodeDetailsLayout)
+    View mEpisodeDetailsLayout;
+
+    @InjectView(R.id.guestNamesLayout)
+    View mEpisodeGuestNamesLayout;
+
+    @InjectView(R.id.episodeImagesLayout)
+    View mEpisodeImagesLayout;
+
+    @InjectView(R.id.guestImagesLayout)
+    View mGuestImagesLayout;
 
     private long mEpisodeId;
     private EpisodeEventListener mEpisodeEventListener;
@@ -72,20 +112,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private EpisodeGuestImageAdapter mEpisodeGuestImageAdapter;
     private List<ImageGalleryInfoHolder> mImageGalleryInfoList;
     private EpisodeImageAdapter mEpisodeImageAdapter;
-
-    private ViewSwitcher mMainViewSwitcher;
-    private ImageView mEpisodeHeaderBackgroundImageView;
-    private TextView mEpisodeDateTextView;
-    private TextView mEpisodeNumberTextView;
-    private TextView mEpisodeTitleTextView;
-    private TextView mEpisodeGuestsTextView;
-    private ExpandedHeightGridView mEpisodeGuestImagesGridView;
-    private ExpandedHeightGridView mEpisodeImagesGridView;
-    private WebView mEpisodeShowNotesWebView;
-    private View mEpisodeDetailsLayout;
-    private View mEpisodeGuestNamessLayout;
-    private View mEpisodeImagesLayout;
-    private View mGuestImagesLayout;
 
     private MenuItem mPlayEpisodeMenuItem, mDownloadMenuItem, mDeleteMenuItem;
     private DownloadManager mDownloadManager;
@@ -126,7 +152,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         getLoaderManager().initLoader(1, null, this);
         setRetainInstance(true);
 
-        mEpisodeGuestImagesList = new ArrayList<String>();
+        mEpisodeGuestImagesList = new ArrayList<>();
         mEpisodeGuestImageAdapter = new EpisodeGuestImageAdapter(getActivity(), mEpisodeGuestImagesList);
 
         mImageGalleryInfoList = new ArrayList<>();
@@ -136,25 +162,12 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_episode, container, false);
+        ButterKnife.inject(this, fragmentView);
 
         mMainViewSwitcher = (ViewSwitcher) fragmentView;
         mMainViewSwitcher.setDisplayedChild(VIEW_PROGRESS);
-
-        mEpisodeDetailsLayout = fragmentView.findViewById(R.id.episodeDetailsLayout);
-        mEpisodeGuestNamessLayout = fragmentView.findViewById(R.id.guestNamesLayout);
-        mGuestImagesLayout = fragmentView.findViewById(R.id.guestImagesLayout);
-        mEpisodeImagesLayout = fragmentView.findViewById(R.id.episodeImagesLayout);
-
-        mEpisodeHeaderBackgroundImageView = (ImageView) fragmentView.findViewById(R.id.episodeHeaderBackgroundImageView);
-        mEpisodeDateTextView = (TextView) fragmentView.findViewById(R.id.episodeDateTextView);
-        mEpisodeNumberTextView = (TextView) fragmentView.findViewById(R.id.episodeNumberTextView);
-        mEpisodeTitleTextView = (TextView) fragmentView.findViewById(R.id.episodeTitleTextView);
-        mEpisodeGuestsTextView = (TextView) fragmentView.findViewById(R.id.episodeGuestsTextView);
-        mEpisodeGuestImagesGridView = (ExpandedHeightGridView) fragmentView.findViewById(R.id.episodeGuestImagesGridView);
         mEpisodeGuestImagesGridView.setAdapter(mEpisodeGuestImageAdapter);
 
-        mEpisodeShowNotesWebView = (WebView) fragmentView.findViewById(R.id.episodeShowNotesWebView);
-        mEpisodeImagesGridView = (ExpandedHeightGridView) fragmentView.findViewById(R.id.episodeImagesGridView);
         mEpisodeImagesGridView.setAdapter(mEpisodeImageAdapter);
         mEpisodeImagesGridView.setOnItemClickListener(this);
 
@@ -164,7 +177,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         setHasOptionsMenu(true);
 
         // only load the data once and set retain instance
@@ -175,7 +187,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (mEpisodeInfoHolder != null) {
             updateUI(mEpisodeInfoHolder);
         }
-
     }
 
     @Override
@@ -215,6 +226,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
         if( activity instanceof EpisodeEventListener ) {
             mEpisodeEventListener = (EpisodeEventListener) activity;
+        } else {
+            Log.w(TAG, "No one is registered for episode events!");
         }
 
     }
@@ -321,34 +334,23 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mDownloadMenuItem.setEnabled( false );
             mDeleteMenuItem.setVisible( true );
             mDeleteMenuItem.setEnabled( true );
-
-            return;
         } else {
-
             if (mEpisodeInfoHolder.getEpisodeDownloadId() != -1) {
-
                 mDownloadMenuItem.setVisible(false);
                 mDownloadMenuItem.setEnabled(false);
                 mDeleteMenuItem.setVisible(true);
                 mDeleteMenuItem.setEnabled(true);
-
-                return;
             } else {
 
                 mDownloadMenuItem.setVisible(true);
                 mDownloadMenuItem.setEnabled(true);
                 mDeleteMenuItem.setVisible(false);
                 mDeleteMenuItem.setEnabled(false);
-
-                return;
             }
-
         }
-
     }
 
     private boolean isDownloading() {
-
         if( null == mEpisodeInfoHolder ) {
             return false;
         }
@@ -363,8 +365,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
         for(cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
 
-            if( cur.getString(col).indexOf( mEpisodeInfoHolder.getEpisodeFilename() ) != -1 ) {
-
+            if(cur.getString(col).contains(mEpisodeInfoHolder.getEpisodeFilename())) {
                 switch (cur.getInt(cur.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
                     case DownloadManager.STATUS_FAILED:
                         isDownloading = false;
@@ -434,33 +435,28 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 values.put(EpisodeConstants.FIELD_DOWNLOADED, 0);
                 getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
             }
-
         }
-
     }
 
     private void deleteEpisode() {
-
         if( null == mEpisodeInfoHolder ) {
             return;
         }
 
         if( isDownloading() ) {
-
             mDownloadManager.remove(mEpisodeInfoHolder.getEpisodeDownloadId());
-
-        } else {
-
-            File externalFile = new File(getActivity().getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
-            if (externalFile.exists()) {
-                boolean deleted = externalFile.delete();
+        }
+//        else {
+//
+//            File externalFile = new File(getActivity().getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
+//            if (externalFile.exists()) {
+//                boolean deleted = externalFile.delete();
 //                if (deleted) {
 //                    Log.i(TAG, "deleteEpisode : externalFile deleted!");
 //
 //                }
-            }
-
-        }
+//            }
+//        }
 
         mEpisodeInfoHolder.setEpisodeDownloadId(-1);
         mEpisodeInfoHolder.setEpisodeDownloaded(false);
@@ -471,7 +467,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         getActivity().getContentResolver().update(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, mEpisodeId), values, null, null);
 
         swapMenuItems();
-
     }
 
     private void updateUI(EpisodeInfoHolder episodeHolder) {
@@ -485,9 +480,9 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         mEpisodeTitleTextView.setText(episodeHolder.getEpisodeTitle());
 
         if (StringUtils.isNullOrEmpty(episodeHolder.getGuestNames())) {
-            mEpisodeGuestNamessLayout.setVisibility(View.GONE);
+            mEpisodeGuestNamesLayout.setVisibility(View.GONE);
         } else {
-            mEpisodeGuestNamessLayout.setVisibility(View.VISIBLE);
+            mEpisodeGuestNamesLayout.setVisibility(View.VISIBLE);
             mEpisodeGuestsTextView.setText(episodeHolder.getGuestNames());
         }
 
@@ -509,22 +504,31 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mEpisodeImagesLayout.setVisibility(View.GONE);
         }
 
+        swapMenuItems();
+
+        // We are turnig off the progress right away if no notes but after web load if we have them!
         if (StringUtils.isNullOrEmpty(episodeHolder.getEpisodeDetailNotes())) {
             mEpisodeDetailsLayout.setVisibility(View.GONE);
+            mMainViewSwitcher.setDisplayedChild(VIEW_EPISODE_DETAILS);
         } else {
             mEpisodeDetailsLayout.setVisibility(View.VISIBLE);
             WebSettings settings = mEpisodeShowNotesWebView.getSettings();
             settings.setDefaultTextEncodingName("utf-8");
             String html = episodeHolder.getEpisodeDetailNotes();
-            if (!StringUtils.isNullOrEmpty(html)) {
+            if (!StringUtils.isNullOrEmpty(html.trim())) {
                 html = "<ul><li>" + html.replaceAll("\r\n", "</li><li>") + "</li></ul></br>";
             }
             mEpisodeShowNotesWebView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
-            mEpisodeShowNotesWebView.setBackgroundColor(0);
-        }
-        mMainViewSwitcher.setDisplayedChild(VIEW_EPISODE_DETAILS);
 
-        swapMenuItems();
+            mEpisodeShowNotesWebView.setBackgroundColor(0);
+            mEpisodeShowNotesWebView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(final WebView view, final String url) {
+                    super.onPageFinished(view, url);
+                    mMainViewSwitcher.setDisplayedChild(VIEW_EPISODE_DETAILS);
+                }
+            });
+        }
     }
 
     @Override
@@ -532,7 +536,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         return new AbstractAsyncTaskLoader<EpisodeInfoHolder>(getActivity()) {
             @Override
             public EpisodeInfoHolder load() throws Exception {
-
                 return EpisodeInfoHolder.loadEpisode( getActivity(), mEpisodeId );
             }
         };
@@ -541,10 +544,13 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public void onLoadFinished(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader, final WrappedLoaderResult<EpisodeInfoHolder> wrappedData) {
         if (wrappedData.hasException()) {
+            Log.e(TAG, "failed getting episode info", wrappedData.getException());
             // TODO what to display when we failed getting stuff from DB?
         } else {
             mEpisodeInfoHolder = wrappedData.getWrappedData();
+
             updateUI(mEpisodeInfoHolder);
+
             if (mEpisodeEventListener != null) {
                 mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder);
             }
@@ -561,7 +567,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
         if (mEpisodeEventListener != null) {
-            mEpisodeEventListener.onShowImageClicked(position, mEpisodeInfoHolder.getEpisodeImages());
+            mEpisodeEventListener.onEpisodeImageClicked(position, mEpisodeInfoHolder.getEpisodeImages());
         }
     }
 
@@ -578,17 +584,14 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             mWifiConnected = false;
             mMobileConnected = false;
         }
-
     }
 
     private void scheduleWorkItem() {
-
         if( !mWifiConnected && !mMobileConnected ) {
             return;
         }
 
         new EpisodeDetailsAsyncTask( getActivity(), (int) mEpisodeId ).execute();
-
     }
 
     private class SyncCompleteReceiver extends BroadcastReceiver {
@@ -600,9 +603,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
                 getLoaderManager().restartLoader( 1, null, EpisodeFragment.this );
             }
-
         }
-
     }
 
     private class EpisodeDetailsCompleteReceiver extends BroadcastReceiver {
@@ -614,9 +615,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             if( intent.getAction().equals( EpisodeDetailsAsyncTask.COMPLETE_ACTION ) ) {
                 getLoaderManager().restartLoader( 1, null, EpisodeFragment.this );
             }
-
         }
-
     }
 
     private class EpisodeGuestImageAdapter extends ArrayAdapter<String> {
@@ -664,7 +663,11 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 convertView.setTag(viewHolder);
             }
             ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            Picasso.with(getContext()).load(imageHolder.getImageUrl()).resize( 150, 150 ).centerInside().into(viewHolder.imageView);
+            if (imageHolder.isExplicit()) {
+                Picasso.with(getContext()).load(R.drawable.img_explicit_warning).resize(150, 150).centerInside().into(viewHolder.imageView);
+            } else {
+                Picasso.with(getContext()).load(imageHolder.getImageUrl()).resize(150, 150).centerInside().into(viewHolder.imageView);
+            }
 
             return convertView;
         }
@@ -676,6 +679,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     public interface EpisodeEventListener {
         void onEpisodeLoaded(EpisodeInfoHolder episodeInfoHolder);
-        void onShowImageClicked(int position, ArrayList<ImageGalleryInfoHolder> imageHolders);
+        void onEpisodeImageClicked(int position, ArrayList<ImageGalleryInfoHolder> imageHolders);
     }
 }

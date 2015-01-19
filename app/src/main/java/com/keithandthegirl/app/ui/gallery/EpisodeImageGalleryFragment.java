@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.ui.custom.TouchImageView;
 import com.keithandthegirl.app.utils.StringUtils;
@@ -21,6 +22,7 @@ public class EpisodeImageGalleryFragment extends Fragment {
     private static final String ARG_IMAGE_POSITION = "ARG_IMAGE_POSITION";
 
     public static final String STACK_NAME = EpisodeImageGalleryFragment.class.getName();
+    private static boolean mShowExplicit;
 
     private ArrayList<ImageGalleryInfoHolder> mInfoListHolder;
     private int mPosition;
@@ -52,6 +54,7 @@ public class EpisodeImageGalleryFragment extends Fragment {
             mInfoListHolder = getArguments().getParcelableArrayList(ARG_HOLDER_LIST);
             mPosition = getArguments().getInt(ARG_IMAGE_POSITION);
         }
+        mShowExplicit = MainApplication.isExplicitAllowed();
     }
 
     @Override
@@ -78,15 +81,20 @@ public class EpisodeImageGalleryFragment extends Fragment {
 
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
+            ImageGalleryInfoHolder imageGalleryInfoHolder = mImageHolderList.get(position);
             LayoutInflater layoutInflater = LayoutInflater.from(container.getContext());
-            ViewPager viewPager = (ViewPager)container;
+            ViewPager viewPager = (ViewPager) container;
             View view = layoutInflater.inflate(R.layout.view_pager_episode_gallery_image, container, false);
             TouchImageView imageView = (TouchImageView) view.findViewById(R.id.galleryImageView);
-            String url = mImageHolderList.get(position).getImageUrl();
-            Picasso.with(container.getContext()).load(url).into(imageView);
+
+            if (imageGalleryInfoHolder.isExplicit() && !mShowExplicit) {
+                Picasso.with(container.getContext()).load(R.drawable.img_explicit_warning).into(imageView);
+            } else {
+                Picasso.with(container.getContext()).load(imageGalleryInfoHolder.getImageUrl()).into(imageView);
+            }
 
             TextView imageTitleTextView = (TextView) view.findViewById(R.id.imageTitleTextView);
-            String title = mImageHolderList.get(position).getTitle();
+            String title = imageGalleryInfoHolder.getTitle();
             if (StringUtils.isNullOrEmpty(title)) {
                 imageTitleTextView.setVisibility(View.GONE);
             } else {
@@ -95,7 +103,7 @@ public class EpisodeImageGalleryFragment extends Fragment {
             }
 
             TextView imageDescriptionTextView = (TextView) view.findViewById(R.id.imageDescriptionTextView);
-            String description = mImageHolderList.get(position).getDescription();
+            String description = imageGalleryInfoHolder.getDescription();
             if (StringUtils.isNullOrEmpty(description)) {
                 imageDescriptionTextView.setVisibility(View.GONE);
             } else {

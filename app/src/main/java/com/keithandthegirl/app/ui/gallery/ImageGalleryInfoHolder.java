@@ -15,11 +15,16 @@ public class ImageGalleryInfoHolder implements Parcelable {
 
     public ImageGalleryInfoHolder() {}
 
-    public ImageGalleryInfoHolder(String imageUrl, String title, String description) {
+    public ImageGalleryInfoHolder(String imageUrl, String title, String description, int explicit) {
         mImageUrl = imageUrl;
         mTitle = title;
         mDescription = description;
-        mIsExplicit = false;
+
+        if (explicit > 0) {
+            mIsExplicit = true;
+        } else {
+            mIsExplicit = false;
+        }
     }
 
     public boolean isExplicit() {
@@ -54,6 +59,7 @@ public class ImageGalleryInfoHolder implements Parcelable {
         mDescription = description;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -63,14 +69,18 @@ public class ImageGalleryInfoHolder implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.mImageUrl);
         dest.writeString(this.mDescription);
+        dest.writeString(this.mTitle);
+        dest.writeByte(mIsExplicit ? (byte) 1 : (byte) 0);
     }
 
-    ImageGalleryInfoHolder(Parcel in) {
+    private ImageGalleryInfoHolder(Parcel in) {
         this.mImageUrl = in.readString();
         this.mDescription = in.readString();
+        this.mTitle = in.readString();
+        this.mIsExplicit = in.readByte() != 0;
     }
 
-    public static final Creator<ImageGalleryInfoHolder> CREATOR = new Creator<ImageGalleryInfoHolder>() {
+    public static final Parcelable.Creator<ImageGalleryInfoHolder> CREATOR = new Parcelable.Creator<ImageGalleryInfoHolder>() {
         public ImageGalleryInfoHolder createFromParcel(Parcel source) {
             return new ImageGalleryInfoHolder(source);
         }
