@@ -504,7 +504,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Uri uri = Uri.parse( job.getUrl() );
                 int showId = Integer.parseInt( uri.getQueryParameter( "showid" ) );
 
-                Detail showDetails = katgService.showDetails(showId, 0);
+                Detail showDetails = katgService.showDetails(showId, 1);
                 if( null != showDetails ) {
                     //Log.i(TAG, "getEpisodeDetails : showDetails=" + showDetails.toString());
                     processEpisodeDetails(showDetails, provider, showId);

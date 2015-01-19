@@ -53,7 +53,7 @@ public class EpisodeDetailsAsyncTask extends AsyncTask<Void, Void, Detail> {
 
     @Override
     protected Detail doInBackground( Void... params ) {
-        return mKatgService.showDetails( mShowId, 0 );
+        return mKatgService.showDetails( mShowId, 1 );
     }
 
     @Override

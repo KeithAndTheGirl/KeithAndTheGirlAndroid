@@ -690,7 +690,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
      */
     void updateNotification(String text) {
         Intent episodeIntent = new Intent(getApplicationContext(), EpisodeActivity.class);
-        episodeIntent.putExtra(EpisodeActivity.EPISODE_KEY, mEpisodeId);
+        episodeIntent.putExtra(EpisodeActivity.ARG_EPISODE_KEY, mEpisodeId);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
         stackBuilder.addParentStack(EpisodeActivity.class);
@@ -725,7 +725,7 @@ public class MediaService extends Service implements OnCompletionListener, OnPre
      */
     void setUpAsForeground(String text) {
         Intent episodeIntent = new Intent(getApplicationContext(), EpisodeActivity.class);
-        episodeIntent.putExtra(EpisodeActivity.EPISODE_KEY, mEpisodeId);
+        episodeIntent.putExtra(EpisodeActivity.ARG_EPISODE_KEY, mEpisodeId);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
         stackBuilder.addParentStack(EpisodeActivity.class);

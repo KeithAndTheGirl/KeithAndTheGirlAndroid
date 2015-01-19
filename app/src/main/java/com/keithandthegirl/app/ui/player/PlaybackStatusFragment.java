@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,28 +29,33 @@ import butterknife.OnClick;
  */
 public class PlaybackStatusFragment extends Fragment implements MediaService.MediaServiceEventListener {
     private static final String TAG = PlaybackStatusFragment.class.getSimpleName();
+    private static final String EPISODE_INFO_HOLDER = "EPISODE_INFO_HOLDER";
+    private static final String PLAYER_VISIBILITY = "PLAYER_VISIBILITY";
 
     MediaService mMediaService;
-    PlayerVisibilityListener mPlayerVisibilityListener = null;
     boolean mBound = false;
 
-    @InjectView(R.id.playerLayout)
-    View playerLayout;
     @InjectView(R.id.seekLayout)
-    View seekLayout;
+    View mSeekLayout;
     @InjectView(R.id.showImageLayout)
-    View showImageLayout;
+    View mShowImageLayout;
     @InjectView(R.id.playImageButton)
-    ImageButton playImageButton;
+    ImageButton mPlayImageButton;
     @InjectView(R.id.playbackProgressBar)
-    ProgressBar playbackProgressBar;
+    ProgressBar mPlaybackProgressBar;
     @InjectView(R.id.episodeInfoTextView)
-    TextView episodeInfoTextView;
+    TextView mEpisodeInfoTextView;
+
+    private EpisodeInfoHolder mEpisodeInfoHolder;
+    private boolean mIsVisible;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (savedInstanceState != null) {
+            mEpisodeInfoHolder = savedInstanceState.getParcelable(EPISODE_INFO_HOLDER);
+            mIsVisible = savedInstanceState.getBoolean(PLAYER_VISIBILITY);
+        }
     }
 
     @Override
@@ -57,6 +63,12 @@ public class PlaybackStatusFragment extends Fragment implements MediaService.Med
         View view = inflater.inflate(R.layout.fragment_katg_player, container, false);
         ButterKnife.inject(this, view);
         return view;
+    }
+
+    @Override
+    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        updateView();
     }
 
     @Override
@@ -84,14 +96,11 @@ public class PlaybackStatusFragment extends Fragment implements MediaService.Med
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     @OnClick({R.id.seekLayout, R.id.showImageLayout})
     public void showTransport(View view) {
         Intent playbackIntent = new Intent(this.getActivity(), PlaybackControlsActivity.class);
         startActivity(playbackIntent);
-    }
-
-    public void setPlayerVisibilityListener(PlayerVisibilityListener playerVisibilityListener) {
-        mPlayerVisibilityListener = playerVisibilityListener;
     }
 
     @Override
@@ -101,25 +110,40 @@ public class PlaybackStatusFragment extends Fragment implements MediaService.Med
     }
 
     private void updateView() {
+        if (mEpisodeInfoHolder != null) {
+            mEpisodeInfoTextView.setText(mEpisodeInfoHolder.getEpisodeTitle());
+        }
+
         if (mBound) {
             switch (mMediaService.getState()) {
                 case NONE:
-                    if (mPlayerVisibilityListener != null) {
-                        mPlayerVisibilityListener.onVisibilityChanged(false);
-                    }
                     break;
                 case PLAYING:
                 case PAUSED:
-                    if (mPlayerVisibilityListener != null) {
-                        mPlayerVisibilityListener.onVisibilityChanged(true);
-                    }
+                    mIsVisible = true;
                     EpisodeInfoHolder episode = mMediaService.getEpisode();
-                    playbackProgressBar.setMax(episode.getEpisodeLength() * 1000);
-                    playbackProgressBar.setProgress(episode.getEpisodeLastPlayed());
-                    episodeInfoTextView.setText(episode.getEpisodeTitle());
+                    mPlaybackProgressBar.setMax(episode.getEpisodeLength() * 1000);
+                    mPlaybackProgressBar.setProgress(episode.getEpisodeLastPlayed());
+                    mEpisodeInfoTextView.setText(episode.getEpisodeTitle());
                     break;
             }
         }
+
+        View view = getView();
+        if (view != null) {
+            if (mIsVisible) {
+                view.setVisibility(View.VISIBLE);
+            } else {
+                view.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(EPISODE_INFO_HOLDER, mEpisodeInfoHolder);
+        outState.putBoolean(PLAYER_VISIBILITY, mIsVisible);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -139,7 +163,13 @@ public class PlaybackStatusFragment extends Fragment implements MediaService.Med
         }
     };
 
-    public interface PlayerVisibilityListener {
-        void onVisibilityChanged(boolean visible);
+    public void loadEpisodeInfo(EpisodeInfoHolder episodeInfoHolder) {
+        mEpisodeInfoHolder = episodeInfoHolder;
+        updateView();
+    }
+
+    public void requestVisible(boolean isVisible) {
+        mIsVisible = isVisible;
+        updateView();
     }
 }

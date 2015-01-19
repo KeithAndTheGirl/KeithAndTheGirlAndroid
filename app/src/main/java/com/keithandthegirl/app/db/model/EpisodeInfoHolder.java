@@ -3,13 +3,13 @@ package com.keithandthegirl.app.db.model;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.preference.PreferenceManager;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
+import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
-import com.keithandthegirl.app.ui.settings.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import java.util.List;
  * Created by Jeff on 8/15/2014.
  * Copyright JeffInMadison.com 2014
  */
-public class EpisodeInfoHolder {
+public class EpisodeInfoHolder implements Parcelable {
     private int mEpisodeNumber;
     private String mEpisodeTitle;
     private String mEpisodePreviewUrl;
@@ -223,9 +223,7 @@ public class EpisodeInfoHolder {
     }
 
     public static EpisodeInfoHolder loadEpisode( Context context, long episodeId ) {
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( context );
-        boolean showExplicit = sharedPref.getBoolean( SettingsActivity.KEY_PREF_SHOW_EXPLICIT, false );
+        boolean showExplicit = MainApplication.isExplicitAllowed();
 
         EpisodeInfoHolder episodeHolder = new EpisodeInfoHolder();
 
@@ -267,7 +265,7 @@ public class EpisodeInfoHolder {
         }
         cursor.close();
 
-        String[] projection = {ImageConstants._ID, ImageConstants.FIELD_TITLE, ImageConstants.FIELD_DESCRIPTION, ImageConstants.FIELD_MEDIAURL};
+        String[] projection = {ImageConstants._ID, ImageConstants.FIELD_TITLE, ImageConstants.FIELD_EXPLICIT, ImageConstants.FIELD_DESCRIPTION, ImageConstants.FIELD_MEDIAURL};
         String selection = ImageConstants.FIELD_SHOWID + " = ?";
         String[] selectionArgs = new String[]{String.valueOf(episodeId)};
 
@@ -285,11 +283,88 @@ public class EpisodeInfoHolder {
             String mediaUrl = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_MEDIAURL));
             String title = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_TITLE));
             String description = cursor.getString(cursor.getColumnIndex(ImageConstants.FIELD_DESCRIPTION));
-            episodeImages.add(new ImageGalleryInfoHolder(mediaUrl, title, description));
+            int explicit = cursor.getInt(cursor.getColumnIndex(ImageConstants.FIELD_EXPLICIT));
+            episodeImages.add(new ImageGalleryInfoHolder(mediaUrl, title, description, explicit));
         }
         cursor.close();
         episodeHolder.setEpisodeImages(episodeImages);
 
         return episodeHolder;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.mEpisodeNumber);
+        dest.writeString(this.mEpisodeTitle);
+        dest.writeString(this.mEpisodePreviewUrl);
+        dest.writeString(this.mEpisodeFileUrl);
+        dest.writeString(this.mEpisodeFilename);
+        dest.writeInt(this.mEpisodeLength);
+        dest.writeInt(this.mEpisodeFileSize);
+        dest.writeInt(this.mEpisodeType);
+        dest.writeByte(mEpisodePublic ? (byte) 1 : (byte) 0);
+        dest.writeString(this.mEpisodePosted);
+        dest.writeLong(this.mEpisodeDownloadId);
+        dest.writeByte(mEpisodeDownloaded ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.mEpisodePlayed);
+        dest.writeInt(this.mEpisodeLastPlayed);
+        dest.writeInt(this.mShowNameId);
+        dest.writeString(this.mEpisodeDetailNotes);
+        dest.writeString(this.mEpisodeDetailForumUrl);
+        dest.writeString(this.mShowName);
+        dest.writeString(this.mShowPrefix);
+        dest.writeByte(mShowVip ? (byte) 1 : (byte) 0);
+        dest.writeString(this.mShowCoverImageUrl);
+        dest.writeString(this.mShowForumUrl);
+        dest.writeString(this.mGuestNames);
+        dest.writeList(this.mGuestImages);
+        dest.writeList(this.mEpisodeImages);
+    }
+
+    public EpisodeInfoHolder() {
+    }
+
+    private EpisodeInfoHolder(Parcel in) {
+        this.mEpisodeNumber = in.readInt();
+        this.mEpisodeTitle = in.readString();
+        this.mEpisodePreviewUrl = in.readString();
+        this.mEpisodeFileUrl = in.readString();
+        this.mEpisodeFilename = in.readString();
+        this.mEpisodeLength = in.readInt();
+        this.mEpisodeFileSize = in.readInt();
+        this.mEpisodeType = in.readInt();
+        this.mEpisodePublic = in.readByte() != 0;
+        this.mEpisodePosted = in.readString();
+        this.mEpisodeDownloadId = in.readLong();
+        this.mEpisodeDownloaded = in.readByte() != 0;
+        this.mEpisodePlayed = in.readInt();
+        this.mEpisodeLastPlayed = in.readInt();
+        this.mShowNameId = in.readInt();
+        this.mEpisodeDetailNotes = in.readString();
+        this.mEpisodeDetailForumUrl = in.readString();
+        this.mShowName = in.readString();
+        this.mShowPrefix = in.readString();
+        this.mShowVip = in.readByte() != 0;
+        this.mShowCoverImageUrl = in.readString();
+        this.mShowForumUrl = in.readString();
+        this.mGuestNames = in.readString();
+        this.mGuestImages = new ArrayList<>();
+        in.readList(this.mGuestImages, List.class.getClassLoader());
+        in.readList(this.mEpisodeImages, List.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<EpisodeInfoHolder> CREATOR = new Parcelable.Creator<EpisodeInfoHolder>() {
+        public EpisodeInfoHolder createFromParcel(Parcel source) {
+            return new EpisodeInfoHolder(source);
+        }
+
+        public EpisodeInfoHolder[] newArray(int size) {
+            return new EpisodeInfoHolder[size];
+        }
+    };
 }

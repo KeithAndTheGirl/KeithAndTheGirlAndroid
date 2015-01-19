@@ -99,12 +99,14 @@
                         android:textStyle="bold"
                         android:layout_marginRight="4dp"
                         android:layout_marginEnd="4dp"
+                        android:textColor="@color/Black"
                         android:text="Guests:"/>
 
                     <TextView
                         android:id="@+id/episodeGuestsTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/Black"
                         tools:text="Daniel Frey, Jeff Alexander, Stuart Kuredjian"/>
 
                 </LinearLayout>
@@ -207,6 +209,7 @@
                 tools:src="@drawable/katg_show"/>
 
         </FrameLayout>
+
     </ScrollView>
 
     <include layout="@layout/view_progress_container" />

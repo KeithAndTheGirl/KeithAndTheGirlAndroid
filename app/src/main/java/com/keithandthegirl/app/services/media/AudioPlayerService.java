@@ -22,9 +22,9 @@ import android.webkit.URLUtil;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.ui.episode.EpisodeActivity;
-import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,7 +141,7 @@ public class AudioPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
         Intent episodeIntent = new Intent( getApplicationContext(), EpisodeActivity.class );
-        episodeIntent.putExtra( EpisodeActivity.EPISODE_KEY, mEpisodeId );
+        episodeIntent.putExtra( EpisodeActivity.ARG_EPISODE_KEY, mEpisodeId );
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create( getApplicationContext() );
         stackBuilder.addParentStack( EpisodeActivity.class );
