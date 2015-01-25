@@ -83,15 +83,9 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
         fragment.setArguments(args);
         return fragment;
     }
+
     public LiveFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
     }
 
     @Override
@@ -140,11 +134,6 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
         if (updateHandler != null) {
             updateHandler.removeCallbacks(updateRunnable);
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @OnClick(R.id.submitButton)

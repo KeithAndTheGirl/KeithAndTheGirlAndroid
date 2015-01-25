@@ -8,12 +8,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.keithandthegirl.app.R;
-import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.ShowConstants;
-import com.keithandthegirl.app.db.schedule.KatgAlarmReceiver;
 import com.keithandthegirl.app.ui.AbstractBaseActivity;
 import com.keithandthegirl.app.ui.episode.EpisodeFragment;
 import com.keithandthegirl.app.ui.navigationdrawer.NavigationDrawerFragment;
@@ -31,8 +28,6 @@ public class MainActivity
                    ShowFragment.OnShowFragmentListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    KatgAlarmReceiver alarm = new KatgAlarmReceiver();
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private PlaybackStatusFragment mPlayerFragment;
@@ -70,11 +65,8 @@ public class MainActivity
             settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
             settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 
-            Log.v(TAG, "onCreate : requesting sync");
-            ContentResolver.requestSync(mAccount, KatgProvider.AUTHORITY, settingsBundle);
         }
 
-        alarm.setAlarm(this);
     }
 
     @Override
@@ -173,12 +165,13 @@ public class MainActivity
 
     @Override
     public void onVipButtonClicked() {
-                Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(settingsIntent);
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        startActivity(settingsIntent);
     }
 
     @Override
     public void onShowSelected(long showId, long episodeId) {
         replaceFragment(EpisodeFragment.newInstance(episodeId));
     }
+
 }

@@ -1,10 +1,11 @@
 package com.keithandthegirl.app.ui;
 
-import android.accounts.Account;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -15,24 +16,27 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.keithandthegirl.app.BuildConfig;
-import com.keithandthegirl.app.MainApplication;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.LiveConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 
 public abstract class AbstractBaseActivity extends ActionBarActivity {
+
     private static final String TAG = AbstractBaseActivity.class.getSimpleName();
 
     private ContentResolver mContentResolver;
     private Uri mUri;
-    private BroadcastingObserver mBroadcastingObserver;
     private Drawable micOn, micOff;
-    protected Account mAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent alarmIntent = new Intent( this, com.keithandthegirl.app.sync.KatgAlarmReceiver.class );
+        PendingIntent pendingIntent = PendingIntent.getBroadcast( this, 0, alarmIntent, 0 );
+        AlarmManager manager = (AlarmManager) this.getSystemService( Context.ALARM_SERVICE );
+        manager.setInexactRepeating( AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent );
 
         mContentResolver = getContentResolver();
 
@@ -42,34 +46,9 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
                 .path(WorkItemConstants.TABLE_NAME)
                 .build();
 
-        TableObserver observer = new TableObserver();
-
-        mBroadcastingObserver = new BroadcastingObserver();
-        mAccount = MainApplication.CreateSyncAccount(this);
-        ContentResolver.setSyncAutomatically(mAccount, KatgProvider.AUTHORITY, true);
-
         micOn = getResources().getDrawable(R.drawable.ic_live_mic_on);
         micOff = getResources().getDrawable(R.drawable.ic_live_mic_off);
 
-        mContentResolver.registerContentObserver(mUri, true, observer);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        getContentResolver().unregisterContentObserver(mBroadcastingObserver);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        getContentResolver().
-                registerContentObserver(
-                        ContentUris.withAppendedId(LiveConstants.CONTENT_URI, 1),
-                        true,
-                        mBroadcastingObserver
-                );
     }
 
     @Override
@@ -115,78 +94,14 @@ public abstract class AbstractBaseActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-//            case R.id.action_settings:
-//                Intent settingsIntent = new Intent(this, SettingsActivity.class);
-//                startActivity(settingsIntent);
-//                return true;
-
-//            case R.id.action_login:
-//                Intent vipIntent = new Intent(this, AuthenticatorActivity.class);
-//                startActivity(vipIntent);
-//                return true;
-
-            case R.id.action_work_items:
-                Intent workItemsIntent = new Intent(this, WorkItemsActivity.class);
-                startActivity(workItemsIntent);
-                return true;
 
             case R.id.action_broadcasting:
                 Toast.makeText(this, "KATG is broadcasting now!", Toast.LENGTH_LONG).show();
                 return true;
+
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private class BroadcastingObserver extends ContentObserver {
-        private final String TAG = BroadcastingObserver.class.getSimpleName();
-
-        public BroadcastingObserver() {
-            super(null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-                super.onChange(selfChange);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            boolean syncActive = ContentResolver.isSyncActive(mAccount, KatgProvider.AUTHORITY);
-            boolean syncPending = ContentResolver.isSyncPending(mAccount, KatgProvider.AUTHORITY);
-
-            if (!syncActive && !syncPending) {
-                invalidateOptionsMenu();
-            }
-        }
-    }
-
-    public class TableObserver extends ContentObserver {
-        private final String TAG = TableObserver.class.getSimpleName();
-
-        public TableObserver() {
-            super(null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-            onChange(selfChange, null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            boolean syncActive = ContentResolver.isSyncActive(mAccount, KatgProvider.AUTHORITY);
-            boolean syncPending = ContentResolver.isSyncPending(mAccount, KatgProvider.AUTHORITY);
-
-            if (!syncActive && !syncPending) {
-                Bundle settingsBundle = new Bundle();
-                settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-                settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-
-                ContentResolver.requestSync(mAccount, KatgProvider.AUTHORITY, settingsBundle);
-            }
-        }
     }
 
 }

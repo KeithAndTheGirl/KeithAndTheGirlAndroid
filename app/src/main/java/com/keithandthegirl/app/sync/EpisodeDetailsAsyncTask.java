@@ -1,14 +1,19 @@
 package com.keithandthegirl.app.sync;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Detail;
 import com.keithandthegirl.app.db.model.DetailConstants;
 import com.keithandthegirl.app.db.model.Image;
@@ -21,8 +26,7 @@ import org.joda.time.DateTimeZone;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList;
 
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
@@ -59,54 +63,99 @@ public class EpisodeDetailsAsyncTask extends AsyncTask<Void, Void, Detail> {
     @Override
     protected void onPostExecute( Detail detail ) {
 
-        ContentValues values = new ContentValues();
-        values.put( DetailConstants.FIELD_NOTES, detail.getNotes() );
-        values.put( DetailConstants.FIELD_FORUMURL, detail.getForumUrl() );
-        values.put( DetailConstants.FIELD_SHOWID, mShowId );
-        values.put( DetailConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+        if( null != detail ) {
 
-        Cursor cursor = mContext.getContentResolver().query( DetailConstants.CONTENT_URI, projection, DetailConstants.FIELD_SHOWID + "=?", new String[] { String.valueOf( mShowId ) }, null );
-        if( cursor.moveToFirst() ) {
-            //Log.v( TAG, "processEpisodeDetails : detail iteration, updating existing entry" );
+            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-            Long id = cursor.getLong( cursor.getColumnIndexOrThrow( DetailConstants._ID ) );
-            mContext.getContentResolver().update(ContentUris.withAppendedId(DetailConstants.CONTENT_URI, id), values, null, null);
+            ContentValues values = new ContentValues();
+            values.put(DetailConstants.FIELD_NOTES, detail.getNotes());
+            values.put(DetailConstants.FIELD_FORUMURL, detail.getForumUrl());
+            values.put(DetailConstants.FIELD_SHOWID, mShowId);
+            values.put(DetailConstants.FIELD_LAST_MODIFIED_DATE, new DateTime(DateTimeZone.UTC).getMillis());
 
-        } else {
-            //Log.v( TAG, "processEpisodeDetails : detail iteration, adding new entry" );
+            Cursor cursor = mContext.getContentResolver().query(DetailConstants.CONTENT_URI, projection, DetailConstants.FIELD_SHOWID + "=?", new String[]{String.valueOf(mShowId)}, null);
+            if (cursor.moveToFirst()) {
+                //Log.v( TAG, "processEpisodeDetails : detail iteration, updating existing entry" );
 
-            mContext.getContentResolver().insert( DetailConstants.CONTENT_URI, values );
-
-        }
-        cursor.close();
-
-        for( Image image : detail.getImages() ) {
-            //Log.v(TAG, "processEpisodeDetails : image=" + image.toString());
-
-            values = new ContentValues();
-            values.put( ImageConstants._ID, image.getPictureId() );
-            values.put( ImageConstants.FIELD_TITLE, image.getTitle() );
-            values.put( ImageConstants.FIELD_DESCRIPTION, image.getDescription() );
-            values.put( ImageConstants.FIELD_EXPLICIT, image.isExplicit() ? 1 : 0 );
-            values.put( ImageConstants.FIELD_DISPLAY_ORDER, image.getDisplayOrder() );
-            values.put( ImageConstants.FIELD_MEDIAURL, image.getMediaUrl() );
-            values.put( ImageConstants.FIELD_SHOWID, mShowId );
-            values.put( ImageConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
-
-            cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ImageConstants.CONTENT_URI, image.getPictureId() ), null, null, null, null );
-            if( cursor.moveToFirst() ) {
-                //Log.v( TAG, "processEpisodeDetails : image iteration, updating existing entry" );
-
-                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ImageConstants._ID ) );
-                mContext.getContentResolver().update( ContentUris.withAppendedId( ImageConstants.CONTENT_URI, id ), values, null, null );
+                Long id = cursor.getLong(cursor.getColumnIndexOrThrow(DetailConstants._ID));
+                ops.add(
+                        ContentProviderOperation
+                                .newUpdate(ContentUris.withAppendedId(DetailConstants.CONTENT_URI, id))
+                                .withValues(values)
+                                .build()
+                );
 
             } else {
-                //Log.v( TAG, "processEpisodeDetails : image iteration, adding new entry" );
+                //Log.v( TAG, "processEpisodeDetails : detail iteration, adding new entry" );
 
-                mContext.getContentResolver().insert( ImageConstants.CONTENT_URI, values );
+                ops.add(
+                        ContentProviderOperation
+                                .newInsert(DetailConstants.CONTENT_URI)
+                                .withValues(values)
+                                .withYieldAllowed(true)
+                                .build()
+                );
 
             }
             cursor.close();
+
+            for (Image image : detail.getImages()) {
+                //Log.v(TAG, "processEpisodeDetails : image=" + image.toString());
+
+                values = new ContentValues();
+                values.put(ImageConstants._ID, image.getPictureId());
+                values.put(ImageConstants.FIELD_TITLE, image.getTitle());
+                values.put(ImageConstants.FIELD_DESCRIPTION, image.getDescription());
+                values.put(ImageConstants.FIELD_EXPLICIT, image.isExplicit() ? 1 : 0);
+                values.put(ImageConstants.FIELD_DISPLAY_ORDER, image.getDisplayOrder());
+                values.put(ImageConstants.FIELD_MEDIAURL, image.getMediaUrl());
+                values.put(ImageConstants.FIELD_SHOWID, mShowId);
+                values.put(ImageConstants.FIELD_LAST_MODIFIED_DATE, new DateTime(DateTimeZone.UTC).getMillis());
+
+                cursor = mContext.getContentResolver().query(ContentUris.withAppendedId(ImageConstants.CONTENT_URI, image.getPictureId()), null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    //Log.v( TAG, "processEpisodeDetails : image iteration, updating existing entry" );
+
+                    Long id = cursor.getLong(cursor.getColumnIndexOrThrow(ImageConstants._ID));
+                    mContext.getContentResolver().update(ContentUris.withAppendedId(ImageConstants.CONTENT_URI, id), values, null, null);
+                    ops.add(
+                            ContentProviderOperation
+                                    .newUpdate(ContentUris.withAppendedId(ImageConstants.CONTENT_URI, id))
+                                    .withValues(values)
+                                    .build()
+                    );
+
+                } else {
+                    //Log.v( TAG, "processEpisodeDetails : image iteration, adding new entry" );
+
+                    ops.add(
+                            ContentProviderOperation
+                                    .newInsert(ImageConstants.CONTENT_URI)
+                                    .withValues(values)
+                                    .withYieldAllowed(true)
+                                    .build()
+                    );
+
+                }
+                cursor.close();
+
+            }
+
+            try {
+
+                mContext.getContentResolver().applyBatch(KatgProvider.AUTHORITY, ops);
+
+            } catch (Exception e) {
+
+                // Display warning
+                CharSequence txt = mContext.getString(R.string.processEpisodeDetailsFailure);
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(mContext, txt, duration);
+                toast.show();
+
+                // Log exception
+                Log.e(TAG, "onPostExecute : error processing episode details", e);
+            }
 
         }
 
@@ -139,16 +188,6 @@ public class EpisodeDetailsAsyncTask extends AsyncTask<Void, Void, Detail> {
 
         mKatgService = katgRestAdapter.create( KatgService.class );
 
-    }
-
-    private String concatList( List<String> sList, String separator ) {
-        Iterator<String> iter = sList.iterator();
-        StringBuilder sb = new StringBuilder();
-
-        while( iter.hasNext() ){
-            sb.append( iter.next() ).append( iter.hasNext() ? separator : "" );
-        }
-        return sb.toString();
     }
 
 }

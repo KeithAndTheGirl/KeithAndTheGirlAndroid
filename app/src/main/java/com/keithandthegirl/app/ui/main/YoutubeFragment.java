@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.YoutubeConstants;
+import com.keithandthegirl.app.sync.YoutubeDataFragment;
 import com.keithandthegirl.app.ui.youtube.YoutubeFragmentActivity;
 import com.squareup.picasso.Picasso;
 
@@ -25,7 +27,10 @@ import com.squareup.picasso.Picasso;
  * Created by dmfrey on 4/17/14.
  */
 public class YoutubeFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String TAG = YoutubeFragment.class.getSimpleName();
+
+    private static final String YOUTUBE_DATA_FRAGMENT_TAG = YoutubeDataFragment.class.getName();
 
     YoutubeCursorAdapter mAdapter;
 
@@ -53,6 +58,19 @@ public class YoutubeFragment extends ListFragment implements LoaderManager.Loade
         super.onViewCreated(view, savedInstanceState);
         getListView().setFastScrollEnabled(true);
 //        setRetainInstance(true);
+
+        YoutubeDataFragment youtubeDataFragment = (YoutubeDataFragment) getChildFragmentManager().findFragmentByTag( YOUTUBE_DATA_FRAGMENT_TAG );
+        if( null == youtubeDataFragment ) {
+
+            youtubeDataFragment = (YoutubeDataFragment) instantiate( getActivity(), YoutubeDataFragment.class.getName() );
+            youtubeDataFragment.setRetainInstance( true );
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.add( youtubeDataFragment, YOUTUBE_DATA_FRAGMENT_TAG );
+            transaction.commit();
+
+        }
+
     }
 
     @Override

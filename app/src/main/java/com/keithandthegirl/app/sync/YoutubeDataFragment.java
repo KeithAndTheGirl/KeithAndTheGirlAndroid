@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 /**
  * Created by dmfrey on 12/31/14.
  */
-public class YoutubeDataFragment extends Fragment implements ShowsLoaderAsyncTask.ShowLoaderListener {
+public class YoutubeDataFragment extends Fragment {
 
     private static final String TAG = YoutubeDataFragment.class.getSimpleName();
 
@@ -21,7 +21,7 @@ public class YoutubeDataFragment extends Fragment implements ShowsLoaderAsyncTas
     public View onCreateView( LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState ) {
         Log.v( TAG, "onCreateView : enter" );
 
-        new ShowsLoaderAsyncTask( getActivity(), this ).execute();
+        new YoutubeLoaderAsyncTask( getActivity() ).execute();
 
         Log.v( TAG, "onCreateView : exit" );
         return null;
@@ -29,15 +29,6 @@ public class YoutubeDataFragment extends Fragment implements ShowsLoaderAsyncTas
 
     public boolean isLoading() {
         return loading;
-    }
-
-    @Override
-    public void onStatus( boolean loading ) {
-        Log.v( TAG, "onStatus : enter" );
-
-        this.loading = loading;
-
-        Log.v( TAG, "onStatus : exit" );
     }
 
 }

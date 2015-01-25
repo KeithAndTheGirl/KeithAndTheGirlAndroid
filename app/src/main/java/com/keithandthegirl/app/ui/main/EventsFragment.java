@@ -3,6 +3,7 @@ package com.keithandthegirl.app.ui.main;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EventConstants;
+import com.keithandthegirl.app.sync.BroadcastingDataFragment;
+import com.keithandthegirl.app.sync.EventsDataFragment;
 import com.keithandthegirl.app.utils.StringUtils;
 
 import org.joda.time.DateTime;
@@ -35,7 +38,9 @@ import butterknife.InjectView;
  * TODO adding an action to the card for adding a reminder could be a nice feature. but maybe just a push notification would be better
  */
 public class EventsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String TAG = EventsFragment.class.getSimpleName();
+    private static final String EVENTS_DATA_FRAGMENT_TAG = EventsDataFragment.class.getName();
 
     EventCursorAdapter mAdapter;
 
@@ -45,8 +50,21 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     }
 
     @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        EventsDataFragment eventsDataFragment = (EventsDataFragment) getChildFragmentManager().findFragmentByTag( EVENTS_DATA_FRAGMENT_TAG );
+        if( null == eventsDataFragment ) {
+
+            eventsDataFragment = (EventsDataFragment) instantiate( getActivity(), EventsDataFragment.class.getName() );
+            eventsDataFragment.setRetainInstance( true );
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.add( eventsDataFragment, EVENTS_DATA_FRAGMENT_TAG );
+            transaction.commit();
+
+        }
+
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override

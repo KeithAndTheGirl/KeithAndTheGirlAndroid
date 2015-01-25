@@ -1,14 +1,16 @@
 package com.keithandthegirl.app.sync;
 
-import android.content.ContentUris;
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Event;
 import com.keithandthegirl.app.db.model.EventConstants;
 import com.keithandthegirl.app.db.model.Events;
@@ -20,6 +22,7 @@ import org.joda.time.DateTimeZone;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -79,7 +82,13 @@ public class EventsLoaderAsyncTask extends AsyncTask<Void, Void, Events> {
     private void processEvents( Events events ) {
         Log.v( TAG, "processEvents : enter" );
 
-        mContext.getContentResolver().delete( EventConstants.CONTENT_URI, null, null );
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+        ops.add(
+                ContentProviderOperation
+                        .newDelete(EventConstants.CONTENT_URI)
+                        .build()
+        );
 
         String[] projection = new String[] { EventConstants._ID };
 
@@ -102,24 +111,32 @@ public class EventsLoaderAsyncTask extends AsyncTask<Void, Void, Events> {
             values.put( EventConstants.FIELD_DETAILS, event.getDetails() );
             values.put( EventConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 
-            Cursor cursor = mContext.getContentResolver().query( EventConstants.CONTENT_URI, projection, EventConstants.FIELD_EVENTID + "=?", new String[] { event.getEventId() }, null );
-            if( cursor.moveToFirst() ) {
-                //Log.v( TAG, "processEvents : event iteration, updating existing entry" );
-
-                Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EventConstants._ID ) );
-                mContext.getContentResolver().update( ContentUris.withAppendedId( EventConstants.CONTENT_URI, id ), values, null, null );
-
-            } else {
-                //Log.v( TAG, "processEvents : event iteration, adding new entry" );
-
-                mContext.getContentResolver().insert( EventConstants.CONTENT_URI, values );
-
-            }
-            cursor.close();
+            ops.add(
+                    ContentProviderOperation
+                            .newInsert(EventConstants.CONTENT_URI)
+                            .withValues(values)
+                            .build()
+            );
 
         }
 
-        Log.e(TAG, "processEvents : exit");
+        try {
+
+            mContext.getContentResolver().applyBatch( KatgProvider.AUTHORITY, ops );
+
+        } catch( Exception e ) {
+
+            // Display warning
+            CharSequence txt = mContext.getString( R.string.processEventsFailure );
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText( mContext, txt, duration );
+            toast.show();
+
+            // Log exception
+            Log.e( TAG, "processEvents : error processing events", e );
+        }
+
+        Log.v(TAG, "processEvents : exit");
 
     }
 

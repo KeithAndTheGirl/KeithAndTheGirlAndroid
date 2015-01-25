@@ -83,4 +83,10 @@
 
     <string name="title_activity_detail_player_controls">DetailPlayerControlsActivity</string>
 
+    <string name="processShowsFailure">An error occurred loading the KATG Shows!</string>
+    <string name="processEventsFailure">An error occurred loading the events!</string>
+    <string name="processEpisodesFailure">An error occurred loading the episodes!</string>
+    <string name="processEpisodeDetailsFailure">An error occurred loading the episode details!</string>
+    <string name="processYoutubeVideosFailure">An error occurred loading the youtube videos!</string>
+
 </resources>

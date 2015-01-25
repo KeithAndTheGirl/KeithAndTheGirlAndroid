@@ -7,15 +7,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.READ_SYNC_STATS" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
     <application
         android:name=".MainApplication"
@@ -46,15 +37,7 @@
             android:parentActivityName=".ui.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="MainActivity" />
-        </activity>
-        <activity
-            android:name=".ui.WorkItemsActivity"
-            android:label="@string/title_activity_workitems"
-            android:parentActivityName=".ui.main.MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="MainActivity" />
+                android:value=".ui.main.MainActivity" />
         </activity>
         <activity
             android:name=".ui.youtube.VideoPlayerActivity"
@@ -62,7 +45,7 @@
             android:parentActivityName=".ui.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="MainActivity" />
+                android:value=".ui.main.MainActivity" />
         </activity>
         <activity
             android:name=".ui.youtube.YoutubeFragmentActivity"
@@ -78,23 +61,18 @@
                 android:value="com.keithandthegirl.app.ui.main.MainActivity" />
         </activity>
         <activity
-            android:name=".ui.AuthenticatorActivity"
-            android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
-        </activity>
-        <activity
             android:name=".ui.episode.EpisodeActivity"
             android:label="@string/title_activity_episode" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.shows.ShowsActivity" />
         </activity>
-        <activity android:name=".ui.player.KatgPlaybackActivity" />
+        <activity android:name=".ui.player.PlaybackControlsActivity" />
 
         <!-- KATG Receivers -->
-        <receiver android:name=".db.schedule.KatgAlarmReceiver" />
+        <receiver android:name=".sync.KatgAlarmReceiver" />
         <receiver
-            android:name=".db.schedule.KatgBootReceiver"
+            android:name=".sync.DeviceBootReceiver"
             android:enabled="false" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -126,31 +104,6 @@
 
         <!-- KATG Services -->
         <service
-            android:name=".account.AuthenticatorService"
-            android:exported="false" >
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-        <service
-            android:name=".sync.SyncService"
-            android:exported="true"
-            android:process=":sync" >
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-        <service android:name=".db.schedule.KatgSchedulingService" />
-        <service android:name=".services.media.AudioPlayerService" />
-        <service
             android:name=".services.media.MediaService"
             android:exported="false" >
             <intent-filter>
@@ -176,10 +129,6 @@
             android:exported="true"
             android:syncable="true" />
 
-        <activity
-            android:name=".ui.player.PlaybackControlsActivity"
-            android:label="@string/title_activity_detail_player_controls" >
-        </activity>
     </application>
 
 </manifest>

@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -30,8 +29,6 @@ import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.ShowInfoHolder;
 import com.keithandthegirl.app.sync.EpisodeListAsyncTask;
-import com.keithandthegirl.app.sync.EpisodeListDataFragment;
-import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
 import com.keithandthegirl.app.ui.episode.EpisodeActivity;
 import com.keithandthegirl.app.ui.utils.EndlessScrollListener;
@@ -46,14 +43,12 @@ import java.text.MessageFormat;
 public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ShowFragment.class.getSimpleName();
-    private static final String EPISODE_LIST_DATA_FRAGMENT_TAG = EpisodeListDataFragment.class.getCanonicalName();
 
     public static final String SHOW_NAME_ID_KEY = "showNameId";
 
     private OnShowFragmentListener mListener;
     private View mHeaderView;
     private EpisodeCursorAdapter mAdapter;
-    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
     private EpisodeListSyncCompleteReceiver mEpisodeListSyncCompleteReceiver = new EpisodeListSyncCompleteReceiver();
     private long mShowNameId;
 
@@ -83,21 +78,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         super.onCreate(savedInstanceState);
         if (null != getArguments()) {
             mShowNameId = getArguments().getLong(SHOW_NAME_ID_KEY);
-
-            EpisodeListDataFragment episodeListDataFragment = (EpisodeListDataFragment) getActivity().getSupportFragmentManager().findFragmentByTag( EPISODE_LIST_DATA_FRAGMENT_TAG );
-            if( null == episodeListDataFragment ) {
-
-                Bundle args = new Bundle();
-                args.putLong(EpisodeListDataFragment.SHOW_NAME_ID_KEY, mShowNameId);
-
-                episodeListDataFragment = (EpisodeListDataFragment) instantiate( getActivity(), EpisodeListDataFragment.class.getName(), args );
-                episodeListDataFragment.setRetainInstance( true );
-
-                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                transaction.add( episodeListDataFragment, EPISODE_LIST_DATA_FRAGMENT_TAG );
-                transaction.commit();
-
-            }
 
             mShowHolder = ShowInfoHolder.loadShow( getActivity(), mShowNameId );
         }
@@ -162,9 +142,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     public void onResume() {
         super.onResume();
 
-        IntentFilter syncCompleteIntentFilter = new IntentFilter(SyncAdapter.COMPLETE_ACTION);
-        getActivity().registerReceiver(mSyncCompleteReceiver, syncCompleteIntentFilter);
-
         IntentFilter episodeListSyncCompleteIntentFilter = new IntentFilter(EpisodeListAsyncTask.COMPLETE_ACTION);
         getActivity().registerReceiver(mEpisodeListSyncCompleteReceiver, episodeListSyncCompleteIntentFilter);
 
@@ -175,10 +152,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     @Override
     public void onPause() {
         super.onPause();
-
-        if (null != mSyncCompleteReceiver) {
-            getActivity().unregisterReceiver(mSyncCompleteReceiver);
-        }
 
         if (null != mEpisodeListSyncCompleteReceiver) {
             getActivity().unregisterReceiver(mEpisodeListSyncCompleteReceiver);
@@ -414,20 +387,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
                 mHolder.played.setText("Not Played");
             }
         }
-    }
-
-    private class SyncCompleteReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // when we receive a syc complete action reset the loader so it can refresh the content
-            if (intent.getAction().equals(SyncAdapter.COMPLETE_ACTION)) {
-                Bundle args = new Bundle();
-                args.putLong(SHOW_NAME_ID_KEY, mShowNameId);
-                getLoaderManager().restartLoader(0, args, ShowFragment.this);
-            }
-        }
-
     }
 
     private class EpisodeListSyncCompleteReceiver extends BroadcastReceiver {

@@ -19,7 +19,7 @@ public class EventsDataFragment extends Fragment {
     public View onCreateView( LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState ) {
         Log.v( TAG, "onCreateView : enter" );
 
-        new BroadcastingLoaderAsyncTask( getActivity() ).execute();
+        new EventsLoaderAsyncTask( getActivity() ).execute();
 
         Log.v( TAG, "onCreateView : exit" );
         return null;

@@ -43,7 +43,6 @@ import com.keithandthegirl.app.loader.WrappedLoaderCallbacks;
 import com.keithandthegirl.app.loader.WrappedLoaderResult;
 import com.keithandthegirl.app.services.media.MediaService;
 import com.keithandthegirl.app.sync.EpisodeDetailsAsyncTask;
-import com.keithandthegirl.app.sync.SyncAdapter;
 import com.keithandthegirl.app.ui.custom.ExpandedHeightGridView;
 import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
@@ -116,7 +115,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private MenuItem mPlayEpisodeMenuItem, mDownloadMenuItem, mDeleteMenuItem;
     private DownloadManager mDownloadManager;
 
-    private SyncCompleteReceiver mSyncCompleteReceiver = new SyncCompleteReceiver();
     private EpisodeDetailsCompleteReceiver mEpisodeDetailsCompleteReceiver = new EpisodeDetailsCompleteReceiver();
 
     private boolean mDownloadMobile, mDownloadWifi, mMobileConnected, mWifiConnected;
@@ -193,9 +191,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     public void onResume() {
         super.onResume();
 
-        IntentFilter syncCompleteIntentFilter = new IntentFilter( SyncAdapter.COMPLETE_ACTION );
-        getActivity().registerReceiver( mSyncCompleteReceiver, syncCompleteIntentFilter );
-
         IntentFilter episodeDetailsCompleteIntentFilter = new IntentFilter( EpisodeDetailsAsyncTask.COMPLETE_ACTION );
         getActivity().registerReceiver( mEpisodeDetailsCompleteReceiver, episodeDetailsCompleteIntentFilter );
 
@@ -209,10 +204,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public void onPause() {
         super.onPause();
-
-        if( null != mSyncCompleteReceiver ) {
-            getActivity().unregisterReceiver( mSyncCompleteReceiver );
-        }
 
         if( null != mEpisodeDetailsCompleteReceiver ) {
             getActivity().unregisterReceiver( mEpisodeDetailsCompleteReceiver );
@@ -592,18 +583,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
 
         new EpisodeDetailsAsyncTask( getActivity(), (int) mEpisodeId ).execute();
-    }
-
-    private class SyncCompleteReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive( Context context, Intent intent ) {
-
-            // when we receive a syc complete action reset the loader so it can refresh the content
-            if( intent.getAction().equals( SyncAdapter.COMPLETE_ACTION ) ) {
-                getLoaderManager().restartLoader( 1, null, EpisodeFragment.this );
-            }
-        }
     }
 
     private class EpisodeDetailsCompleteReceiver extends BroadcastReceiver {

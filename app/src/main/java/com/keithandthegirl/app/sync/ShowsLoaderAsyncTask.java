@@ -1,14 +1,18 @@
 package com.keithandthegirl.app.sync;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.keithandthegirl.app.R;
+import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.Show;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.squareup.okhttp.Cache;
@@ -19,6 +23,7 @@ import org.joda.time.DateTimeZone;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RestAdapter;
@@ -36,18 +41,9 @@ public class ShowsLoaderAsyncTask extends AsyncTask<Void, Void, List<Show>> {
     Context mContext;
     KatgService mKatgService;
 
-    ShowLoaderListener mListener;
-
-    public interface ShowLoaderListener {
-
-        void onStatus( boolean loading );
-
-    }
-
-    public ShowsLoaderAsyncTask( Context context, ShowLoaderListener listener ) {
+    public ShowsLoaderAsyncTask( Context context ) {
 
         mContext = context;
-        mListener = listener;
 
         initializeClient();
 
@@ -55,9 +51,7 @@ public class ShowsLoaderAsyncTask extends AsyncTask<Void, Void, List<Show>> {
 
     @Override
     protected List<Show> doInBackground( Void... params ) {
-        Log.v( TAG, "doInBackground : enter" );
-
-        mListener.onStatus( true );
+        Log.v(TAG, "doInBackground : enter");
 
         try {
             List<Show> shows = mKatgService.seriesOverview();
@@ -83,13 +77,13 @@ public class ShowsLoaderAsyncTask extends AsyncTask<Void, Void, List<Show>> {
 
         }
 
-        mListener.onStatus( false );
-
         Log.v( TAG, "onPostExecute : exit" );
     }
 
     private void processShows( List<Show> shows ) {
         Log.v( TAG, "processShows : enter" );
+
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
         String[] projection = new String[] { ShowConstants._ID };
         ContentValues values;
@@ -119,16 +113,43 @@ public class ShowsLoaderAsyncTask extends AsyncTask<Void, Void, List<Show>> {
                 Log.v( TAG, "processShows : show iteration, updating existing entry" );
 
                 Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ShowConstants._ID ) );
-                mContext.getContentResolver().update( ContentUris.withAppendedId( ShowConstants.CONTENT_URI, id ), values, null, null );
+                ops.add(
+                        ContentProviderOperation
+                                .newUpdate(ContentUris.withAppendedId(ShowConstants.CONTENT_URI, id))
+                                .withValues(values)
+                                .build()
+                );
 
             } else {
                 Log.v( TAG, "processShows : show iteration, adding new entry" );
 
                 mContext.getContentResolver().insert( ShowConstants.CONTENT_URI, values );
+                ops.add(
+                        ContentProviderOperation
+                                .newInsert(ShowConstants.CONTENT_URI)
+                                .withValues(values)
+                                .build()
+                );
 
             }
             cursor.close();
 
+        }
+
+        try {
+
+            mContext.getContentResolver().applyBatch( KatgProvider.AUTHORITY, ops );
+
+        } catch( Exception e ) {
+
+            // Display warning
+            CharSequence txt = mContext.getString( R.string.processShowsFailure );
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText( mContext, txt, duration );
+            toast.show();
+
+            // Log exception
+            Log.e( TAG, "processShows : error processing shows", e );
         }
 
         Log.v( TAG, "processShows : exit" );
