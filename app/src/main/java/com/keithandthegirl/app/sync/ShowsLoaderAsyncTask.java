@@ -163,10 +163,8 @@ public class ShowsLoaderAsyncTask extends AsyncTask<Void, Void, List<Show>> {
         int cacheSize = 3 * 1024 * 1024; // 3 MiB
         File cacheDirectory = new File( mContext.getCacheDir().getAbsolutePath(), "HttpCache" );
 
-        try {
-            Cache cache = new Cache( cacheDirectory, cacheSize );
-            client.setCache( cache );
-        } catch( IOException e ) { }
+        Cache cache = new Cache( cacheDirectory, cacheSize );
+        client.setCache( cache );
 
         Gson katgGson = new GsonBuilder()
                 .setDateFormat( "MM/dd/yyyy HH:mm" )

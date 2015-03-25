@@ -311,10 +311,9 @@ public class EpisodeListAsyncTask extends AsyncTask<Void, Void, List<Episode>> {
 
         int cacheSize = 10 * 1024 * 1024; // 10 MiB
         File cacheDirectory = new File( mContext.getCacheDir().getAbsolutePath(), "HttpCache" );
-        try {
-            Cache cache = new Cache( cacheDirectory, cacheSize );
-            client.setCache( cache );
-        } catch( IOException e ) { }
+
+        Cache cache = new Cache( cacheDirectory, cacheSize );
+        client.setCache( cache );
 
         Gson katgGson = new GsonBuilder()
                 .setDateFormat("MM/dd/yyyy HH:mm")

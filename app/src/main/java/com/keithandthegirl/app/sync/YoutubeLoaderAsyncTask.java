@@ -223,10 +223,9 @@ public class YoutubeLoaderAsyncTask extends AsyncTask<Void, Void, Youtube> {
 
         int cacheSize = 10 * 1024 * 1024; // 10 MiB
         File cacheDirectory = new File( mContext.getCacheDir().getAbsolutePath(), "HttpCache" );
-        try {
-            Cache cache = new Cache( cacheDirectory, cacheSize );
-            client.setCache( cache );
-        } catch( IOException e ) { }
+
+        Cache cache = new Cache( cacheDirectory, cacheSize );
+        client.setCache( cache );
 
         Gson youtubeGson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
