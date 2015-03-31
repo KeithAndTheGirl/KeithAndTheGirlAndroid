@@ -47,7 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
     private static final String DATABASE_NAME = "katgdb";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
     private Context mContext;
 
@@ -93,8 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if( oldVersion < DATABASE_VERSION ) {
             Log.v(TAG, "onUpgrade : upgrading to db version " + DATABASE_VERSION);
 
-            db.execSQL( WorkItemConstants.DROP_TABLE );
-            createTableWorkItems( db );
+            onCreate( db );
         }
 
     }
@@ -448,7 +447,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values = new ContentValues();
             values.put(ShowConstants.FIELD_EPISODE_COUNT_NEW, episodes.length );
 
-            db.insert( ShowConstants.TABLE_NAME, null, values );
+            db.update( ShowConstants.TABLE_NAME, values, ShowConstants._ID + " = ?", new String[] { "1" } );
 
         } finally {
 
