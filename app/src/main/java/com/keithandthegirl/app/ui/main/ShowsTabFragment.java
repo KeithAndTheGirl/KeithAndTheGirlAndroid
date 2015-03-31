@@ -10,11 +10,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.keithandthegirl.app.BuildConfig;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.sync.ShowsDataFragment;
@@ -51,30 +51,27 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
         return fragment;
     }
 
-
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
     }
 
     @Override
-    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        final View rootView = inflater.inflate( R.layout.fragment_shows_tab, container, false );
+        final View rootView = inflater.inflate(R.layout.fragment_shows_tab, container, false);
         ButterKnife.inject(this, rootView);
 
-        ShowsDataFragment showsDataFragment = (ShowsDataFragment) getChildFragmentManager().findFragmentByTag( SHOWS_DATA_FRAGMENT_TAG );
-        if( null == showsDataFragment ) {
-
-            showsDataFragment = (ShowsDataFragment) instantiate( getActivity(), ShowsDataFragment.class.getName() );
-            showsDataFragment.setRetainInstance( true );
+        ShowsDataFragment showsDataFragment = (ShowsDataFragment) getChildFragmentManager().findFragmentByTag(SHOWS_DATA_FRAGMENT_TAG);
+        if (null == showsDataFragment) {
+            showsDataFragment = (ShowsDataFragment) instantiate(getActivity(), ShowsDataFragment.class.getName());
+            showsDataFragment.setRetainInstance(true);
 
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.add( showsDataFragment, SHOWS_DATA_FRAGMENT_TAG );
+            transaction.add(showsDataFragment, SHOWS_DATA_FRAGMENT_TAG);
             transaction.commit();
-
         }
 
         return rootView;
@@ -84,29 +81,36 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mProgressView.setVisibility(View.VISIBLE);
-        mAdapter = new ShowCursorAdapter(getChildFragmentManager(), null);
+        mAdapter = new ShowsCursorAdapter(getChildFragmentManager(), null);
         mViewPager.setAdapter(mAdapter);
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 
     @Override
-    public void onActivityCreated( Bundle savedInstanceState ) {
-        super.onActivityCreated( savedInstanceState );
-        getLoaderManager().initLoader( 0, getArguments(), this );
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(0, getArguments(), this);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_PREFIX, ShowConstants.FIELD_COVERIMAGEURL_200, ShowConstants.FIELD_VIP, ShowConstants.FIELD_EPISODE_COUNT_NEW };
+    public Loader<Cursor> onCreateLoader(int i, Bundle args) {
+        String[] projection = {
+                ShowConstants._ID,
+                ShowConstants.FIELD_NAME,
+                ShowConstants.FIELD_PREFIX,
+                ShowConstants.FIELD_COVERIMAGEURL_200,
+                ShowConstants.FIELD_VIP,
+                ShowConstants.FIELD_EPISODE_COUNT_NEW};
+
         String selection = null;
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER );
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER);
         return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         if (cursor.getCount() > 0) {
             mProgressView.setVisibility(View.GONE);
         }
@@ -115,14 +119,14 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        mAdapter.swapCursor( null );
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mAdapter.swapCursor(null);
     }
 
 
-    private class ShowCursorAdapter extends SlidingTabPagerAdapter {
+    private class ShowsCursorAdapter extends SlidingTabPagerAdapter {
 
-        public ShowCursorAdapter( FragmentManager fragmentManager, Cursor cursor ) {
+        public ShowsCursorAdapter(FragmentManager fragmentManager, Cursor cursor) {
             super(fragmentManager, cursor, true);
         }
 
@@ -141,7 +145,7 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
             if (position == 1) {
                 if (mCursor.moveToPosition(position)) {
                     long newShows = mCursor.getInt(mCursor.getColumnIndex(ShowConstants.FIELD_EPISODE_COUNT_NEW));
-                    if ( newShows > 0) {
+                    if (newShows > 0) {
                         hasNewShows = true;
                     }
                 }
@@ -170,12 +174,14 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            String name = mCursor.getString(mCursor.getColumnIndex(ShowConstants.FIELD_NAME));
-            String prefix = mCursor.getString(mCursor.getColumnIndex(ShowConstants.FIELD_PREFIX));
-            String coverUrl = mCursor.getString(mCursor.getColumnIndex(ShowConstants.FIELD_COVERIMAGEURL_200));
-            boolean vip = mCursor.getLong(mCursor.getColumnIndex(ShowConstants.FIELD_VIP)) == 0 ? false : true;
-            long newShows = mCursor.getInt(mCursor.getColumnIndex(ShowConstants.FIELD_EPISODE_COUNT_NEW));
 
+            if (BuildConfig.DEBUG) {
+                String name = mCursor.getString(mCursor.getColumnIndex(ShowConstants.FIELD_NAME));
+                String prefix = mCursor.getString(mCursor.getColumnIndex(ShowConstants.FIELD_PREFIX));
+                String coverUrl = mCursor.getString(mCursor.getColumnIndex(ShowConstants.FIELD_COVERIMAGEURL_200));
+                boolean vip = mCursor.getLong(mCursor.getColumnIndex(ShowConstants.FIELD_VIP)) == 0 ? false : true;
+                long newShows = mCursor.getInt(mCursor.getColumnIndex(ShowConstants.FIELD_EPISODE_COUNT_NEW));
+            }
             int showId = mCursor.getInt(mCursor.getColumnIndex(ShowConstants._ID));
             return ShowFragment.newInstance(showId);
         }

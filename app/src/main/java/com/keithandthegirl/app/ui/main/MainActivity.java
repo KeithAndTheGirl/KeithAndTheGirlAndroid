@@ -41,7 +41,8 @@ public class MainActivity
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
-        getSupportActionBar().setTitle(R.string.katg_actionbar_title);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mNavigationDrawerFragment =
                 (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);

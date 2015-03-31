@@ -30,8 +30,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -68,6 +68,10 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     private static final int VIEW_PROGRESS = 1;
 
     ViewSwitcher mMainViewSwitcher;
+
+    @InjectView(R.id.scrollView)
+    ScrollView mScrollView;
+
     @InjectView(R.id.episodeHeaderBackgroundImageView)
     ImageView mEpisodeHeaderBackgroundImageView;
 
@@ -144,11 +148,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (getArguments() != null) {
             mEpisodeId = getArguments().getLong(ARG_EPISODE_ID);
         }
-
         mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        // only load the data once and set retain instance
-        getLoaderManager().initLoader(1, null, this);
-        setRetainInstance(true);
 
         mEpisodeGuestImagesList = new ArrayList<>();
         mEpisodeGuestImageAdapter = new EpisodeGuestImageAdapter(getActivity(), mEpisodeGuestImagesList);
@@ -177,14 +177,10 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
 
+        // TODO not sure retain instance is the right way to use this fragment
         // only load the data once and set retain instance
         getLoaderManager().initLoader(1, null, this);
 //        setRetainInstance(true);
-
-        // if this is a config change we already have episode info loaded so update UI.
-        if (mEpisodeInfoHolder != null) {
-            updateUI(mEpisodeInfoHolder);
-        }
     }
 
     @Override
@@ -208,7 +204,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if( null != mEpisodeDetailsCompleteReceiver ) {
             getActivity().unregisterReceiver( mEpisodeDetailsCompleteReceiver );
         }
-
     }
 
     @Override
@@ -220,7 +215,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         } else {
             Log.w(TAG, "No one is registered for episode events!");
         }
-
     }
 
     @Override
@@ -241,18 +235,13 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         switch( item.getItemId() ) {
 
             case R.id.action_play_episode :
-
                 updateConnectedFlags();
-
                 if( mWifiConnected || mMobileConnected ) {
-
                     Intent intent = new Intent(getActivity(), MediaService.class);
                     intent.setAction(MediaService.ACTION_URL);
                     intent.putExtra(MediaService.EXTRA_EPISODE_ID, mEpisodeId);
                     getActivity().startService(intent);
-
                 } else {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
                     builder.setTitle( R.string.network_connected_title )
                            .setMessage( R.string.network_connected_message );
@@ -261,24 +250,25 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                             // User cancelled the dialog
                         }
                     });
-
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
-
                 break;
-
             case R.id.action_download :
                 queueDownload();
                 break;
-
             case R.id.action_delete :
                 deleteEpisode();
                 break;
-
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        if (mEpisodeEventListener != null) {
+            mEpisodeEventListener.onEpisodeImageClicked(position, mEpisodeInfoHolder.getEpisodeImages());
+        }
     }
 
     private void swapMenuItems() {
@@ -383,15 +373,12 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     private void queueDownload() {
-
         if( null == mEpisodeInfoHolder ) {
             return;
         }
 
         if( !isDownloading() ) {
-
             updateConnectedFlags();
-
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mEpisodeInfoHolder.getEpisodeFileUrl()));
 
             // only download via Any Newtwork Connection
@@ -522,6 +509,30 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         }
     }
 
+    // Checks the network connection and sets the wifiConnected and mobileConnected
+    // variables accordingly.
+    private void updateConnectedFlags() {
+        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
+        if( null != activeInfo && activeInfo.isConnected() ) {
+            mWifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
+            mMobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+        } else {
+            mWifiConnected = false;
+            mMobileConnected = false;
+        }
+    }
+
+    private void scheduleWorkItem() {
+        if( !mWifiConnected && !mMobileConnected ) {
+            return;
+        }
+
+        new EpisodeDetailsAsyncTask( getActivity(), (int) mEpisodeId ).execute();
+    }
+
+
     @Override
     public Loader<WrappedLoaderResult<EpisodeInfoHolder>> onCreateLoader(final int id, final Bundle args) {
         return new AbstractAsyncTaskLoader<EpisodeInfoHolder>(getActivity()) {
@@ -555,36 +566,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public void onLoaderReset(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader) { }
 
-    @Override
-    public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-        if (mEpisodeEventListener != null) {
-            mEpisodeEventListener.onEpisodeImageClicked(position, mEpisodeInfoHolder.getEpisodeImages());
-        }
-    }
-
-    // Checks the network connection and sets the wifiConnected and mobileConnected
-    // variables accordingly.
-    private void updateConnectedFlags() {
-        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
-        if( null != activeInfo && activeInfo.isConnected() ) {
-            mWifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
-            mMobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
-        } else {
-            mWifiConnected = false;
-            mMobileConnected = false;
-        }
-    }
-
-    private void scheduleWorkItem() {
-        if( !mWifiConnected && !mMobileConnected ) {
-            return;
-        }
-
-        new EpisodeDetailsAsyncTask( getActivity(), (int) mEpisodeId ).execute();
-    }
-
     private class EpisodeDetailsCompleteReceiver extends BroadcastReceiver {
 
         @Override
@@ -594,65 +575,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             if( intent.getAction().equals( EpisodeDetailsAsyncTask.COMPLETE_ACTION ) ) {
                 getLoaderManager().restartLoader( 1, null, EpisodeFragment.this );
             }
-        }
-    }
-
-    private class EpisodeGuestImageAdapter extends ArrayAdapter<String> {
-        public EpisodeGuestImageAdapter(final Context context, final List<String> objects) {
-            super(context, -1, objects);
-        }
-
-        @Override
-        public View getView(final int position, View convertView, final ViewGroup parent) {
-            String guestImageUrl = getItem(position);
-
-            if (convertView == null) {
-                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-                convertView = layoutInflater.inflate(R.layout.gridview_item_guest_image, parent, false);
-
-                ViewHolder viewHolder = new ViewHolder();
-                viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
-                convertView.setTag(viewHolder);
-            }
-            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            Picasso.with(getContext()).load(guestImageUrl).into(viewHolder.imageView);
-
-            return convertView;
-        }
-
-        private class ViewHolder {
-            ImageView imageView;
-        }
-    }
-
-    private class EpisodeImageAdapter extends ArrayAdapter<ImageGalleryInfoHolder> {
-        public EpisodeImageAdapter(final Context context, final List<ImageGalleryInfoHolder> objects) {
-            super(context, -1, objects);
-        }
-
-        @Override
-        public View getView(final int position, View convertView, final ViewGroup parent) {
-            ImageGalleryInfoHolder imageHolder = getItem(position);
-
-            if (convertView == null) {
-                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-                convertView = layoutInflater.inflate(R.layout.gridview_item_image, parent, false);
-                ViewHolder viewHolder = new ViewHolder();
-                viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
-                convertView.setTag(viewHolder);
-            }
-            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            if (imageHolder.isExplicit()) {
-                Picasso.with(getContext()).load(R.drawable.img_explicit_warning).resize(150, 150).centerInside().into(viewHolder.imageView);
-            } else {
-                Picasso.with(getContext()).load(imageHolder.getImageUrl()).resize(150, 150).centerInside().into(viewHolder.imageView);
-            }
-
-            return convertView;
-        }
-
-        private class ViewHolder {
-            ImageView imageView;
         }
     }
 

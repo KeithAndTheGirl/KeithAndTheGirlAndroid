@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
@@ -28,8 +29,11 @@ public class PlaybackControlsFragment extends Fragment implements MediaService.M
     MediaService mMediaService;
     boolean mBound = false;
 
+    @InjectView(R.id.episodeTitleTextView)
+    TextView mEpisodeTitleTextView;
+
     @InjectView(R.id.playerSeekBar)
-    SeekBar playerSeekBar;
+    SeekBar mPlayerSeekBar;
 
     public static PlaybackControlsFragment newInstance(int showId) {
         PlaybackControlsFragment fragment = new PlaybackControlsFragment();
@@ -79,7 +83,6 @@ public class PlaybackControlsFragment extends Fragment implements MediaService.M
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         updateView();
     }
 
@@ -90,11 +93,14 @@ public class PlaybackControlsFragment extends Fragment implements MediaService.M
 
     private void updateView() {
         if( mBound ) {
-            if( mMediaService.getState().equals( MediaService.State.PLAYING) || mMediaService.getState().equals( MediaService.State.PAUSED) ) {
-                EpisodeInfoHolder episode = mMediaService.getEpisode();
+            EpisodeInfoHolder episode = mMediaService.getEpisode();
+            if (episode != null) {
+                mEpisodeTitleTextView.setText(episode.getEpisodeTitle());
 
-                playerSeekBar.setMax( episode.getEpisodeLength() * 1000 );
-                playerSeekBar.setProgress( episode.getEpisodeLastPlayed() );
+                if (mMediaService.getState().equals(MediaService.State.PLAYING) || mMediaService.getState().equals(MediaService.State.PAUSED)) {
+                    mPlayerSeekBar.setMax(episode.getEpisodeLength() * 1000);
+                    mPlayerSeekBar.setProgress(episode.getEpisodeLastPlayed());
+                }
             }
         }
     }

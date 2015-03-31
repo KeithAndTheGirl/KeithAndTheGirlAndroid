@@ -40,29 +40,29 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 
 
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
     }
 
     @Override
-    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-        final View rootView = inflater.inflate( R.layout.fragment_shows, container, false );
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View rootView = inflater.inflate(R.layout.fragment_shows, container, false);
         mProgressView = rootView.findViewById(R.id.progressContainer);
         mProgressView.setVisibility(View.VISIBLE);
         return rootView;
     }
 
     @Override
-    public void onActivityCreated( Bundle savedInstanceState ) {
-        super.onActivityCreated( savedInstanceState );
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        getLoaderManager().initLoader( 0, getArguments(), this );
+        getLoaderManager().initLoader(0, getArguments(), this);
 
-        mAdapter = new ShowCursorAdapter( getActivity() );
+        mAdapter = new ShowCursorAdapter(getActivity());
 
-        final GridView gridView = (GridView) getActivity().findViewById( R.id.shows_gridview );
+        final GridView gridView = (GridView) getActivity().findViewById(R.id.shows_gridview);
         gridView.setAdapter(mAdapter);
         gridView.setOnItemClickListener(this);
     }
@@ -74,9 +74,9 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     @Override
-    public void onItemClick( AdapterView<?> parent, View v, int position, long id ) {
-        final Intent i = new Intent( getActivity(), ShowsActivity.class );
-        i.putExtra( ShowsActivity.SHOW_NAME_POSITION_KEY, position );
+    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        final Intent i = new Intent(getActivity(), ShowsActivity.class);
+        i.putExtra(ShowsActivity.SHOW_NAME_POSITION_KEY, position);
 //        if( Utils.hasJellyBean() ) {
 //            // makeThumbnailScaleUpAnimation() looks kind of ugly here as the loading spinner may
 //            // show plus the thumbnail image in GridView is cropped. so using
@@ -85,22 +85,37 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
 ////            ActivityOptions options = ActivityOptions.makeScaleUpAnimation( v, 0, 0, v.getWidth(), v.getHeight() );
 //            startActivity( i );
 //        } else {
-            startActivity( i );
+        startActivity(i);
 //        }
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader( int i, Bundle args ) {
-        String[] projection = { ShowConstants._ID, ShowConstants.FIELD_NAME, ShowConstants.FIELD_PREFIX, ShowConstants.FIELD_COVERIMAGEURL_200, ShowConstants.FIELD_VIP, ShowConstants.FIELD_EPISODE_COUNT_NEW };
+    public Loader<Cursor> onCreateLoader(int i, Bundle args) {
+        String[] projection = {
+                ShowConstants._ID,
+                ShowConstants.FIELD_NAME,
+                ShowConstants.FIELD_PREFIX,
+                ShowConstants.FIELD_COVERIMAGEURL_200,
+                ShowConstants.FIELD_VIP,
+                ShowConstants.FIELD_EPISODE_COUNT_NEW};
+
         String selection = null;
         String[] selectionArgs = null;
 
-        CursorLoader cursorLoader = new CursorLoader( getActivity(), ShowConstants.CONTENT_URI, projection, selection, selectionArgs, ShowConstants.FIELD_SORTORDER );
+        CursorLoader cursorLoader =
+                new CursorLoader(
+                        getActivity(),
+                        ShowConstants.CONTENT_URI,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        ShowConstants.FIELD_SORTORDER);
+
         return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished( Loader<Cursor> cursorLoader, Cursor cursor ) {
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         if (cursor.getCount() > 0) {
             mProgressView.setVisibility(View.GONE);
         }
@@ -108,52 +123,52 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     @Override
-    public void onLoaderReset( Loader<Cursor> cursorLoader ) {
-        mAdapter.swapCursor( null );
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mAdapter.swapCursor(null);
     }
 
 
     private class ShowCursorAdapter extends CursorAdapter {
         private LayoutInflater mInflater;
 
-        public ShowCursorAdapter( Context context ) {
-            super( context, null, false );
-            mInflater = LayoutInflater.from( context );
+        public ShowCursorAdapter(Context context) {
+            super(context, null, false);
+            mInflater = LayoutInflater.from(context);
         }
 
         @Override
-        public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-            View view = mInflater.inflate( R.layout.show_grid_item, parent, false );
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = mInflater.inflate(R.layout.show_grid_item, parent, false);
 
             ViewHolder refHolder = new ViewHolder();
-            refHolder.coverImage = (ImageView) view.findViewById( R.id.show_grid_item_coverimage );
-            refHolder.coverImage.setScaleType( ImageView.ScaleType.CENTER_CROP );
+            refHolder.coverImage = (ImageView) view.findViewById(R.id.show_grid_item_coverimage);
+            refHolder.coverImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            refHolder.vip = (TextView) view.findViewById( R.id.show_grid_item_vip );
-            refHolder.name = (TextView) view.findViewById( R.id.show_grid_item_name );
+            refHolder.vip = (TextView) view.findViewById(R.id.show_grid_item_vip);
+            refHolder.name = (TextView) view.findViewById(R.id.show_grid_item_name);
             refHolder.newShowTextView = (TextView) view.findViewById(R.id.newShowTextView);
-            view.setTag( refHolder );
+            view.setTag(refHolder);
             return view;
         }
 
         @Override
-        public void bindView( View view, Context context, Cursor cursor ) {
+        public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder mHolder = (ViewHolder) view.getTag();
 
-            String name = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_NAME ) );
-            String prefix = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_PREFIX ) );
-            String coverUrl = cursor.getString( cursor.getColumnIndex( ShowConstants.FIELD_COVERIMAGEURL_200 ) );
-            boolean vip = cursor.getLong( cursor.getColumnIndex( ShowConstants.FIELD_VIP ) ) == 0 ? false : true;
+            String name = cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_NAME));
+            String prefix = cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_PREFIX));
+            String coverUrl = cursor.getString(cursor.getColumnIndex(ShowConstants.FIELD_COVERIMAGEURL_200));
+            boolean vip = cursor.getLong(cursor.getColumnIndex(ShowConstants.FIELD_VIP)) == 0 ? false : true;
             long newShows = cursor.getInt(cursor.getColumnIndex(ShowConstants.FIELD_EPISODE_COUNT_NEW));
-            mHolder.name.setText( name );
+            mHolder.name.setText(name);
 
-            if( vip ) {
-                mHolder.vip.setVisibility( View.VISIBLE );
+            if (vip) {
+                mHolder.vip.setVisibility(View.VISIBLE);
             } else {
-                mHolder.vip.setVisibility( View.GONE );
+                mHolder.vip.setVisibility(View.GONE);
             }
 
-            if ( newShows > 0) {
+            if (newShows > 0) {
                 mHolder.newShowTextView.setVisibility(View.VISIBLE);
                 mHolder.newShowTextView.setText(String.valueOf(newShows));
             } else {
@@ -169,7 +184,8 @@ public class ShowsGridFragment extends Fragment implements LoaderManager.LoaderC
         TextView name;
         TextView newShowTextView;
 
-        ViewHolder() { }
+        ViewHolder() {
+        }
     }
 }
 

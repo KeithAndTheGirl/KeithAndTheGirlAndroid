@@ -37,7 +37,6 @@ import com.squareup.picasso.Picasso;
 import java.text.MessageFormat;
 
 /**
- *
  * Created by dmfrey on 3/30/14.
  */
 public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -79,7 +78,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         if (null != getArguments()) {
             mShowNameId = getArguments().getLong(SHOW_NAME_ID_KEY);
 
-            mShowHolder = ShowInfoHolder.loadShow( getActivity(), mShowNameId );
+            mShowHolder = ShowInfoHolder.loadShow(getActivity(), mShowNameId);
         }
         mAdapter = new EpisodeCursorAdapter(getActivity());
     }
@@ -104,14 +103,14 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getListView().addHeaderView(mHeaderView, null, false);
-        getListView().setOnScrollListener( new EndlessScrollListener() {
+        getListView().setOnScrollListener(new EndlessScrollListener() {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
-                Log.i( TAG, "onLoadMore : enter" );
+                Log.i(TAG, "onLoadMore : enter");
 
                 loadMoreItems();
 
-                Log.i( TAG, "onLoadMore : exit" );
+                Log.i(TAG, "onLoadMore : exit");
             }
         });
         setListAdapter(mAdapter);
@@ -133,7 +132,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if (activity instanceof OnShowFragmentListener ) {
+        if (activity instanceof OnShowFragmentListener) {
             mListener = (OnShowFragmentListener) activity;
         }
     }
@@ -177,15 +176,15 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
         updateConnectedFlags();
 
-        if( !mWifiConnected && !mMobileConnected ) {
+        if (!mWifiConnected && !mMobileConnected) {
             return;
         }
 
         // a swipe occurred and we need to start refreshing then start the sync adapter
         // we will get a broadcast event when the sync adapter is done.
-        setRefreshing( true );
+        setRefreshing(true);
 
-        new EpisodeListAsyncTask( getActivity(), (int) mShowNameId, -1, -1, 50, true ).execute();
+        new EpisodeListAsyncTask(getActivity(), (int) mShowNameId, -1, -1, 50, true).execute();
 
     }
 
@@ -208,7 +207,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         mAdapter.swapCursor(cursor);
         getListView().setFastScrollEnabled(true);
 
-        Log.i( TAG, "onLoadFinished : cursor count=" + cursor.getCount() );
+        Log.i(TAG, "onLoadFinished : cursor count=" + cursor.getCount());
     }
 
     @Override
@@ -229,42 +228,42 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     }
 
     public void loadMoreItems() {
-        Log.d( TAG, "loadMoreItems : enter" );
-        Log.d( TAG, "loadMoreItems : mShowHolder=" + mShowHolder.toString() );
+        Log.d(TAG, "loadMoreItems : enter");
+        Log.d(TAG, "loadMoreItems : mShowHolder=" + mShowHolder.toString());
 
         updateConnectedFlags();
 
-        if( !mWifiConnected && !mMobileConnected ) {
+        if (!mWifiConnected && !mMobileConnected) {
             return;
         }
 
         int episodeCount = getListView().getCount();
-        Log.d( TAG, "loadMoreItems : episodeCount=" + episodeCount + ", show count=" + mShowHolder.getEpisodeNumberMax() );
+        Log.d(TAG, "loadMoreItems : episodeCount=" + episodeCount + ", show count=" + mShowHolder.getEpisodeNumberMax());
 
 //        if( episodeCount < mShowHolder.getEpisodeNumberMax() ) {
 
         int lastIndex = getListView().getLastVisiblePosition();
-        if( lastIndex == 0 ) {
-            new EpisodeListAsyncTask( getActivity(), (int) mShowNameId, -1, -1, 50, false ).execute();
+        if (lastIndex == 0) {
+            new EpisodeListAsyncTask(getActivity(), (int) mShowNameId, -1, -1, 50, false).execute();
         } else {
 
-            long lastId = getListAdapter().getItemId( lastIndex );
-            Log.d( TAG, "loadMoreItems : lastIndex=" + lastIndex + ", lastId=" + lastId );
+            long lastId = getListAdapter().getItemId(lastIndex);
+            Log.d(TAG, "loadMoreItems : lastIndex=" + lastIndex + ", lastId=" + lastId);
 
             EpisodeInfoHolder episodeHolder = EpisodeInfoHolder.loadEpisode(getActivity(), lastId);
             int number = episodeHolder.getEpisodeNumber() - 50;
             if (number < 1) {
                 number = 1;
             }
-            new EpisodeListAsyncTask( getActivity(), (int) mShowNameId, -1, number, 50, false ).execute();
+            new EpisodeListAsyncTask(getActivity(), (int) mShowNameId, -1, number, 50, false).execute();
 
         }
 
-        setRefreshing( true );
+        setRefreshing(true);
 
 //        }
 
-        Log.d( TAG, "loadMoreItems : exit" );
+        Log.d(TAG, "loadMoreItems : exit");
     }
 
     public void updateHeader(long showNameId) {
@@ -288,7 +287,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
-        if( null != activeInfo && activeInfo.isConnected() ) {
+        if (null != activeInfo && activeInfo.isConnected()) {
             mWifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
             mMobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
         } else {
@@ -302,7 +301,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         TextView number;
         TextView showDate;
         TextView title;
-//        ImageView details;
+        //        ImageView details;
         TextView played;
         TextView downloaded;
         TextView guestsTextView;
@@ -358,13 +357,13 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             mHolder.number.setText(mEpisodesLabel + " " + cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
             mHolder.showDate.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
             mHolder.title.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
-            if( null != guestNames ) {
-                mHolder.guestsTextView.setVisibility( View.VISIBLE);
+            if (null != guestNames) {
+                mHolder.guestsTextView.setVisibility(View.VISIBLE);
                 mHolder.guestsTextView.setText(guestNames);
             } else {
-                mHolder.guestsTextView.setVisibility( View.GONE);
+                mHolder.guestsTextView.setVisibility(View.GONE);
             }
-            int minutes = length/60;
+            int minutes = length / 60;
             if (minutes > 0) {
                 mHolder.minutesLayout.setVisibility(View.VISIBLE);
                 mHolder.duration.setText(String.valueOf(minutes));
@@ -372,15 +371,15 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
                 mHolder.minutesLayout.setVisibility(View.GONE);
             }
 
-            if( downloaded == 1) {
+            if (downloaded == 1) {
                 mHolder.downloaded.setText("Downloaded");
             } else {
                 mHolder.downloaded.setText("Not Downloaded");
             }
 
-            if( lastPlayed > 0 ) {
+            if (lastPlayed > 0) {
                 // multiply length by 1000, length is reported in seconds from the server
-                double percent = ( (double)lastPlayed / (double)(length * 1000) );
+                double percent = ((double) lastPlayed / (double) (length * 1000));
 
                 mHolder.played.setText(MessageFormat.format("{0,number,percent}", percent) + " Played");
             } else {
@@ -395,7 +394,7 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
         public void onReceive(Context context, Intent intent) {
             // when we receive a syc complete action reset the loader so it can refresh the content
             if (intent.getAction().equals(EpisodeListAsyncTask.COMPLETE_ACTION)) {
-                setRefreshing( false );
+                setRefreshing(false);
             }
         }
     }
