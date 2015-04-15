@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,6 +39,7 @@ import android.widget.ViewSwitcher;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
+import com.keithandthegirl.app.db.model.ShowInfoHolder;
 import com.keithandthegirl.app.loader.AbstractAsyncTaskLoader;
 import com.keithandthegirl.app.loader.WrappedLoaderCallbacks;
 import com.keithandthegirl.app.loader.WrappedLoaderResult;
@@ -451,6 +453,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (episodeHolder == null) {
             return;
         } // early out if we haven't set data yet
+
+        ( (ActionBarActivity) getActivity() ).getSupportActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
 
         Picasso.with(getActivity()).load(episodeHolder.getShowCoverImageUrl()).into(mEpisodeHeaderBackgroundImageView);
         mEpisodeDateTextView.setText(episodeHolder.getEpisodePosted());
