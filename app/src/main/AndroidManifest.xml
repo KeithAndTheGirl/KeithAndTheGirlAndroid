@@ -13,7 +13,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_short_name"
-        android:theme="@style/ThemeKatg" >
+        android:theme="@style/ThemeKatg"
+        android:largeHeap="true">
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="48dbf78187c50c1b67191d33e57b549d459cca14" />
