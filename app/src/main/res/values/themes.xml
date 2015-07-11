@@ -7,7 +7,7 @@
 
         <item name="colorPrimary">@color/katg_green</item>
         <item name="colorPrimaryDark">@color/katg_dark_green</item>
-        <item name="colorAccent">@color/katg_dark_green</item>
+        <item name="colorAccent">@color/White</item>
 
         <item name="android:textColor">@color/White</item>
         <item name="android:listViewStyle">@style/KatgListViewStyle</item>
