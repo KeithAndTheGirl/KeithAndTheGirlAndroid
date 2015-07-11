@@ -88,5 +88,12 @@
     <string name="processEpisodesFailure">An error occurred loading the episodes!</string>
     <string name="processEpisodeDetailsFailure">An error occurred loading the episode details!</string>
     <string name="processYoutubeVideosFailure">An error occurred loading the youtube videos!</string>
+    <string name="menu_item_shows">Shows</string>
+    <string name="menu_item_guests">Guests</string>
+    <string name="menu_item_live">Live</string>
+    <string name="menu_item_schedule">Schedule</string>
+    <string name="menu_item_youtube">Youtube</string>
+    <string name="menu_item_about">About</string>
+    <string name="menu_item_settings">Settings</string>
 
 </resources>

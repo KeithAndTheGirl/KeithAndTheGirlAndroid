@@ -23,32 +23,28 @@ import java.util.ArrayList;
  * TODO remember scroll location when coming back from gallery
  */
 public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFragment.EpisodeEventListener {
+
     private static final String TAG = EpisodeActivity.class.getSimpleName();
 
     public static final String ARG_EPISODE_KEY = "ARG_EPISODE_KEY";
 
     private long mEpisodeId;
     private EpisodeInfoHolder mEpisodeInfoHolder;
-    private PlaybackStatusFragment mPlayerFragment;
+//    private PlaybackStatusFragment mPlayerFragment;
+
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.activity_episode;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_episode);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
 
         Bundle extras = getIntent().getExtras();
         if (extras.containsKey(ARG_EPISODE_KEY)) {
             mEpisodeId = extras.getLong(ARG_EPISODE_KEY);
         }
-
-        final ActionBar actionBar = getSupportActionBar();
-        assert actionBar != null;
-        // Show the Up button in the action bar.
-        actionBar.setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -56,8 +52,8 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
                     .commit();
         }
 
-        mPlayerFragment =
-                (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
+//        mPlayerFragment =
+//                (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
     }
 
     @Override
@@ -88,8 +84,8 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
     @Override
     public void onEpisodeLoaded(final EpisodeInfoHolder episodeInfoHolder) {
         mEpisodeInfoHolder = episodeInfoHolder;
-        mPlayerFragment.loadEpisodeInfo(episodeInfoHolder);
-        mPlayerFragment.requestVisible(true);
+//        mPlayerFragment.loadEpisodeInfo(episodeInfoHolder);
+//        mPlayerFragment.requestVisible(true);
 
         if( mEpisodeInfoHolder.isEpisodePublic() ) {
             Log.d(TAG, "public episode");

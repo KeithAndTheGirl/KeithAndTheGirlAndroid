@@ -34,9 +34,13 @@ public class ShowsActivity extends AbstractBaseActivity implements ActionBar.OnN
     int mSelectedNavigationItem;
 
     @Override
+    protected int getLayoutResource() {
+        return R.layout.activity_shows;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shows);
 
         if (null != savedInstanceState && savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
             mSelectedNavigationItem = savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM);

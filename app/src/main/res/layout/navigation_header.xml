@@ -1,6 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/katg_dark_green"
+    android:paddingTop="24dp">
 
     <LinearLayout
         android:id="@+id/vip_layout"
@@ -14,6 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:src="@drawable/ic_launcher"
             android:background="@color/Transparent"/>
 
@@ -32,15 +35,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:background="@color/Transparent"
             android:text="Get VIP"/>
     </LinearLayout>
-
-    <ListView
-        android:id="@+id/navigationListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/vip_layout"
-        android:background="@color/katg_green"/>
 
 </RelativeLayout>

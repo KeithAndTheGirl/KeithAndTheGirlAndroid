@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_shows"
+            android:checked="true"
+            android:title="@string/menu_item_shows"
+            android:icon="@drawable/ic_tab_shows_on" />
+
+        <item
+            android:id="@+id/menu_guests"
+            android:title="@string/menu_item_guests"
+            android:icon="@drawable/ic_tab_guest_off" />
+
+        <item
+            android:id="@+id/menu_live"
+            android:title="@string/menu_item_live"
+            android:icon="@drawable/ic_tab_live_off" />
+
+        <item
+            android:id="@+id/menu_schedule"
+            android:title="@string/menu_item_schedule"
+            android:icon="@drawable/ic_tab_calendar_off" />
+
+        <item
+            android:id="@+id/menu_youtube"
+            android:title="@string/menu_item_youtube"
+            android:icon="@drawable/ic_tab_youtube_off" />
+
+        <item
+            android:id="@+id/menu_about"
+            android:title="@string/menu_item_about"
+            android:icon="@drawable/ic_tab_about_off" />
+
+        <item
+            android:id="@+id/menu_settings"
+            android:title="@string/menu_item_settings" />
+
+    </group>
+
+</menu>

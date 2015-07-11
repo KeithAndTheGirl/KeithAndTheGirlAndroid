@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="KatgThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
+
+    <style name="ThemeKatg" parent="AppTheme.Base" />
+
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+
         <item name="colorPrimary">@color/katg_green</item>
         <item name="colorPrimaryDark">@color/katg_dark_green</item>
+        <item name="colorAccent">@color/katg_dark_green</item>
+
         <item name="android:textColor">@color/White</item>
-        <item name="android:windowNoTitle">true</item>
         <item name="android:listViewStyle">@style/KatgListViewStyle</item>
         <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
         <item name="android:buttonStyle">@style/RobotoButtonStyle</item>
 
-        <!--With the new Toolbar you can apply a style and a theme. They are different!-->
-        <!--The style is local to the Toolbar view, for example the background color. -->
-        <!--The app:theme is instead global to all ui elements inflated in the Toolbar for example the color of the title and icons.-->
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-    </style>
 
-    <style name="ThemeKatg" parent="KatgThemeBase">
-        <!--// if you are putting a style here you are probably doing it wrong..-->
     </style>
-
 
 </resources>

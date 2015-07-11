@@ -19,7 +19,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,6 +63,7 @@ import butterknife.Bind;
  * create an instance of this fragment.
  */
 public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<EpisodeInfoHolder>, AdapterView.OnItemClickListener {
+
     private static final String TAG = EpisodeFragment.class.getSimpleName();
 
     private static final String ARG_EPISODE_ID = "ARG_EPISODE_ID";
@@ -454,7 +455,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             return;
         } // early out if we haven't set data yet
 
-        ( (ActionBarActivity) getActivity() ).getSupportActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
+        ( (AppCompatActivity) getActivity() ).getSupportActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
 
         Picasso.with(getActivity()).load(episodeHolder.getShowCoverImageUrl()).into(mEpisodeHeaderBackgroundImageView);
         mEpisodeDateTextView.setText(episodeHolder.getEpisodePosted());

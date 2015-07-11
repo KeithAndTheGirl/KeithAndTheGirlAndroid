@@ -13,7 +13,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_short_name"
-        android:theme="@style/ThemeKatg" >
+        android:theme="@style/ThemeKatg">
+
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="48dbf78187c50c1b67191d33e57b549d459cca14" />
@@ -54,8 +55,7 @@
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".ui.main.MainActivity"
-            android:theme="@style/Base.Theme.AppCompat" >
+            android:parentActivityName=".ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithandthegirl.app.ui.main.MainActivity" />

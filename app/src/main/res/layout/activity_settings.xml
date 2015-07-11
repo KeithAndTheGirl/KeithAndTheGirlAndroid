@@ -5,12 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    tools:context="com.keithandthegirl.app.ui.settings.SettingsActivity">
 
     <include
         layout="@layout/toolbar" />
-
-    <include
-        layout="@layout/navigation_view" />
 
 </android.support.v4.widget.DrawerLayout>
