@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -21,7 +22,7 @@ import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.LiveConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 
-public abstract class AbstractBaseActivity extends ActionBarActivity {
+public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     private static final String TAG = AbstractBaseActivity.class.getSimpleName();
 

@@ -18,7 +18,7 @@ import com.keithandthegirl.app.db.model.GuestConstants;
 import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 public class GuestsFragment extends ListFragment {
     private static final String TAG = GuestsFragment.class.getSimpleName();
@@ -113,17 +113,17 @@ public class GuestsFragment extends ListFragment {
     }
 
     static class ViewHolder {
-        @InjectView(R.id.guest_image)
+        @Bind(R.id.guest_image)
         ImageView image;
-        @InjectView(R.id.guest_real_name)
+        @Bind(R.id.guest_real_name)
         TextView realName;
-        @InjectView(R.id.guest_episodes)
+        @Bind(R.id.guest_episodes)
         TextView episodes;
-        @InjectView(R.id.guest_description)
+        @Bind(R.id.guest_description)
         TextView description;
 
         ViewHolder(View view) {
-            ButterKnife.inject(this, view);
+            ButterKnife.bind(this, view);
         }
     }
 }

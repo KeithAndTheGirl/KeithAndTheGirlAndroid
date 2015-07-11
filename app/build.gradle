@@ -1,18 +1,18 @@
 buildscript {
     repositories {
-        maven { url 'http://download.crashlytics.com/maven' }
+        maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.14.7'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'crashlytics'
+apply plugin: 'io.fabric'
 
 repositories {
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 def katgProperties = file( "KeithAndTheGirlApp.properties" );
@@ -78,19 +78,39 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-annotations:22.0.0'
-    compile 'com.android.support:support-v4:22.0.0'
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:support-annotations:22.2.0'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
 
     compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'com.squareup.okhttp:okhttp:2.3.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.3.0'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
 
-    compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'com.jakewharton:butterknife:7.0.1'
 
-    compile 'joda-time:joda-time:2.7'
+    compile 'joda-time:joda-time:2.8.1'
     compile 'commons-io:commons-io:2.4'
-    compile project(':exoplayer')
-    compile 'com.crashlytics.android:crashlytics:1.1.13'
+//    compile project(':exoplayer')
+
+    // Crashlytics Kit
+    compile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
+        transitive = true
+    }
+
+    // Twitter Kit
+    compile('com.twitter.sdk.android:twitter:1.6.0@aar') {
+        transitive = true
+    }
+
+    // Digits Kit
+    compile('com.digits.sdk.android:digits:1.6.1@aar') {
+            transitive = true
+    }
+
+    // MoPub Kit
+    compile('com.mopub.sdk.android:mopub:3.8.0@aar') {
+        transitive = true
+    }
+
 }

@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.crashlytics.android.Crashlytics;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.squareup.picasso.Picasso;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by dmfrey on 3/19/14.
@@ -22,7 +25,8 @@ public class MainApplication extends Application {
         super.onCreate();
 
         MainApplication.sAppContext = getApplicationContext();
-//        Crashlytics.start(this);
+        Fabric.with( this, new Crashlytics() );
+
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setIndicatorsEnabled(false);
         }

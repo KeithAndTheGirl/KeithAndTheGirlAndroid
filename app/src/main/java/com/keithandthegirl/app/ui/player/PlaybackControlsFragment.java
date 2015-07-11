@@ -19,7 +19,7 @@ import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.services.media.MediaService;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 public class PlaybackControlsFragment extends Fragment implements MediaService.MediaServiceEventListener {
     private static final String TAG = PlaybackControlsFragment.class.getSimpleName();
@@ -29,10 +29,10 @@ public class PlaybackControlsFragment extends Fragment implements MediaService.M
     MediaService mMediaService;
     boolean mBound = false;
 
-    @InjectView(R.id.episodeTitleTextView)
+    @Bind(R.id.episodeTitleTextView)
     TextView mEpisodeTitleTextView;
 
-    @InjectView(R.id.playerSeekBar)
+    @Bind(R.id.playerSeekBar)
     SeekBar mPlayerSeekBar;
 
     public static PlaybackControlsFragment newInstance(int showId) {
@@ -76,7 +76,7 @@ public class PlaybackControlsFragment extends Fragment implements MediaService.M
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail_player_controls, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         return rootView;
     }
 

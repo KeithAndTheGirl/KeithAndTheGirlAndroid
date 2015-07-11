@@ -20,8 +20,8 @@ import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
 import com.keithandthegirl.app.services.media.MediaService;
 import com.keithandthegirl.app.services.media.MediaService.MediaServiceBinder;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 /**
@@ -35,15 +35,15 @@ public class PlaybackStatusFragment extends Fragment implements MediaService.Med
     MediaService mMediaService;
     boolean mBound = false;
 
-    @InjectView(R.id.seekLayout)
+    @Bind(R.id.seekLayout)
     View mSeekLayout;
-    @InjectView(R.id.showImageLayout)
+    @Bind(R.id.showImageLayout)
     View mShowImageLayout;
-    @InjectView(R.id.playImageButton)
+    @Bind(R.id.playImageButton)
     ImageButton mPlayImageButton;
-    @InjectView(R.id.playbackProgressBar)
+    @Bind(R.id.playbackProgressBar)
     ProgressBar mPlaybackProgressBar;
-    @InjectView(R.id.episodeInfoTextView)
+    @Bind(R.id.episodeInfoTextView)
     TextView mEpisodeInfoTextView;
 
     private EpisodeInfoHolder mEpisodeInfoHolder;
@@ -61,7 +61,7 @@ public class PlaybackStatusFragment extends Fragment implements MediaService.Med
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_katg_player, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         return view;
     }
 

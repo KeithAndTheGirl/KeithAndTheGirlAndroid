@@ -30,7 +30,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * Created by dmfrey on 3/21/14.
@@ -157,23 +157,23 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     }
 
     static class ViewHolder {
-        @InjectView(R.id.event_title)
+        @Bind(R.id.event_title)
         TextView title;
-        @InjectView(R.id.event_start_date)
+        @Bind(R.id.event_start_date)
         TextView startDate;
-        @InjectView(R.id.event_location)
+        @Bind(R.id.event_location)
         TextView location;
-        @InjectView(R.id.event_details)
+        @Bind(R.id.event_details)
         TextView details;
-        @InjectView(R.id.whenLayout)
+        @Bind(R.id.whenLayout)
         View whenLayout;
-        @InjectView(R.id.locationLayout)
+        @Bind(R.id.locationLayout)
         View locationLayout;
-        @InjectView(R.id.detailsLayout)
+        @Bind(R.id.detailsLayout)
         View detailsLayout;
 
         ViewHolder(View view) {
-            ButterKnife.inject(this, view);
+            ButterKnife.bind(this, view);
         }
     }
 }

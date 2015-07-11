@@ -25,7 +25,7 @@ import com.keithandthegirl.app.ui.custom.slidingtabs.SlidingTabPagerAdapter;
 import com.keithandthegirl.app.utils.StringUtils;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * Created by Jeff on 11/26/2014.
@@ -37,11 +37,11 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     private static final String SHOWS_DATA_FRAGMENT_TAG = ShowsDataFragment.class.getCanonicalName();
 
     CursorFragmentPagerAdapter mAdapter;
-    @InjectView(R.id.progressContainer)
+    @Bind(R.id.progressContainer)
     View mProgressView;
-    @InjectView(R.id.viewpager)
+    @Bind(R.id.viewpager)
     ViewPager mViewPager;
-    @InjectView(R.id.sliding_tabs)
+    @Bind(R.id.sliding_tabs)
     SlidingTabLayout mSlidingTabLayout;
 
     public static ShowsTabFragment newInstance() {
@@ -62,7 +62,7 @@ public class ShowsTabFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.fragment_shows_tab, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
 
         ShowsDataFragment showsDataFragment = (ShowsDataFragment) getChildFragmentManager().findFragmentByTag(SHOWS_DATA_FRAGMENT_TAG);
         if (null == showsDataFragment) {

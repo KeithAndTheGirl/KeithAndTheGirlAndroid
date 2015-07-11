@@ -37,7 +37,7 @@ import org.joda.time.DateTimeZone;
 import java.util.Date;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import butterknife.OnClick;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -62,19 +62,19 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
         }
     };
 
-    @InjectView(R.id.countDownTextView)
+    @Bind(R.id.countDownTextView)
     TextView mCountDownTextView;
-    @InjectView(R.id.liveFragmentTitleTextView)
+    @Bind(R.id.liveFragmentTitleTextView)
     TextView mLiveFragmentTitleTextView;
-    @InjectView(R.id.liveViewSwitcher)
+    @Bind(R.id.liveViewSwitcher)
     ViewSwitcher mLiveViewSwitcher;
-    @InjectView(R.id.nameEditText)
+    @Bind(R.id.nameEditText)
     EditText mNameEditText;
-    @InjectView(R.id.locationEditText)
+    @Bind(R.id.locationEditText)
     EditText mLocationEditText;
-    @InjectView(R.id.commentEditText)
+    @Bind(R.id.commentEditText)
     EditText mCommentEditText;
-    @InjectView(R.id.submitButton)
+    @Bind(R.id.submitButton)
     Button mSubmitButton;
 
     public static LiveFragment newInstance() {
@@ -92,7 +92,7 @@ public class LiveFragment extends Fragment implements LoaderManager.LoaderCallba
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_live, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         BroadcastingDataFragment broadcastingDataFragment = (BroadcastingDataFragment) getChildFragmentManager().findFragmentByTag( BROADCASTING_DATA_FRAGMENT_TAG );
         if( null == broadcastingDataFragment ) {

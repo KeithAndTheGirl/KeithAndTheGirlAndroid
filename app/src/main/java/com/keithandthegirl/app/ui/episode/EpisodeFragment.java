@@ -55,7 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -71,43 +71,43 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     ViewSwitcher mMainViewSwitcher;
 
-    @InjectView(R.id.scrollView)
+    @Bind(R.id.scrollView)
     ScrollView mScrollView;
 
-    @InjectView(R.id.episodeHeaderBackgroundImageView)
+    @Bind(R.id.episodeHeaderBackgroundImageView)
     ImageView mEpisodeHeaderBackgroundImageView;
 
-    @InjectView(R.id.episodeDateTextView)
+    @Bind(R.id.episodeDateTextView)
     TextView mEpisodeDateTextView;
 
-    @InjectView(R.id.episodeNumberTextView)
+    @Bind(R.id.episodeNumberTextView)
     TextView mEpisodeNumberTextView;
 
-    @InjectView(R.id.episodeTitleTextView)
+    @Bind(R.id.episodeTitleTextView)
     TextView mEpisodeTitleTextView;
 
-    @InjectView(R.id.episodeGuestsTextView)
+    @Bind(R.id.episodeGuestsTextView)
     TextView mEpisodeGuestsTextView;
 
-    @InjectView(R.id.episodeGuestImagesGridView)
+    @Bind(R.id.episodeGuestImagesGridView)
     ExpandedHeightGridView mEpisodeGuestImagesGridView;
 
-    @InjectView(R.id.episodeImagesGridView)
+    @Bind(R.id.episodeImagesGridView)
     ExpandedHeightGridView mEpisodeImagesGridView;
 
-    @InjectView(R.id.episodeShowNotesWebView)
+    @Bind(R.id.episodeShowNotesWebView)
     WebView mEpisodeShowNotesWebView;
 
-    @InjectView(R.id.episodeDetailsLayout)
+    @Bind(R.id.episodeDetailsLayout)
     View mEpisodeDetailsLayout;
 
-    @InjectView(R.id.guestNamesLayout)
+    @Bind(R.id.guestNamesLayout)
     View mEpisodeGuestNamesLayout;
 
-    @InjectView(R.id.episodeImagesLayout)
+    @Bind(R.id.episodeImagesLayout)
     View mEpisodeImagesLayout;
 
-    @InjectView(R.id.guestImagesLayout)
+    @Bind(R.id.guestImagesLayout)
     View mGuestImagesLayout;
 
     private long mEpisodeId;
@@ -162,7 +162,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_episode, container, false);
-        ButterKnife.inject(this, fragmentView);
+        ButterKnife.bind(this, fragmentView);
 
         mMainViewSwitcher = (ViewSwitcher) fragmentView;
         mMainViewSwitcher.setDisplayedChild(VIEW_PROGRESS);
