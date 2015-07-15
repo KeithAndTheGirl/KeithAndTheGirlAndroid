@@ -25,7 +25,9 @@ public class MainApplication extends Application {
         super.onCreate();
 
         MainApplication.sAppContext = getApplicationContext();
-        Fabric.with( this, new Crashlytics() );
+        if (BuildConfig.SEND_CRASHLYTICS) {
+            Fabric.with( this, new Crashlytics() );
+        }
 
         if (BuildConfig.DEBUG) {
             Picasso.with(this).setIndicatorsEnabled(false);

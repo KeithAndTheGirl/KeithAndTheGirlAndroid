@@ -44,6 +44,8 @@ android {
         targetSdkVersion 22
         versionCode 5
         versionName '1.0'
+
+        buildConfigField 'boolean', 'SEND_CRASHLYTICS', 'true'
     }
 
     compileOptions {
@@ -57,11 +59,13 @@ android {
     }
     buildTypes {
         release {
+            buildConfigField 'boolean', 'SEND_CRASHLYTICS', 'true'
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             signingConfig signingConfigs.release
         }
         debug {
+            buildConfigField 'boolean', 'SEND_CRASHLYTICS', 'false'
             minifyEnabled false
         }
         beta {
