@@ -8,6 +8,6 @@
     tools:context="com.keithandthegirl.app.ui.episode.EpisodeActivity">
 
     <include
-        layout="@layout/toolbar" />
+        layout="@layout/include_toolbar" />
 
 </android.support.v4.widget.DrawerLayout>

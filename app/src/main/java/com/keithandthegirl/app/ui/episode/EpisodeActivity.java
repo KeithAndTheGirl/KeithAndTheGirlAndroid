@@ -30,59 +30,70 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
 
     private long mEpisodeId;
     private EpisodeInfoHolder mEpisodeInfoHolder;
-//    private PlaybackStatusFragment mPlayerFragment;
 
     @Override
     protected int getLayoutResource() {
-        return R.layout.activity_episode;
+        return R.layout.activity_detail;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate( Bundle savedInstanceState ) {
+        super.onCreate( savedInstanceState );
 
         Bundle extras = getIntent().getExtras();
-        if (extras.containsKey(ARG_EPISODE_KEY)) {
-            mEpisodeId = extras.getLong(ARG_EPISODE_KEY);
+        if( extras.containsKey( ARG_EPISODE_KEY ) ) {
+
+            mEpisodeId = extras.getLong( ARG_EPISODE_KEY );
+
         }
 
-        if (savedInstanceState == null) {
+        if( savedInstanceState == null ) {
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, EpisodeFragment.newInstance(mEpisodeId))
+                    .add( R.id.container, EpisodeFragment.newInstance( mEpisodeId ) )
                     .commit();
+
         }
 
-//        mPlayerFragment =
-//                (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Intent intent = new Intent(this, MediaService.class);
-        intent.setAction(MediaService.ACTION_STATUS);
-        startService(intent);
+        Intent intent = new Intent( this, MediaService.class );
+        intent.setAction( MediaService.ACTION_STATUS );
+        startService( intent );
+
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onOptionsItemSelected( MenuItem item ) {
+
+        switch( item.getItemId() ) {
+
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                if (getSupportFragmentManager().getBackStackEntryCount() > 0 ) {
+                if( getSupportFragmentManager().getBackStackEntryCount() > 0 ) {
+
                     getSupportFragmentManager().popBackStack();
+
                 } else {
-                    NavUtils.navigateUpFromSameTask(this);
+
+                    NavUtils.navigateUpFromSameTask( this );
+
                 }
+
                 return true;
 
         }
-        return super.onOptionsItemSelected(item);
+
+        return super.onOptionsItemSelected( item );
     }
 
     @Override
-    public void onEpisodeLoaded(final EpisodeInfoHolder episodeInfoHolder) {
+    public void onEpisodeLoaded( final EpisodeInfoHolder episodeInfoHolder ) {
+
         mEpisodeInfoHolder = episodeInfoHolder;
 //        mPlayerFragment.loadEpisodeInfo(episodeInfoHolder);
 //        mPlayerFragment.requestVisible(true);
@@ -92,14 +103,17 @@ public class EpisodeActivity extends AbstractBaseActivity implements EpisodeFrag
         }
         // TODO Enable UI better now that we have episodeId
         // TODO also need to save it for config change
+
     }
 
     @Override
-    public void onEpisodeImageClicked(final int position, final ArrayList<ImageGalleryInfoHolder> imageGalleryInfoHolderList) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, EpisodeImageGalleryFragment.newInstance(position, imageGalleryInfoHolderList))
-                .addToBackStack(EpisodeImageGalleryFragment.STACK_NAME)
+    public void onEpisodeImageClicked( final int position, final ArrayList<ImageGalleryInfoHolder> imageGalleryInfoHolderList ) {
+
+        getSupportFragmentManager().beginTransaction()
+                .replace( R.id.container, EpisodeImageGalleryFragment.newInstance(position, imageGalleryInfoHolderList ) )
+                .addToBackStack( EpisodeImageGalleryFragment.STACK_NAME )
                 .commit();
+
     }
+
 }

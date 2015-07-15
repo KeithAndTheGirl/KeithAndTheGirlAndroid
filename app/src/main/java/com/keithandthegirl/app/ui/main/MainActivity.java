@@ -22,23 +22,24 @@ public class MainActivity extends AbstractBaseActivity implements ShowFragment.O
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate( Bundle savedInstanceState ) {
+        super.onCreate( savedInstanceState );
 
 //        mPlayerFragment =
 //                (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById(R.id.katgToolbarPlayer);
 
         boolean neverRun = false;
-        Cursor cursor = getContentResolver().query(ShowConstants.CONTENT_URI, null, null, null, null);
-        if (cursor.getCount() == 0) {
+        Cursor cursor = getContentResolver().query( ShowConstants.CONTENT_URI, null, null, null, null );
+        if( cursor.getCount() == 0 ) {
             neverRun = true;
         }
         cursor.close();
 
-        if (neverRun) {
+        if( neverRun ) {
+
             Bundle settingsBundle = new Bundle();
-            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-            settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+            settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_MANUAL, true );
+            settingsBundle.putBoolean( ContentResolver.SYNC_EXTRAS_EXPEDITED, true );
 
         }
 

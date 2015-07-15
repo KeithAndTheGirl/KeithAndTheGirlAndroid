@@ -8,22 +8,6 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="PlayerTheme" parent="@style/ThemeKatg">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@android:color/black</item>
-    </style>
-
-    <style name="KatgNavigationItem" parent="ThemeKatg">
-        <item name="android:background">@drawable/katg_nav_item_background</item>
-        <item name="android:minHeight">?attr/actionBarSize</item>
-    </style>
-
-    <style name="KatgNavigationItemText">
-        <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@color/White</item>
-        <item name="android:layout_marginLeft">16dp</item>
-    </style>
-
     <style name="KatgListViewStyle" parent="android:Widget.ListView.White">
         <item name="android:background">@color/White</item>
         <item name="android:listDivider">@color/katg_green</item>

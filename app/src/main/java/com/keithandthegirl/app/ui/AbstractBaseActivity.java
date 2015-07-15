@@ -35,7 +35,9 @@ import com.keithandthegirl.app.ui.main.GuestsFragment;
 import com.keithandthegirl.app.ui.main.LiveFragment;
 import com.keithandthegirl.app.ui.main.ShowsTabFragment;
 import com.keithandthegirl.app.ui.main.YoutubeFragment;
+import com.keithandthegirl.app.ui.player.PlaybackStatusFragment;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
+import com.keithandthegirl.app.utils.NetworkUtils;
 
 public abstract class AbstractBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -49,6 +51,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     protected DrawerLayout drawerLayout;
     private Button mVipButton;
 
+    private PlaybackStatusFragment mPlaybackControlsFragment;
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -112,6 +115,20 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        mPlaybackControlsFragment = (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_playback_controls );
+        if( null == mPlaybackControlsFragment ) {
+
+            throw new IllegalStateException( "Mising fragment with id 'controls'. Cannot continue." );
+        }
+
+        hidePlaybackControls();
+
+    }
+
+    @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
 
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -126,7 +143,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
 
     @Override
     public boolean onPrepareOptionsMenu( Menu menu ) {
-        super.onPrepareOptionsMenu( menu );
+        super.onPrepareOptionsMenu(menu);
 
         boolean broadcasting = false;
 
@@ -187,7 +204,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
 
     @Override
     public boolean onNavigationItemSelected( MenuItem menuItem ) {
-        Log.i( TAG, "onNavigationItemSelected : enter - " + menuItem.getTitle() );
+        Log.i(TAG, "onNavigationItemSelected : enter - " + menuItem.getTitle());
 
         if( menuItem.isChecked() ) {
             Log.i( TAG, "onNavigationItemSelected : menuItem already checked, close it" );
@@ -198,7 +215,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
         }
 
         menuItem.setChecked( true );
-        drawerLayout.closeDrawer( GravityCompat.START );
+        drawerLayout.closeDrawer(GravityCompat.START);
 
         switch( menuItem.getItemId() ) {
 
@@ -266,11 +283,35 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
 
     protected abstract int getLayoutResource();
 
-    protected void replaceFragment(Fragment fragment) {
+    protected void replaceFragment( Fragment fragment ) {
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, fragment)
+                .replace( R.id.container, fragment )
                 .commit();
+
+    }
+
+    protected void showPlaybackControls() {
+
+        if( NetworkUtils.isOnline( this ) ) {
+
+            getSupportFragmentManager().beginTransaction()
+//                    .setCustomAnimations(
+//                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
+//                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom )
+                    .show( mPlaybackControlsFragment )
+                    .commit();
+        }
+
+    }
+
+    protected void hidePlaybackControls() {
+
+        getSupportFragmentManager().beginTransaction()
+                .hide( mPlaybackControlsFragment )
+                .commit();
+
     }
 
 }

@@ -9,10 +9,10 @@
         <item name="colorPrimaryDark">@color/katg_dark_green</item>
         <item name="colorAccent">@color/White</item>
 
-        <item name="android:textColor">@color/White</item>
+        <!-- item name="android:textColor">@color/White</item>
         <item name="android:listViewStyle">@style/KatgListViewStyle</item>
         <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
-        <item name="android:buttonStyle">@style/RobotoButtonStyle</item>
+        <item name="android:buttonStyle">@style/RobotoButtonStyle</item -->
 
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
 

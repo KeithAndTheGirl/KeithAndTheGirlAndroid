@@ -27,4 +27,9 @@
     <dimen name="navigation_drawer_width">306dp</dimen>
     <dimen name="katg_toolbar_playback_height">48dp</dimen>
 
+    <!-- playback controls -->
+    <dimen name="playback_controls_albumart_horizontal_margin">8dp</dimen>
+    <dimen name="playback_controls_albumart_size">64dp</dimen>
+    <dimen name="playback_controls_padding">8dp</dimen>
+
 </resources>

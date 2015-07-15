@@ -21,7 +21,7 @@ public class SettingsActivity extends AbstractBaseActivity {
     @Override
     protected int getLayoutResource() {
 
-        return R.layout.activity_settings;
+        return R.layout.activity_detail;
     }
 
     @Override

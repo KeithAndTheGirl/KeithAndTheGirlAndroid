@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
@@ -7,7 +9,25 @@
     android:fitsSystemWindows="true"
     tools:context="com.keithandthegirl.app.ui.settings.SettingsActivity">
 
-    <include
-        layout="@layout/toolbar" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/include_toolbar" />
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar"
+            android:layout_above="@+id/controls_container" />
+
+        <include
+            android:id="@+id/controls_container"
+            layout="@layout/include_player" />
+
+    </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>
