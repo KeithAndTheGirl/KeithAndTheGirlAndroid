@@ -62,7 +62,9 @@ public class GuestsFragment extends ListFragment {
         cursor = dbHelper.getReadableDatabase().rawQuery( RAW_GUESTS_QUERY, null );
 
         mAdapter = new GuestCursorAdapter( getActivity(), cursor );
-        setListAdapter(mAdapter);
+        setListAdapter( mAdapter );
+        getListView().setFastScrollEnabled( true );
+
     }
 
     @Override
