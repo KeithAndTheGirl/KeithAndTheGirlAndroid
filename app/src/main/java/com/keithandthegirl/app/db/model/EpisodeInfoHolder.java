@@ -9,11 +9,13 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.keithandthegirl.app.MainApplication;
+import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -21,6 +23,9 @@ import java.util.List;
  * Copyright JeffInMadison.com 2014
  */
 public class EpisodeInfoHolder implements Parcelable {
+
+    private DatabaseHelper database = null;
+
     private int mEpisodeNumber;
     private String mEpisodeTitle;
     private String mEpisodePreviewUrl;
@@ -209,6 +214,9 @@ public class EpisodeInfoHolder implements Parcelable {
     }
 
     public List<String> getEpisodeGuestImages() {
+        if( null == mGuestImages ) {
+            mGuestImages = new ArrayList<>();
+        }
         return mGuestImages;
     }
     public void setEpisodeGuestImages(final List<String> guestImages) {
@@ -223,6 +231,7 @@ public class EpisodeInfoHolder implements Parcelable {
     }
 
     public static EpisodeInfoHolder loadEpisode( Context context, long episodeId ) {
+
         boolean showExplicit = MainApplication.isExplicitAllowed();
 
         EpisodeInfoHolder episodeHolder = new EpisodeInfoHolder();
@@ -252,22 +261,61 @@ public class EpisodeInfoHolder implements Parcelable {
             episodeHolder.setShowVip(cursor.getInt(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_VIP)) == 1 ? true : false);
             episodeHolder.setShowCoverImageUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_COVERIMAGEURL_200)));
             episodeHolder.setShowForumUrl(cursor.getString(cursor.getColumnIndex(ShowConstants.TABLE_NAME + "_" + ShowConstants.FIELD_FORUMURL)));
-            episodeHolder.setGuestNames(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES)));
+//            episodeHolder.setGuestNames(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES)));
 
-            String guestImages = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_IMAGES));
-            if(null != guestImages && !"".equals(guestImages)) {
-                String[] images = guestImages.split(",");
-                episodeHolder.setEpisodeGuestImages(Arrays.asList(images));
-            } else {
-                episodeHolder.setEpisodeGuestImages(Collections.EMPTY_LIST);
-            }
+//            String guestImages = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_IMAGES));
+//            if(null != guestImages && !"".equals(guestImages)) {
+//                String[] images = guestImages.split(",");
+//                episodeHolder.setEpisodeGuestImages(Arrays.asList(images));
+//            } else {
+//                episodeHolder.setEpisodeGuestImages(Collections.EMPTY_LIST);
+//            }
 
         }
         cursor.close();
 
-        String[] projection = {ImageConstants._ID, ImageConstants.FIELD_TITLE, ImageConstants.FIELD_EXPLICIT, ImageConstants.FIELD_DESCRIPTION, ImageConstants.FIELD_MEDIAURL};
-        String selection = ImageConstants.FIELD_SHOWID + " = ?";
-        String[] selectionArgs = new String[]{String.valueOf(episodeId)};
+        List<Integer> episodeGuestIds = new ArrayList<>();
+        String[] projection = null;
+        String selection = EpisodeGuestConstants.FIELD_SHOWID + " = ?";
+        String[] selectionArgs = new String[]{ String.valueOf( episodeId ) };
+        cursor = contentResolver.query( EpisodeGuestConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+        while( cursor.moveToNext() ) {
+
+            episodeGuestIds.add( cursor.getInt( cursor.getColumnIndex( EpisodeGuestConstants.FIELD_SHOWGUESTID ) ) );
+
+        }
+        cursor.close();
+
+        if( !episodeGuestIds.isEmpty() ) {
+
+            List<String> guestNames = new ArrayList<>();
+
+            for( Integer episodeGuestId : episodeGuestIds ) {
+                Log.i( "EpisodeInfoHolder", "loadEpisode : episodeGuestId=" + episodeGuestId );
+
+                cursor = contentResolver.query( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, episodeGuestId ), null, null, null, null );
+                if( cursor.moveToNext() ) {
+
+                    guestNames.add( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_REALNAME ) ) );
+                    episodeHolder.getEpisodeGuestImages().add( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_PICTUREURLLARGE ) ) );
+
+                }
+                cursor.close();
+
+            }
+
+            episodeHolder.setGuestNames( concatList( guestNames, "," ) );
+
+        } else {
+
+            episodeHolder.setGuestNames( "" );
+            episodeHolder.setEpisodeGuestImages( Collections.EMPTY_LIST );
+
+        }
+
+        projection = new String[] {ImageConstants._ID, ImageConstants.FIELD_TITLE, ImageConstants.FIELD_EXPLICIT, ImageConstants.FIELD_DESCRIPTION, ImageConstants.FIELD_MEDIAURL};
+        selection = ImageConstants.FIELD_SHOWID + " = ?";
+        selectionArgs = new String[]{String.valueOf(episodeId)};
 
         if( !showExplicit ) {
             Log.i( "EpisodeInfoHolder", "not showing explicit images" );
@@ -367,4 +415,15 @@ public class EpisodeInfoHolder implements Parcelable {
             return new EpisodeInfoHolder[size];
         }
     };
+
+    private static String concatList( List<String> sList, String separator ) {
+        Iterator<String> iter = sList.iterator();
+        StringBuilder sb = new StringBuilder();
+
+        while( iter.hasNext() ){
+            sb.append( iter.next() ).append( iter.hasNext() ? separator : "" );
+        }
+        return sb.toString();
+    }
+
 }

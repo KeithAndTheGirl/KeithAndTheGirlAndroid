@@ -47,14 +47,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
     private static final String DATABASE_NAME = "katgdb";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private Context mContext;
+
+    private Gson katgGson;
 
     public DatabaseHelper( Context context ) {
         super( context, DATABASE_NAME, null, DATABASE_VERSION );
 
         mContext = context;
+
+        katgGson = new GsonBuilder()
+                .setDateFormat( "MM/dd/yyyy HH:mm" )
+                .create();
 
     }
 
@@ -65,26 +71,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if( !db.isReadOnly() ) {
             db.execSQL( "PRAGMA foreign_keys = ON;" );
         }
+
     }
 
     @Override
     public void onCreate( SQLiteDatabase db ) {
         dropTables(db);
 
-        createTableWorkItems( db );
-        createTableEndpoints( db );
-        createTableShows( db );
-        createTableLive( db );
-        createTableEvents( db );
-        createTableGuests( db );
-        createTableEpisodes( db );
-        createTableEpisodeDetails( db );
-        createTableEpisodeDetailImages( db );
-        createTableEpisodeGuests( db );
-        createTableYoutube( db );
+        createTableWorkItems(db);
+        createTableEndpoints(db);
+        createTableShows(db);
+        createTableLive(db);
+        createTableEvents(db);
+        createTableGuests(db);
+        createTableEpisodes(db);
+        createTableEpisodeDetails(db);
+        createTableEpisodeDetailImages(db);
+        createTableEpisodeGuests(db);
+        createTableYoutube(db);
 
         loadSeriesOverview( db );
-        loadKatg( db );
+        loadResource( db, R.raw.katg );
+        loadResource( db, R.raw.katgtv );
+        loadResource( db, R.raw.live );
+        loadResource( db, R.raw.wmn );
+        loadResource( db, R.raw.beginnings );
+        loadResource( db, R.raw.mnik );
+        loadResource( db, R.raw.intern );
+        loadResource( db, R.raw.ttswd );
+        loadResource( db, R.raw.brolo );
+        loadResource( db, R.raw.superhang );
+        loadResource( db, R.raw.myka );
+        loadResource( db, R.raw.classics );
+
     }
 
     @Override
@@ -276,10 +295,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void loadSeriesOverview( SQLiteDatabase db ) {
         Log.v( TAG, "loadSeriesOverview : enter" );
 
-        Gson katgGson = new GsonBuilder()
-            .setDateFormat( "MM/dd/yyyy HH:mm" )
-            .create();
-
         InputStream json = null;
         BufferedReader reader = null;
         try {
@@ -340,18 +355,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.v( TAG, "loadSeriesOverview : exit" );
     }
 
-    private void loadKatg( SQLiteDatabase db ) {
-        Log.v( TAG, "loadKatg : enter" );
-
-        Gson katgGson = new GsonBuilder()
-                .setDateFormat( "MM/dd/yyyy HH:mm" )
-                .create();
+    private void loadResource( SQLiteDatabase db, int res ) {
+        Log.v( TAG, "loadResource : enter" );
 
         InputStream json = null;
         BufferedReader reader = null;
         try {
 
-            json = mContext.getResources().openRawResource( R.raw.katg );
+            json = mContext.getResources().openRawResource( res );
             reader = new BufferedReader( new InputStreamReader( json ) );
 
             ContentValues values;
@@ -401,7 +412,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     List<String> guestImages = new ArrayList<String>();
 
                     for (Guest guest : episode.getGuests()) {
-                        Log.v(TAG, "onPostExecute : guest=" + guest.toString());
+                        Log.v( TAG, "loadResource : guest=" + guest.toString());
 
                         guestNames.add(guest.getRealName());
                         guestIds.add(String.valueOf(guest.getShowGuestId()));
@@ -458,7 +469,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
 
             } catch( IOException e ) {
-                Log.e( TAG, "loadKatg : error closing reader", e );
+                Log.e( TAG, "loadResource : error closing reader", e );
             }
 
             try {
@@ -468,12 +479,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
 
             } catch( IOException e ) {
-                Log.e( TAG, "loadKatg : error closing json", e );
+                Log.e( TAG, "loadResource : error closing json", e );
             }
 
         }
 
-        Log.v( TAG, "loadKatg : exit" );
+        Log.v( TAG, "loadResource : exit" );
     }
 
     private String concatList( List<String> sList, String separator ) {
