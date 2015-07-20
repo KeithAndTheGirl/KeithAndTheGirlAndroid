@@ -429,16 +429,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                     }
 
-                    if (!guestNames.isEmpty()) {
-
-                        values = new ContentValues();
-                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, concatList(guestNames, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IDS, concatList(guestIds, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, concatList(guestImages, ","));
-
-                        db.insertWithOnConflict( EpisodeConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE );
-
-                    }
+//                    if (!guestNames.isEmpty()) {
+//
+//                        values = new ContentValues();
+//                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, concatList(guestNames, ","));
+//                        values.put(EpisodeConstants.FIELD_GUEST_IDS, concatList(guestIds, ","));
+//                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, concatList(guestImages, ","));
+//
+//                        db.insertWithOnConflict( EpisodeConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE );
+//
+//                    }
 
                 }
 

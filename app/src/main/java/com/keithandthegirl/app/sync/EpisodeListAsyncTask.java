@@ -247,21 +247,21 @@ public class EpisodeListAsyncTask extends AsyncTask<Void, Void, List<Episode>> {
                         cursor.close();
                     }
 
-                    if (!guestNames.isEmpty()) {
-
-                        values = new ContentValues();
-                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, concatList(guestNames, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IDS, concatList(guestIds, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, concatList(guestImages, ","));
-
-                        ops.add(
-                                ContentProviderOperation
-                                        .newUpdate(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, episode.getShowId()))
-                                        .withValues(values)
-                                        .build()
-                        );
-
-                    }
+//                    if (!guestNames.isEmpty()) {
+//
+//                        values = new ContentValues();
+//                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, concatList(guestNames, ","));
+//                        values.put(EpisodeConstants.FIELD_GUEST_IDS, concatList(guestIds, ","));
+//                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, concatList(guestImages, ","));
+//
+//                        ops.add(
+//                                ContentProviderOperation
+//                                        .newUpdate(ContentUris.withAppendedId(EpisodeConstants.CONTENT_URI, episode.getShowId()))
+//                                        .withValues(values)
+//                                        .build()
+//                        );
+//
+//                    }
                 }
 
             }

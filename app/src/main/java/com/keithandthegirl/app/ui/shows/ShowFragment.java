@@ -25,16 +25,22 @@ import android.widget.TextView;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
+import com.keithandthegirl.app.db.model.EpisodeGuestConstants;
 import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
+import com.keithandthegirl.app.db.model.GuestConstants;
 import com.keithandthegirl.app.db.model.ShowConstants;
 import com.keithandthegirl.app.db.model.ShowInfoHolder;
 import com.keithandthegirl.app.sync.EpisodeListAsyncTask;
 import com.keithandthegirl.app.ui.custom.SwipeRefreshListFragment;
 import com.keithandthegirl.app.ui.episode.EpisodeActivity;
 import com.keithandthegirl.app.ui.utils.EndlessScrollListener;
+import com.keithandthegirl.app.ui.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by dmfrey on 3/30/14.
@@ -352,17 +358,17 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             int lastPlayed = cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_LASTPLAYED));
             long instant = cursor.getLong(cursor.getColumnIndex(EpisodeConstants.FIELD_TIMESTAMP));
             int downloaded = cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_DOWNLOADED));
-            String guestNames = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES));
+//            String guestNames = cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_GUEST_NAMES));
 
             mHolder.number.setText(mEpisodesLabel + " " + cursor.getInt(cursor.getColumnIndex(EpisodeConstants.FIELD_NUMBER)));
             mHolder.showDate.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_POSTED)));
             mHolder.title.setText(cursor.getString(cursor.getColumnIndex(EpisodeConstants.FIELD_TITLE)));
-            if (null != guestNames) {
-                mHolder.guestsTextView.setVisibility(View.VISIBLE);
-                mHolder.guestsTextView.setText(guestNames);
-            } else {
-                mHolder.guestsTextView.setVisibility(View.GONE);
-            }
+//            if (null != guestNames) {
+//                mHolder.guestsTextView.setVisibility(View.VISIBLE);
+//                mHolder.guestsTextView.setText(guestNames);
+//            } else {
+//                mHolder.guestsTextView.setVisibility(View.GONE);
+//            }
             int minutes = length / 60;
             if (minutes > 0) {
                 mHolder.minutesLayout.setVisibility(View.VISIBLE);
@@ -385,7 +391,47 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             } else {
                 mHolder.played.setText("Not Played");
             }
+
+            List<Integer> episodeGuestIds = new ArrayList<>();
+            String[] projection = null;
+            String selection = EpisodeGuestConstants.FIELD_SHOWID + " = ?";
+            String[] selectionArgs = new String[]{ String.valueOf( id ) };
+            cursor = context.getContentResolver().query(EpisodeGuestConstants.CONTENT_URI, projection, selection, selectionArgs, null);
+            while( cursor.moveToNext() ) {
+
+                episodeGuestIds.add( cursor.getInt( cursor.getColumnIndex( EpisodeGuestConstants.FIELD_SHOWGUESTID ) ) );
+
+            }
+            cursor.close();
+
+            if( !episodeGuestIds.isEmpty() ) {
+
+                List<String> guestNames = new ArrayList<>();
+
+                for( Integer episodeGuestId : episodeGuestIds ) {
+                    Log.i( "EpisodeInfoHolder", "loadEpisode : episodeGuestId=" + episodeGuestId );
+
+                    cursor = context.getContentResolver().query( ContentUris.withAppendedId( GuestConstants.CONTENT_URI, episodeGuestId ), null, null, null, null );
+                    if( cursor.moveToNext() ) {
+
+                        guestNames.add( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_REALNAME ) ) );
+
+                    }
+                    cursor.close();
+
+                }
+
+                mHolder.guestsTextView.setVisibility( View.VISIBLE );
+                mHolder.guestsTextView.setText( Utils.concatList( guestNames, "," ) );
+
+            } else {
+
+                mHolder.guestsTextView.setVisibility(View.GONE);
+
+            }
+
         }
+
     }
 
     private class EpisodeListSyncCompleteReceiver extends BroadcastReceiver {
