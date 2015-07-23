@@ -17,74 +17,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!--header-->
-                <LinearLayout
-                    android:id="@+id/headerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/episode_details_header"
-                    android:orientation="horizontal"
-                    android:background="@color/katg_main_background">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:id="@+id/episodeNumberLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginBottom="4dp"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/katg_show_title"
-                                android:layout_marginRight="8dp"
-                                android:layout_marginEnd="8dp"
-                                android:textStyle="bold"
-                                android:textSize="18sp"
-                                android:text="Episode:"/>
-
-                            <TextView
-                                android:id="@+id/episodeNumberTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/katg_show_title"
-                                android:textStyle="bold"
-                                android:textSize="18sp"
-                                tools:text="9999"/>
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/episodeDateTextView"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:layout_above="@id/episodeNumberLayout"
-                            android:textColor="@color/katg_episode_light"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            tools:text="12/12/2020" />
-
-                        <TextView
-                            android:id="@+id/episodeTitleTextView"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:textColor="@android:color/white"
-                            android:textSize="24sp"
-                            tools:text="Keith and The Girl's First Silent Film" />
-
-                    </RelativeLayout>
-
-                </LinearLayout>
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingStart="16dp"
+                android:paddingRight="16dp"
+                android:paddingEnd="16dp">
 
                 <!--guests-->
                 <LinearLayout
@@ -195,19 +132,6 @@
                 </LinearLayout>
 
             </LinearLayout>
-
-            <ImageView
-                android:id="@+id/episodeHeaderBackgroundImageView"
-                android:layout_width="@dimen/episode_show_image"
-                android:layout_height="@dimen/episode_show_image"
-                android:scaleType="centerCrop"
-                android:layout_marginTop="50dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="end"
-                android:elevation="16dp"
-                android:background="@drawable/abc_menu_dropdown_panel_holo_light"
-                tools:src="@drawable/katg_show"/>
 
         </FrameLayout>
 

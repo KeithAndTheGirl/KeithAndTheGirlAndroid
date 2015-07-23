@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:background="@android:color/black"
+    android:background="@color/katg_main_background"
     tools:context="com.keithandthegirl.app.ui.episodes.EpisodeHeaderFragment">
 
     <ImageView
@@ -30,7 +29,7 @@
             android:textColor="@color/katg_episode_light"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:text="date" />
+            tools:text="date" />
 
         <TextView
             android:id="@+id/episode_number"
@@ -40,7 +39,7 @@
             android:textColor="@color/katg_show_title"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:text="number"
+            tools:text="number"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
             android:padding="3dp" />
@@ -53,7 +52,7 @@
             android:textSize="24sp"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            android:text="title" />
+            tools:text="title" />
 
     </LinearLayout>
 

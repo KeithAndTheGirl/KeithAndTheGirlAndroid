@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +30,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -39,7 +37,6 @@ import android.widget.ViewSwitcher;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
-import com.keithandthegirl.app.db.model.ShowInfoHolder;
 import com.keithandthegirl.app.loader.AbstractAsyncTaskLoader;
 import com.keithandthegirl.app.loader.WrappedLoaderCallbacks;
 import com.keithandthegirl.app.loader.WrappedLoaderResult;
@@ -49,7 +46,6 @@ import com.keithandthegirl.app.ui.custom.ExpandedHeightGridView;
 import com.keithandthegirl.app.ui.gallery.ImageGalleryInfoHolder;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.utils.StringUtils;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,18 +70,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     @Bind(R.id.scrollView)
     ScrollView mScrollView;
-
-    @Bind(R.id.episodeHeaderBackgroundImageView)
-    ImageView mEpisodeHeaderBackgroundImageView;
-
-    @Bind(R.id.episodeDateTextView)
-    TextView mEpisodeDateTextView;
-
-    @Bind(R.id.episodeNumberTextView)
-    TextView mEpisodeNumberTextView;
-
-    @Bind(R.id.episodeTitleTextView)
-    TextView mEpisodeTitleTextView;
 
     @Bind(R.id.episodeGuestsTextView)
     TextView mEpisodeGuestsTextView;
@@ -454,13 +438,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (episodeHolder == null) {
             return;
         } // early out if we haven't set data yet
-
-        ( (AppCompatActivity) getActivity() ).getSupportActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
-
-        Picasso.with(getActivity()).load(episodeHolder.getShowCoverImageUrl()).into(mEpisodeHeaderBackgroundImageView);
-        mEpisodeDateTextView.setText(episodeHolder.getEpisodePosted());
-        mEpisodeNumberTextView.setText(String.valueOf(episodeHolder.getEpisodeNumber()));
-        mEpisodeTitleTextView.setText(episodeHolder.getEpisodeTitle());
 
         if (StringUtils.isNullOrEmpty(episodeHolder.getGuestNames())) {
             mEpisodeGuestNamesLayout.setVisibility(View.GONE);
