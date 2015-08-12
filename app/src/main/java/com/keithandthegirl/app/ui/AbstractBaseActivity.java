@@ -14,9 +14,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,279 +37,218 @@ import com.keithandthegirl.app.ui.player.PlaybackStatusFragment;
 import com.keithandthegirl.app.ui.settings.SettingsActivity;
 import com.keithandthegirl.app.utils.NetworkUtils;
 
+import timber.log.Timber;
+
 public abstract class AbstractBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
-    private static final String TAG = AbstractBaseActivity.class.getSimpleName();
-
     private ContentResolver mContentResolver;
     private Uri mUri;
     private Drawable micOn, micOff;
 
-    protected NavigationView navigationView;
-    protected DrawerLayout drawerLayout;
+    protected NavigationView mNavigationView;
+    protected DrawerLayout mDrawerLayout;
     private Button mVipButton;
 
     private PlaybackStatusFragment mPlaybackControlsFragment;
 
     @Override
-    protected void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        setContentView( getLayoutResource() );
+        mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
+        if (null != mNavigationView) {
+            mNavigationView.setNavigationItemSelectedListener(this);
 
-        navigationView = (NavigationView) findViewById( R.id.navigation_view );
-        if( null != navigationView ) {
-            navigationView.setNavigationItemSelectedListener( this );
-
-            mVipButton = (Button) findViewById( R.id.vipButton );
-            mVipButton.setOnClickListener( new View.OnClickListener() {
+            mVipButton = (Button) findViewById(R.id.vipButton);
+            mVipButton.setOnClickListener(new View.OnClickListener() {
 
                 @Override
-                public void onClick( View v ) {
-
-                    Intent settingsIntent = new Intent( AbstractBaseActivity.this, SettingsActivity.class );
-                    startActivity( settingsIntent );
-
+                public void onClick(View v) {
+                    Intent settingsIntent = new Intent(AbstractBaseActivity.this, SettingsActivity.class);
+                    startActivity(settingsIntent);
                 }
 
             });
         }
 
-        drawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        Toolbar toolbar = (Toolbar) findViewById( R.id.toolbar );
-        if( null != toolbar ) {
-            setSupportActionBar( toolbar );
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        if (null != toolbar) {
+//            setSupportActionBar(toolbar);
+//
+//            final ActionBar actionBar = getSupportActionBar();
+//            if (null != actionBar) {
+//
+//                if (null != mNavigationView) {
+//
+//                    actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+//                }
+//
+//                actionBar.setDisplayHomeAsUpEnabled(true);
+//            }
+//
+//        }
 
-            final ActionBar actionBar = getSupportActionBar();
-            if( null != actionBar ) {
-
-                if( null != navigationView ) {
-
-                    actionBar.setHomeAsUpIndicator( R.drawable.ic_menu_white_24dp );
-                }
-
-                actionBar.setDisplayHomeAsUpEnabled( true );
-            }
-
-        }
-
-        Intent alarmIntent = new Intent( this, com.keithandthegirl.app.sync.KatgAlarmReceiver.class );
-        PendingIntent pendingIntent = PendingIntent.getBroadcast( this, 0, alarmIntent, 0 );
-        AlarmManager manager = (AlarmManager) this.getSystemService( Context.ALARM_SERVICE );
-        manager.setInexactRepeating( AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent );
+        Intent alarmIntent = new Intent(this, com.keithandthegirl.app.sync.KatgAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        AlarmManager manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
 
         mContentResolver = getContentResolver();
 
         mUri = new Uri.Builder()
-                .scheme( "content://" )
-                .authority( KatgProvider.AUTHORITY )
+                .scheme("content://")
+                .authority(KatgProvider.AUTHORITY)
                 .path(WorkItemConstants.TABLE_NAME)
                 .build();
 
-        micOn = getResources().getDrawable( R.drawable.ic_live_mic_on );
-        micOff = getResources().getDrawable( R.drawable.ic_live_mic_off );
-
+        micOn = getResources().getDrawable(R.drawable.ic_live_mic_on);
+        micOff = getResources().getDrawable(R.drawable.ic_live_mic_off);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        mPlaybackControlsFragment = (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_playback_controls );
-        if( null == mPlaybackControlsFragment ) {
-
-            throw new IllegalStateException( "Mising fragment with id 'controls'. Cannot continue." );
+        mPlaybackControlsFragment = (PlaybackStatusFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_playback_controls);
+        if (null == mPlaybackControlsFragment) {
+            throw new IllegalStateException("Mising fragment with id 'controls'. Cannot continue.");
         }
 
         hidePlaybackControls();
-
     }
 
     @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate( R.menu.main, menu );
+        getMenuInflater().inflate(R.menu.main, menu);
 
-        if( BuildConfig.DEBUG ) {
-            getMenuInflater().inflate( R.menu.debug, menu );
+        if (BuildConfig.DEBUG) {
+            getMenuInflater().inflate(R.menu.debug, menu);
         }
 
         return true;
     }
 
     @Override
-    public boolean onPrepareOptionsMenu( Menu menu ) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
         boolean broadcasting = false;
 
-        Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( LiveConstants.CONTENT_URI, 1 ), null, null, null, null );
-        if( cursor.moveToNext() ) {
-            broadcasting = cursor.getInt( cursor.getColumnIndex( LiveConstants.FIELD_BROADCASTING ) ) == 0 ? false : true;
+        Cursor cursor = getContentResolver().query(ContentUris.withAppendedId(LiveConstants.CONTENT_URI, 1), null, null, null, null);
+        if (cursor.moveToNext()) {
+            broadcasting = cursor.getInt(cursor.getColumnIndex(LiveConstants.FIELD_BROADCASTING)) == 0 ? false : true;
         }
         cursor.close();
 
         MenuItem broadcastingMenu = menu.findItem(R.id.action_broadcasting);
-        if( broadcastingMenu != null ) {
+        if (broadcastingMenu != null) {
+            if (broadcasting) {
 
-            if( broadcasting ) {
-
-                broadcastingMenu.setEnabled( true );
-                broadcastingMenu.setIcon( micOn );
-
+                broadcastingMenu.setEnabled(true);
+                broadcastingMenu.setIcon(micOn);
             } else {
 
-                broadcastingMenu.setEnabled( false );
-                broadcastingMenu.setIcon( micOff );
-
+                broadcastingMenu.setEnabled(false);
+                broadcastingMenu.setIcon(micOff);
             }
-
         }
 
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected( MenuItem item ) {
-
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-
             case android.R.id.home:
-
-                if( null != navigationView ) {
-
-                    drawerLayout.openDrawer( GravityCompat.START );
-
+                if (null != mNavigationView) {
+                    mDrawerLayout.openDrawer(GravityCompat.START);
                     return true;
                 }
-
             case R.id.action_broadcasting:
-
-                Toast.makeText( this, "KATG is broadcasting now!", Toast.LENGTH_LONG ).show();
-
+                Toast.makeText(this, "KATG is broadcasting now!", Toast.LENGTH_LONG).show();
                 return true;
-
         }
 
-        return super.onOptionsItemSelected( item );
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public boolean onNavigationItemSelected( MenuItem menuItem ) {
-        Log.i(TAG, "onNavigationItemSelected : enter - " + menuItem.getTitle());
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+        Timber.i("onNavigationItemSelected : enter - " + menuItem.getTitle());
 
-        if( menuItem.isChecked() ) {
-            Log.i( TAG, "onNavigationItemSelected : menuItem already checked, close it" );
+        if (menuItem.isChecked()) {
+            Timber.i("onNavigationItemSelected : menuItem already checked, close it");
 
-            drawerLayout.closeDrawer( GravityCompat.START );
+            mDrawerLayout.closeDrawer(GravityCompat.START);
 
             return false;
         }
 
-        menuItem.setChecked( true );
-        drawerLayout.closeDrawer(GravityCompat.START);
+        menuItem.setChecked(true);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
 
-        switch( menuItem.getItemId() ) {
+        switch (menuItem.getItemId()) {
 
             case R.id.menu_shows:
-
-                getSupportActionBar().setTitle( getResources().getString(R.string.menu_item_shows ) );
-
-                replaceFragment( ShowsTabFragment.newInstance() );
-
+                setTitle("Shows");
+                replaceFragment(ShowsTabFragment.newInstance());
                 return true;
-
             case R.id.menu_guests:
-
-                getSupportActionBar().setTitle( getResources().getString( R.string.menu_item_guests ) );
-
-                replaceFragment( GuestsFragment.newInstance() );
-
+                setTitle(getResources().getString(R.string.menu_item_guests));
+                replaceFragment(GuestsFragment.newInstance());
                 return true;
-
             case R.id.menu_live:
-
-                getSupportActionBar().setTitle( getResources().getString( R.string.menu_item_live ) );
-
-                replaceFragment( LiveFragment.newInstance() );
-
+                setTitle(getResources().getString(R.string.menu_item_live));
+                replaceFragment(LiveFragment.newInstance());
                 return true;
-
             case R.id.menu_schedule:
-
-                getSupportActionBar().setTitle( getResources().getString( R.string.menu_item_schedule ) );
-
-                replaceFragment( EventsFragment.newInstance() );
-
+                setTitle(getResources().getString(R.string.menu_item_schedule));
+                replaceFragment(EventsFragment.newInstance());
                 return true;
-
             case R.id.menu_youtube:
-
-                getSupportActionBar().setTitle( getResources().getString( R.string.menu_item_youtube ) );
-
-                replaceFragment( YoutubeFragment.newInstance() );
-
+                setTitle(getResources().getString(R.string.menu_item_youtube));
+                replaceFragment(YoutubeFragment.newInstance());
                 return true;
-
             case R.id.menu_about:
-
-                getSupportActionBar().setTitle( getResources().getString( R.string.menu_item_about ) );
-
-                replaceFragment( AboutFragment.newInstance() );
-
+                setTitle(getResources().getString(R.string.menu_item_about));
+                replaceFragment(AboutFragment.newInstance());
                 return true;
-
             case R.id.menu_settings:
-
-                getSupportActionBar().setTitle( getResources().getString( R.string.menu_item_settings ) );
-
-                Intent settingsIntent = new Intent( this, SettingsActivity.class );
-                startActivity( settingsIntent );
-
+                setTitle(getResources().getString(R.string.menu_item_settings));
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
                 return true;
-
         }
-
         return false;
     }
 
-    protected abstract int getLayoutResource();
-
-    protected void replaceFragment( Fragment fragment ) {
-
+    protected void replaceFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace( R.id.container, fragment )
+                .replace(R.id.container, fragment)
                 .commit();
-
     }
 
     protected void showPlaybackControls() {
-
-        if( NetworkUtils.isOnline( this ) ) {
-
+        if (NetworkUtils.isOnline(this)) {
             getSupportFragmentManager().beginTransaction()
 //                    .setCustomAnimations(
 //                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
 //                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom )
-                    .show( mPlaybackControlsFragment )
+                    .show(mPlaybackControlsFragment)
                     .commit();
         }
-
     }
 
     protected void hidePlaybackControls() {
-
         getSupportFragmentManager().beginTransaction()
-                .hide( mPlaybackControlsFragment )
+                .hide(mPlaybackControlsFragment)
                 .commit();
-
     }
-
 }

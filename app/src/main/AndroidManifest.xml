@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.keithandthegirl.app" >
+    package="com.keithandthegirl.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -13,7 +13,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_short_name"
-        android:theme="@style/ThemeKatg">
+        android:theme="@style/KatgTheme">
 
         <meta-data
             android:name="com.crashlytics.ApiKey"
@@ -21,37 +21,37 @@
 
         <activity
             android:name=".ui.intro.IntroActivity"
-            android:label="@string/title_activity_intro" >
-        </activity>
+            android:label="@string/title_activity_intro" />
+
         <activity
             android:name=".ui.main.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:theme="@style/KatgTheme.MainActivity" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
         <activity
             android:name=".ui.shows.ShowsActivity"
             android:label="@string/title_activity_shows"
-            android:parentActivityName=".ui.main.MainActivity" >
+            android:parentActivityName=".ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.main.MainActivity" />
         </activity>
+
         <activity
-            android:name=".ui.youtube.VideoPlayerActivity"
-            android:label="@string/title_activity_video_player"
-            android:parentActivityName=".ui.main.MainActivity" >
+            android:name=".ui.episode.EpisodeActivity"
+            android:label="@string/title_activity_episode">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.main.MainActivity" />
+                android:value=".ui.shows.ShowsActivity" />
         </activity>
-        <activity
-            android:name=".ui.youtube.YoutubeFragmentActivity"
-            android:label="@string/app_name" >
-        </activity>
+
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -60,25 +60,34 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithandthegirl.app.ui.main.MainActivity" />
         </activity>
+
         <activity
-            android:name=".ui.episode.EpisodeActivity"
-            android:label="@string/title_activity_episode" >
+            android:name=".ui.youtube.VideoPlayerActivity"
+            android:label="@string/title_activity_video_player"
+            android:parentActivityName=".ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.shows.ShowsActivity" />
+                android:value=".ui.main.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".ui.youtube.YoutubeFragmentActivity"
+            android:label="@string/app_name" />
+
         <activity android:name=".ui.player.PlaybackControlsActivity" />
 
         <!-- KATG Receivers -->
         <receiver android:name=".sync.KatgAlarmReceiver" />
+
         <receiver
             android:name=".sync.DeviceBootReceiver"
-            android:enabled="false" >
+            android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".ui.widget.ShowNextEventWidget" >
+
+        <receiver android:name=".ui.widget.ShowNextEventWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -87,13 +96,15 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info_show_next_live_event" />
         </receiver>
-        <receiver android:name=".services.download.DownloadBroadcastReciever" >
+
+        <receiver android:name=".services.download.DownloadBroadcastReciever">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".services.media.MediaIntentReceiver" >
+
+        <receiver android:name=".services.media.MediaIntentReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
@@ -105,7 +116,7 @@
         <!-- KATG Services -->
         <service
             android:name=".services.media.MediaService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.keithandthegirl.app.services.media.action.TOGGLE_PLAYBACK" />
                 <action android:name="com.keithandthegirl.app.services.media.action.PLAY" />

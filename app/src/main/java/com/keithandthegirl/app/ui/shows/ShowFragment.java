@@ -45,7 +45,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
 
     public static final String SHOW_NAME_ID_KEY = "showNameId";
 
-    private OnShowFragmentListener mListener;
     private View mHeaderView;
     private EpisodeCursorAdapter mAdapter;
     private EpisodeListSyncCompleteReceiver mEpisodeListSyncCompleteReceiver = new EpisodeListSyncCompleteReceiver();
@@ -131,10 +130,6 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
-        if (activity instanceof OnShowFragmentListener) {
-            mListener = (OnShowFragmentListener) activity;
-        }
     }
 
     @Override
@@ -398,9 +393,4 @@ public class ShowFragment extends SwipeRefreshListFragment implements SwipeRefre
             }
         }
     }
-
-    public interface OnShowFragmentListener {
-        public void onShowSelected(long showId, long episodeId);
-    }
-
 }

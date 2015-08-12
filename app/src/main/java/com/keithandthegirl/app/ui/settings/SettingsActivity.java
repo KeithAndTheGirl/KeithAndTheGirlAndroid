@@ -19,16 +19,11 @@ public class SettingsActivity extends AbstractBaseActivity {
     public static final String KEY_PREF_DOWNLOAD_WIFI = "pref_download_wifi";
 
     @Override
-    protected int getLayoutResource() {
-
-        return R.layout.activity_detail;
-    }
-
-    @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
+        setContentView(R.layout.activity_detail);
 
-        getSupportActionBar().setTitle(getResources().getString(R.string.menu_item_settings));
+        setTitle(getResources().getString(R.string.menu_item_settings));
 
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction()

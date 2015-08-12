@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ThemeKatg" parent="AppTheme.Base" />
-
-    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
-
+    <style name="KatgTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!--// These define how to tint the UI in the AppCompatActivity. -->
         <item name="colorPrimary">@color/katg_green</item>
         <item name="colorPrimaryDark">@color/katg_dark_green</item>
         <item name="colorAccent">@color/White</item>
+    </style>
 
+    <style name="KatgTheme.MainActivity">
+
+    </style>
+
+
+    <style name="KatgTheme.Base" >
         <!-- item name="android:textColor">@color/White</item>
         <item name="android:listViewStyle">@style/KatgListViewStyle</item>
         <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
         <item name="android:buttonStyle">@style/RobotoButtonStyle</item -->
-
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-
     </style>
 
 </resources>

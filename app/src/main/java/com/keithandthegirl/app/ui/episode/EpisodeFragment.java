@@ -19,27 +19,21 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.model.EpisodeConstants;
 import com.keithandthegirl.app.db.model.EpisodeInfoHolder;
-import com.keithandthegirl.app.db.model.ShowInfoHolder;
 import com.keithandthegirl.app.loader.AbstractAsyncTaskLoader;
 import com.keithandthegirl.app.loader.WrappedLoaderCallbacks;
 import com.keithandthegirl.app.loader.WrappedLoaderResult;
@@ -54,8 +48,9 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import butterknife.Bind;
+import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,17 +58,11 @@ import butterknife.Bind;
  * create an instance of this fragment.
  */
 public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<EpisodeInfoHolder>, AdapterView.OnItemClickListener {
-
-    private static final String TAG = EpisodeFragment.class.getSimpleName();
-
     private static final String ARG_EPISODE_ID = "ARG_EPISODE_ID";
     private static final int VIEW_EPISODE_DETAILS = 0;
     private static final int VIEW_PROGRESS = 1;
 
     ViewSwitcher mMainViewSwitcher;
-
-    @Bind(R.id.scrollView)
-    ScrollView mScrollView;
 
     @Bind(R.id.episodeHeaderBackgroundImageView)
     ImageView mEpisodeHeaderBackgroundImageView;
@@ -96,8 +85,8 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     @Bind(R.id.episodeImagesGridView)
     ExpandedHeightGridView mEpisodeImagesGridView;
 
-    @Bind(R.id.episodeShowNotesWebView)
-    WebView mEpisodeShowNotesWebView;
+    @Bind(R.id.episodeShowNotesTextView)
+    TextView mEpisodeShowNotesTextView;
 
     @Bind(R.id.episodeDetailsLayout)
     View mEpisodeDetailsLayout;
@@ -183,19 +172,18 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         // TODO not sure retain instance is the right way to use this fragment
         // only load the data once and set retain instance
         getLoaderManager().initLoader(1, null, this);
-//        setRetainInstance(true);
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        IntentFilter episodeDetailsCompleteIntentFilter = new IntentFilter( EpisodeDetailsAsyncTask.COMPLETE_ACTION );
-        getActivity().registerReceiver( mEpisodeDetailsCompleteReceiver, episodeDetailsCompleteIntentFilter );
+        IntentFilter episodeDetailsCompleteIntentFilter = new IntentFilter(EpisodeDetailsAsyncTask.COMPLETE_ACTION);
+        getActivity().registerReceiver(mEpisodeDetailsCompleteReceiver, episodeDetailsCompleteIntentFilter);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mDownloadMobile = sharedPref.getBoolean( SettingsActivity.KEY_PREF_DOWNLOAD_MOBILE, false );
-        mDownloadWifi = sharedPref.getBoolean( SettingsActivity.KEY_PREF_DOWNLOAD_WIFI, false );
+        mDownloadMobile = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DOWNLOAD_MOBILE, false);
+        mDownloadWifi = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DOWNLOAD_WIFI, false);
 
         updateConnectedFlags();
     }
@@ -204,29 +192,29 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     public void onPause() {
         super.onPause();
 
-        if( null != mEpisodeDetailsCompleteReceiver ) {
-            getActivity().unregisterReceiver( mEpisodeDetailsCompleteReceiver );
+        if (null != mEpisodeDetailsCompleteReceiver) {
+            getActivity().unregisterReceiver(mEpisodeDetailsCompleteReceiver);
         }
     }
 
     @Override
-    public void onAttach( final Activity activity ) {
-        super.onAttach( activity );
+    public void onAttach(final Activity activity) {
+        super.onAttach(activity);
 
-        if( activity instanceof EpisodeEventListener ) {
+        if (activity instanceof EpisodeEventListener) {
             mEpisodeEventListener = (EpisodeEventListener) activity;
         } else {
-            Log.w(TAG, "No one is registered for episode events!");
+            Timber.w("No one is registered for episode events!");
         }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.episode, menu);
+//        inflater.inflate(R.menu.episode, menu);
 
-        mPlayEpisodeMenuItem = menu.findItem( R.id.action_play_episode );
-        mDownloadMenuItem = menu.findItem( R.id.action_download );
-        mDeleteMenuItem = menu.findItem( R.id.action_delete );
+        mPlayEpisodeMenuItem = menu.findItem(R.id.action_play_episode);
+        mDownloadMenuItem = menu.findItem(R.id.action_download);
+        mDeleteMenuItem = menu.findItem(R.id.action_delete);
 
         swapMenuItems();
 
@@ -235,19 +223,19 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch( item.getItemId() ) {
+        switch (item.getItemId()) {
 
-            case R.id.action_play_episode :
+            case R.id.action_play_episode:
                 updateConnectedFlags();
-                if( mWifiConnected || mMobileConnected ) {
+                if (mWifiConnected || mMobileConnected) {
                     Intent intent = new Intent(getActivity(), MediaService.class);
                     intent.setAction(MediaService.ACTION_URL);
                     intent.putExtra(MediaService.EXTRA_EPISODE_ID, mEpisodeId);
                     getActivity().startService(intent);
                 } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-                    builder.setTitle( R.string.network_connected_title )
-                           .setMessage( R.string.network_connected_message );
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.network_connected_title)
+                            .setMessage(R.string.network_connected_message);
                     builder.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // User cancelled the dialog
@@ -257,10 +245,10 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                     dialog.show();
                 }
                 break;
-            case R.id.action_download :
+            case R.id.action_download:
                 queueDownload();
                 break;
-            case R.id.action_delete :
+            case R.id.action_delete:
                 deleteEpisode();
                 break;
         }
@@ -275,49 +263,46 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     private void swapMenuItems() {
-        if( null == mDownloadMenuItem || null == mDeleteMenuItem ) {
+        if (null == mDownloadMenuItem || null == mDeleteMenuItem) {
             return;
         }
 
-        if( null == mEpisodeInfoHolder ) {
-            mDownloadMenuItem.setVisible( false );
-            mDownloadMenuItem.setEnabled( false );
-            mDeleteMenuItem.setVisible( false );
-            mDeleteMenuItem.setEnabled( false );
+        if (null == mEpisodeInfoHolder) {
+            mDownloadMenuItem.setVisible(false);
+            mDownloadMenuItem.setEnabled(false);
+            mDeleteMenuItem.setVisible(false);
+            mDeleteMenuItem.setEnabled(false);
 
             return;
         }
 
-        if( !mEpisodeInfoHolder.isEpisodePublic() ) {
+        if (!mEpisodeInfoHolder.isEpisodePublic()) {
+            mPlayEpisodeMenuItem.setVisible(false);
+            mPlayEpisodeMenuItem.setEnabled(false);
 
-            mPlayEpisodeMenuItem.setVisible( false );
-            mPlayEpisodeMenuItem.setEnabled( false );
-
-            if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
-                mDownloadMenuItem.setVisible( false );
-                mDownloadMenuItem.setEnabled( false );
-                mDeleteMenuItem.setVisible( true );
-                mDeleteMenuItem.setEnabled( true );
+            if (mEpisodeInfoHolder.isEpisodeDownloaded()) {
+                mDownloadMenuItem.setVisible(false);
+                mDownloadMenuItem.setEnabled(false);
+                mDeleteMenuItem.setVisible(true);
+                mDeleteMenuItem.setEnabled(true);
             } else {
-                mDownloadMenuItem.setVisible( false );
-                mDownloadMenuItem.setEnabled( false );
-                mDeleteMenuItem.setVisible( false );
-                mDeleteMenuItem.setEnabled( false );
+                mDownloadMenuItem.setVisible(false);
+                mDownloadMenuItem.setEnabled(false);
+                mDeleteMenuItem.setVisible(false);
+                mDeleteMenuItem.setEnabled(false);
             }
 
             return;
         } else {
-
-            mPlayEpisodeMenuItem.setVisible( true );
-            mPlayEpisodeMenuItem.setEnabled( true );
-
+            mPlayEpisodeMenuItem.setVisible(true);
+            mPlayEpisodeMenuItem.setEnabled(true);
         }
 
-        if( mEpisodeInfoHolder.isEpisodeDownloaded() ) {
-            mDownloadMenuItem.setVisible( false );
-            mDownloadMenuItem.setEnabled( false );
-            mDeleteMenuItem.setVisible( true );
-            mDeleteMenuItem.setEnabled( true );
+        if (mEpisodeInfoHolder.isEpisodeDownloaded()) {
+            mDownloadMenuItem.setVisible(false);
+            mDownloadMenuItem.setEnabled(false);
+            mDeleteMenuItem.setVisible(true);
+            mDeleteMenuItem.setEnabled(true);
         } else {
             if (mEpisodeInfoHolder.getEpisodeDownloadId() != -1) {
                 mDownloadMenuItem.setVisible(false);
@@ -335,21 +320,21 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     private boolean isDownloading() {
-        if( null == mEpisodeInfoHolder ) {
+        if (null == mEpisodeInfoHolder) {
             return false;
         }
 
         boolean isDownloading = false;
         DownloadManager.Query query = new DownloadManager.Query();
         query.setFilterByStatus(
-                DownloadManager.STATUS_PAUSED|
-                        DownloadManager.STATUS_PENDING|
+                DownloadManager.STATUS_PAUSED |
+                        DownloadManager.STATUS_PENDING |
                         DownloadManager.STATUS_RUNNING);
         Cursor cur = mDownloadManager.query(query);
         int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-        for(cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+        for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
 
-            if(cur.getString(col).contains(mEpisodeInfoHolder.getEpisodeFilename())) {
+            if (cur.getString(col).contains(mEpisodeInfoHolder.getEpisodeFilename())) {
                 switch (cur.getInt(cur.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
                     case DownloadManager.STATUS_FAILED:
                         isDownloading = false;
@@ -367,7 +352,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                         isDownloading = false;
                         break;
                 }
-
             }
         }
         cur.close();
@@ -376,20 +360,20 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     private void queueDownload() {
-        if( null == mEpisodeInfoHolder ) {
+        if (null == mEpisodeInfoHolder) {
             return;
         }
 
-        if( !isDownloading() ) {
+        if (!isDownloading()) {
             updateConnectedFlags();
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mEpisodeInfoHolder.getEpisodeFileUrl()));
 
             // only download via Any Newtwork Connection
-            if( mDownloadMobile && !mDownloadWifi ) {
-                request.setAllowedNetworkTypes( DownloadManager.Request.NETWORK_MOBILE );
+            if (mDownloadMobile && !mDownloadWifi) {
+                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE);
             }
-            if( mDownloadWifi && !mDownloadMobile ) {
-                request.setAllowedNetworkTypes( DownloadManager.Request.NETWORK_WIFI );
+            if (mDownloadWifi && !mDownloadMobile) {
+                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
             }
 
             request.setTitle(mEpisodeInfoHolder.getShowPrefix() + ":" + mEpisodeInfoHolder.getEpisodeNumber());
@@ -399,7 +383,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
             request.setVisibleInDownloadsUi(true);
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             request.setDestinationInExternalFilesDir(getActivity(), null, mEpisodeInfoHolder.getEpisodeFilename());
-            request.setMimeType( null );
+            request.setMimeType(null);
 
             // enqueue this request
             long downloadId = mDownloadManager.enqueue(request);
@@ -420,24 +404,13 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     private void deleteEpisode() {
-        if( null == mEpisodeInfoHolder ) {
+        if (null == mEpisodeInfoHolder) {
             return;
         }
 
-        if( isDownloading() ) {
+        if (isDownloading()) {
             mDownloadManager.remove(mEpisodeInfoHolder.getEpisodeDownloadId());
         }
-//        else {
-//
-//            File externalFile = new File(getActivity().getExternalFilesDir(null), mEpisodeInfoHolder.getEpisodeFilename());
-//            if (externalFile.exists()) {
-//                boolean deleted = externalFile.delete();
-//                if (deleted) {
-//                    Log.i(TAG, "deleteEpisode : externalFile deleted!");
-//
-//                }
-//            }
-//        }
 
         mEpisodeInfoHolder.setEpisodeDownloadId(-1);
         mEpisodeInfoHolder.setEpisodeDownloaded(false);
@@ -454,8 +427,6 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         if (episodeHolder == null) {
             return;
         } // early out if we haven't set data yet
-
-        ( (AppCompatActivity) getActivity() ).getSupportActionBar().setTitle( mEpisodeInfoHolder.getShowName() );
 
         Picasso.with(getActivity()).load(episodeHolder.getShowCoverImageUrl()).into(mEpisodeHeaderBackgroundImageView);
         mEpisodeDateTextView.setText(episodeHolder.getEpisodePosted());
@@ -492,25 +463,15 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         // We are turnig off the progress right away if no notes but after web load if we have them!
         if (StringUtils.isNullOrEmpty(episodeHolder.getEpisodeDetailNotes())) {
             mEpisodeDetailsLayout.setVisibility(View.GONE);
-            mMainViewSwitcher.setDisplayedChild(VIEW_EPISODE_DETAILS);
         } else {
             mEpisodeDetailsLayout.setVisibility(View.VISIBLE);
-            WebSettings settings = mEpisodeShowNotesWebView.getSettings();
-            settings.setDefaultTextEncodingName("utf-8");
-            String html = episodeHolder.getEpisodeDetailNotes();
-            if (!StringUtils.isNullOrEmpty(html.trim())) {
-                html = "<ul><li>" + html.replaceAll("\r\n", "</li><li>") + "</li></ul></br>";
-            }
-            mEpisodeShowNotesWebView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
-
-            mEpisodeShowNotesWebView.setBackgroundColor(0);
-            mEpisodeShowNotesWebView.setWebViewClient(new WebViewClient() {
-                @Override
-                public void onPageFinished(final WebView view, final String url) {
-                    super.onPageFinished(view, url);
-                    mMainViewSwitcher.setDisplayedChild(VIEW_EPISODE_DETAILS);
+            StringBuilder stringBuilder = new StringBuilder();
+            if (!StringUtils.isNullOrEmpty(episodeHolder.getEpisodeDetailNotes().trim())) {
+                for (String line : episodeHolder.getEpisodeDetailNotes().split("\r\n")) {
+                    stringBuilder.append(String.format("<p>&#8226; %s</p>", line));
                 }
-            });
+            }
+            mEpisodeShowNotesTextView.setText(Html.fromHtml(stringBuilder.toString()));
         }
     }
 
@@ -520,7 +481,7 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
-        if( null != activeInfo && activeInfo.isConnected() ) {
+        if (null != activeInfo && activeInfo.isConnected()) {
             mWifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
             mMobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
         } else {
@@ -530,11 +491,11 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
     }
 
     private void scheduleWorkItem() {
-        if( !mWifiConnected && !mMobileConnected ) {
+        if (!mWifiConnected && !mMobileConnected) {
             return;
         }
 
-        new EpisodeDetailsAsyncTask( getActivity(), (int) mEpisodeId ).execute();
+        new EpisodeDetailsAsyncTask(getActivity(), (int) mEpisodeId).execute();
     }
 
 
@@ -543,15 +504,16 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
         return new AbstractAsyncTaskLoader<EpisodeInfoHolder>(getActivity()) {
             @Override
             public EpisodeInfoHolder load() throws Exception {
-                return EpisodeInfoHolder.loadEpisode( getActivity(), mEpisodeId );
+                return EpisodeInfoHolder.loadEpisode(getActivity(), mEpisodeId);
             }
         };
     }
 
     @Override
     public void onLoadFinished(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader, final WrappedLoaderResult<EpisodeInfoHolder> wrappedData) {
+        mMainViewSwitcher.setDisplayedChild(VIEW_EPISODE_DETAILS);
         if (wrappedData.hasException()) {
-            Log.e(TAG, "failed getting episode info", wrappedData.getException());
+            Timber.e("failed getting episode info", wrappedData.getException());
             // TODO what to display when we failed getting stuff from DB?
         } else {
             mEpisodeInfoHolder = wrappedData.getWrappedData();
@@ -562,29 +524,31 @@ public class EpisodeFragment extends Fragment implements WrappedLoaderCallbacks<
                 mEpisodeEventListener.onEpisodeLoaded(mEpisodeInfoHolder);
             }
 
-            if(StringUtils.isNullOrEmpty(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
+            if (StringUtils.isNullOrEmpty(mEpisodeInfoHolder.getEpisodeDetailNotes())) {
                 scheduleWorkItem();
             }
         }
     }
 
     @Override
-    public void onLoaderReset(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader) { }
+    public void onLoaderReset(final Loader<WrappedLoaderResult<EpisodeInfoHolder>> loader) {
+    }
 
     private class EpisodeDetailsCompleteReceiver extends BroadcastReceiver {
 
         @Override
-        public void onReceive( Context context, Intent intent ) {
+        public void onReceive(Context context, Intent intent) {
 
             // when we receive a syc complete action reset the loader so it can refresh the content
-            if( intent.getAction().equals( EpisodeDetailsAsyncTask.COMPLETE_ACTION ) ) {
-                getLoaderManager().restartLoader( 1, null, EpisodeFragment.this );
+            if (intent.getAction().equals(EpisodeDetailsAsyncTask.COMPLETE_ACTION)) {
+                getLoaderManager().restartLoader(1, null, EpisodeFragment.this);
             }
         }
     }
 
     public interface EpisodeEventListener {
         void onEpisodeLoaded(EpisodeInfoHolder episodeInfoHolder);
+
         void onEpisodeImageClicked(int position, ArrayList<ImageGalleryInfoHolder> imageHolders);
     }
 }

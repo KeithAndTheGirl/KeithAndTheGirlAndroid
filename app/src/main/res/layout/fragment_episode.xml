@@ -1,4 +1,5 @@
-<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
+<ViewSwitcher
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,7 +9,8 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -141,6 +143,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
                         android:paddingTop="10dp"
                         android:paddingBottom="10dp"
                         android:textColor="@android:color/black"
@@ -148,10 +151,12 @@
                         android:textStyle="bold"
                         android:text="@string/episode_description_label" />
 
-                    <WebView
-                        android:id="@+id/episodeShowNotesWebView"
+                    <TextView
+                        android:id="@+id/episodeShowNotesTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
                         android:text="@string/episode_description_no_details"
@@ -170,6 +175,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
                         android:paddingTop="10dp"
                         android:paddingBottom="10dp"
                         android:textColor="@android:color/black"
