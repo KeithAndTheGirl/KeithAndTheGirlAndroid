@@ -28,7 +28,9 @@ import com.keithandthegirl.app.db.KatgProvider;
 import com.keithandthegirl.app.db.model.LiveConstants;
 import com.keithandthegirl.app.db.model.WorkItemConstants;
 import com.keithandthegirl.app.ui.main.AboutFragment;
+import com.keithandthegirl.app.ui.main.EventCardsFragment;
 import com.keithandthegirl.app.ui.main.EventsFragment;
+import com.keithandthegirl.app.ui.main.GuestCardsFragment;
 import com.keithandthegirl.app.ui.main.GuestsFragment;
 import com.keithandthegirl.app.ui.main.LiveFragment;
 import com.keithandthegirl.app.ui.main.ShowsTabFragment;
@@ -201,7 +203,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
                 return true;
             case R.id.menu_guests:
                 setTitle(getResources().getString(R.string.menu_item_guests));
-                replaceFragment(GuestsFragment.newInstance());
+                replaceFragment(GuestCardsFragment.newInstance());
                 return true;
             case R.id.menu_live:
                 setTitle(getResources().getString(R.string.menu_item_live));
@@ -209,7 +211,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
                 return true;
             case R.id.menu_schedule:
                 setTitle(getResources().getString(R.string.menu_item_schedule));
-                replaceFragment(EventsFragment.newInstance());
+                replaceFragment(EventCardsFragment.newInstance());
                 return true;
             case R.id.menu_youtube:
                 setTitle(getResources().getString(R.string.menu_item_youtube));

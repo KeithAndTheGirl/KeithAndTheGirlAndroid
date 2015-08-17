@@ -124,6 +124,7 @@
             android:textColor="@android:color/black"
             android:textStyle="bold"
             android:paddingLeft="16dp"
+            android:visibility="gone"
             android:text="@string/episode_not_played"/>
 
         <TextView
@@ -133,6 +134,7 @@
             android:layout_weight="1"
             android:textColor="@android:color/black"
             android:textStyle="bold"
+            android:visibility="gone"
             android:text="@string/episode_not_downloaded"/>
 
     </LinearLayout>

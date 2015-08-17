@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
             case R.id.menu_guests:
                 setTitle(getResources().getString(R.string.menu_item_guests));
-                replaceFragment(GuestsFragment.newInstance());
+                replaceFragment(GuestCardsFragment.newInstance());
                 return true;
             case R.id.menu_live:
                 setTitle(getResources().getString(R.string.menu_item_live));
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
             case R.id.menu_schedule:
                 setTitle(getResources().getString(R.string.menu_item_schedule));
-                replaceFragment(EventsFragment.newInstance());
+                replaceFragment(EventCardsFragment.newInstance());
                 return true;
             case R.id.menu_youtube:
                 setTitle(getResources().getString(R.string.menu_item_youtube));

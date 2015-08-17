@@ -33,33 +33,6 @@ public class StringUtils {
         return UUID.randomUUID().toString().replace("-", EMPTY_STRING);
     }
 
-    public static String getCommaSeparatedString(Iterable<String> list) {
-        return getCommaSeparatedString(list, false);
-    }
-    public static String getCommaSeparatedString(Iterable<String> list, boolean addSpace) {
-        String separator = addSpace ? ", " : ",";
-        Iterator<String> iterator = list.iterator();
-        StringBuilder commaStringBuilder = new StringBuilder(EMPTY_STRING);
-        String current = EMPTY_STRING;
-        if (iterator.hasNext()) {
-            current = iterator.next();
-            commaStringBuilder.append(current);
-        }
-
-        while (iterator.hasNext()) {
-            String nextString = iterator.next();
-            if (isNullOrEmpty(current) || isNullOrEmpty(nextString)) {
-                commaStringBuilder.append(nextString);
-                current = nextString;
-            } else {
-                commaStringBuilder.append(separator);
-                commaStringBuilder.append(nextString);
-                current = nextString;
-            }
-        }
-        return commaStringBuilder.toString();
-    }
-
     /**
      * Returns title case of string.
      *

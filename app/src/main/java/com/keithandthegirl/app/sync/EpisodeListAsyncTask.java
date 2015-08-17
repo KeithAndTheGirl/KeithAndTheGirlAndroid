@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -250,9 +251,9 @@ public class EpisodeListAsyncTask extends AsyncTask<Void, Void, List<Episode>> {
                     if (!guestNames.isEmpty()) {
 
                         values = new ContentValues();
-                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, concatList(guestNames, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IDS, concatList(guestIds, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, concatList(guestImages, ","));
+                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, TextUtils.join(", ", guestNames));
+                        values.put(EpisodeConstants.FIELD_GUEST_IDS, TextUtils.join(", ", guestIds));
+                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, TextUtils.join(", ", guestImages));
 
                         ops.add(
                                 ContentProviderOperation
@@ -328,15 +329,4 @@ public class EpisodeListAsyncTask extends AsyncTask<Void, Void, List<Episode>> {
         mKatgService = katgRestAdapter.create( KatgService.class );
 
     }
-
-    private String concatList( List<String> sList, String separator ) {
-        Iterator<String> iter = sList.iterator();
-        StringBuilder sb = new StringBuilder();
-
-        while( iter.hasNext() ){
-            sb.append( iter.next() ).append( iter.hasNext() ? separator : "" );
-        }
-        return sb.toString();
-    }
-
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -29,6 +30,7 @@ import com.keithandthegirl.app.db.model.YoutubeConstants;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -432,9 +434,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     if (!guestNames.isEmpty()) {
 
                         values = new ContentValues();
-                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, concatList(guestNames, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IDS, concatList(guestIds, ","));
-                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, concatList(guestImages, ","));
+                        String foo = TextUtils.join(", ", guestNames);
+                        values.put(EpisodeConstants.FIELD_GUEST_NAMES, TextUtils.join(", ", guestNames));
+                        values.put(EpisodeConstants.FIELD_GUEST_IDS, TextUtils.join(", ", guestIds));
+                        values.put(EpisodeConstants.FIELD_GUEST_IMAGES, TextUtils.join(", ",guestImages));
 
                         db.insertWithOnConflict( EpisodeConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE );
 
@@ -475,16 +478,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Log.v( TAG, "loadKatg : exit" );
     }
-
-    private String concatList( List<String> sList, String separator ) {
-        Iterator<String> iter = sList.iterator();
-        StringBuilder sb = new StringBuilder();
-
-        while( iter.hasNext() ){
-            sb.append( iter.next() ).append( iter.hasNext() ? separator : "" );
-        }
-
-        return sb.toString();
-    }
-
 }

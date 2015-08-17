@@ -1,3 +1,4 @@
+
 package com.keithandthegirl.app.ui.main;
 
 import android.content.Context;
@@ -51,7 +52,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         EventsDataFragment eventsDataFragment = (EventsDataFragment) getChildFragmentManager().findFragmentByTag( EVENTS_DATA_FRAGMENT_TAG );
         if( null == eventsDataFragment ) {
 
@@ -91,8 +91,8 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(final View view, final Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mAdapter = new EventCursorAdapter(getActivity());
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
@@ -105,7 +105,6 @@ public class EventsFragment extends ListFragment implements LoaderManager.Loader
 
         public EventCursorAdapter(Context context) {
             super(context, null, false);
-
             mInflater = LayoutInflater.from(context);
         }
 

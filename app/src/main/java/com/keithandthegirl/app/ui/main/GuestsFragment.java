@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.keithandthegirl.app.R;
 import com.keithandthegirl.app.db.DatabaseHelper;
 import com.keithandthegirl.app.db.model.GuestConstants;
+import com.keithandthegirl.app.ui.CursorRecyclerViewAdapter;
 import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
@@ -124,6 +126,50 @@ public class GuestsFragment extends ListFragment {
 
         ViewHolder(View view) {
             ButterKnife.bind(this, view);
+        }
+    }
+
+
+    public class MyListCursorAdapter extends CursorRecyclerViewAdapter<MyListCursorAdapter.ViewHolder> {
+
+        public MyListCursorAdapter(Context context,Cursor cursor){
+            super(context,cursor);
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            @Bind(R.id.guest_image)
+            ImageView image;
+            @Bind(R.id.guest_real_name)
+            TextView realName;
+            @Bind(R.id.guest_episodes)
+            TextView episodes;
+            @Bind(R.id.guest_description)
+            TextView description;
+
+            ViewHolder(View view) {
+                super(view);
+                ButterKnife.bind(this, view);
+            }
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.listview_item_guest, parent, false);
+            return new ViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
+            String pictureUrl = cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_PICTUREURL ) );
+            if( null != pictureUrl && !"".equals( pictureUrl ) ) {
+                viewHolder.image.setVisibility( View.VISIBLE );
+                Picasso.with(getActivity()).load(pictureUrl).fit().centerCrop().into(viewHolder.image);
+            } else {
+                viewHolder.image.setVisibility( View.INVISIBLE );
+            }
+            viewHolder.description.setText(cursor.getString(cursor.getColumnIndex(GuestConstants.FIELD_DESCRIPTION)));
+            viewHolder.realName.setText( cursor.getString( cursor.getColumnIndex( GuestConstants.FIELD_REALNAME ) ) );
+            viewHolder.episodes.setText( "Episodes: " + cursor.getString( cursor.getColumnIndex( "count" ) ) );
         }
     }
 }
